@@ -1,0 +1,12 @@
+# Nix build outputs (symlink into /nix/store)
+result
+result-*
+
+# Local build artifacts
+out/
+*.img
+*.img.zst
+
+# Local-only configuration (do not commit)
+local/authorized-keys.nix
+documentation/ip-addresses.local.md

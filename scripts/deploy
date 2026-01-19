@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+host="${1:-}"
+target="${2:-}"
+
+if [[ -z "$host" ]]; then
+  echo "usage: scripts/deploy <host> [root@ip-or-dns]" >&2
+  exit 2
+fi
+
+if [[ -z "$target" ]]; then
+  target="root@${host}"
+fi
+
+build_host="${BUILD_HOST:-$target}"
+
+rebuild_args=(
+  switch
+  --flake ".#${host}"
+  --target-host "${target}"
+)
+
+if [[ "${build_host}" != "local" ]]; then
+  rebuild_args+=(--build-host "${build_host}")
+fi
+
+if command -v nixos-rebuild >/dev/null 2>&1; then
+  exec nixos-rebuild "${rebuild_args[@]}"
+fi
+
+exec nix run nixpkgs#nixos-rebuild -- "${rebuild_args[@]}"

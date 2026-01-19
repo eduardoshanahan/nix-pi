@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+host="${1:-}"
+target="${2:-}"
+
+if [[ -z "$host" ]]; then
+  echo "usage: scripts/pull-hardware <host> [root@ip-or-dns]" >&2
+  exit 2
+fi
+
+if [[ -z "$target" ]]; then
+  target="root@${host}"
+fi
+
+out_dir="hosts/${host}"
+out_file="${out_dir}/hardware-configuration.nix"
+
+mkdir -p "${out_dir}"
+ssh "${target}" 'cat /etc/nixos/hardware-configuration.nix' >"${out_file}"
+echo "wrote ${out_file}" >&2
+
