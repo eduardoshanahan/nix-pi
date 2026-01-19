@@ -1,0 +1,16 @@
+{
+  # Copy this file to `local/authorized-keys.nix` and fill in your real keys.
+  #
+  # Notes:
+  # - Keep each key string on a single line.
+  # - `root` controls `ssh root@...`
+  # - `pi` controls `ssh pi@...` (non-root user)
+  root = [
+    "ssh-ed25519 AAAA... your-public-key comment"
+  ];
+
+  pi = [
+    "ssh-ed25519 AAAA... your-public-key comment"
+  ];
+}
+
