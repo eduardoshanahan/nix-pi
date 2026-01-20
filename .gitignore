@@ -1,0 +1,13 @@
+# Local-only config
+config/local.env
+
+# Secrets or private data
+secrets/
+private/
+
+# Private host overrides
+nixos/hosts/private/
+!nixos/hosts/private/README.md
+
+# OS / editor
+.DS_Store

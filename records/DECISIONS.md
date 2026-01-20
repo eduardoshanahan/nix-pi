@@ -1,0 +1,132 @@
+# Decisions
+
+Format
+
+- Date: YYYY-MM-DD
+- Decision: short statement
+- Context: brief background
+- Rationale: why this was chosen
+- Status: active/superseded
+- References: optional links/paths
+
+---
+
+- Date: 2026-01-20
+- Decision: Initialize project records under `records/` at repo root.
+- Context: User requested long-term decision/work/session tracking for this
+  project.
+- Rationale: Simple, discoverable location with small, focused files.
+- Status: active
+- References: records/README.md
+
+- Date: 2026-01-20
+- Decision: Add risk, milestone, and changelog tracking plus an architecture
+  decisions directory.
+- Context: User requested additional record types and
+  one-file-per-architecture-decision.
+- Rationale: Separate files keep logs focused while ADRs stay discrete and reviewable.
+- Status: active
+- References: records/RISKS.md, records/MILESTONES.md, records/CHANGELOG.md,
+  records/architecture-decisions/README.md
+
+- Date: 2026-01-20
+- Decision: Review ADRs at the start of each working session and per major
+  change.
+- Context: Need regular checks to prevent conflicting architecture decisions.
+- Rationale: Ties reviews to meaningful change points and session starts.
+- Status: active
+- References: records/architecture-decisions/README.md, records/QUESTIONS.md
+
+- Date: 2026-01-20
+- Decision: Standardize on Nix flakes for dev shell onboarding.
+- Context: Need consistent setup on Ubuntu or NixOS and `nix develop` support.
+- Rationale: Flakes provide reproducible inputs and a clear onboarding path.
+- Status: active
+- References: flake.nix, docs/SETUP.md,
+  records/architecture-decisions/0001-use-nix-flakes.md
+
+- Date: 2026-01-20
+- Decision: Keep confidential data out of Git and anonymize artifacts before
+  publishing.
+- Context: Project may be published to GitHub; sensitive inputs must remain
+  private.
+- Rationale: Prevents leakage of credentials and private data while enabling
+  open collaboration.
+- Status: active
+- References: docs/CONFIDENTIALITY.md, .gitignore
+
+- Date: 2026-01-20
+- Decision: Use `prek` with a secrets scan (gitleaks) as the first pre-commit
+  check.
+- Context: Need automated protection against committing sensitive data.
+- Rationale: `prek` is a fast drop-in alternative and gitleaks is a standard
+  secrets scanner.
+- Status: active
+- References: .pre-commit-config.yaml, flake.nix, docs/SETUP.md,
+  records/architecture-decisions/0002-use-prek-and-gitleaks.md
+
+- Date: 2026-01-20
+- Decision: Use an admin account on all Pis plus optional per-node users.
+- Context: Need centralized admin access with room for box-specific access.
+- Rationale: Balances operational access with per-node delegation.
+- Status: active
+- References: records/QUESTIONS.md
+
+- Date: 2026-01-20
+- Decision: Use Ethernet only (no Wi-Fi) for initial provisioning.
+- Context: Current lab setup uses wired networking; no Wi-Fi needed.
+- Rationale: Simplifies NixOS config and reduces moving parts.
+- Status: active
+- References: records/QUESTIONS.md
+
+- Date: 2026-01-20
+- Decision: Assign hostnames at build time (e.g., pi-node-01).
+- Context: Need predictable identification in DHCP and SSH access.
+- Rationale: Easier to map reserved IPs and roles to nodes.
+- Status: active
+- References: records/QUESTIONS.md
+
+- Date: 2026-01-20
+- Decision: Add the admin user to the `docker` group for convenience.
+- Context: Need Docker access without `sudo` on the Pis.
+- Rationale: Speeds up operational work; accepted root-equivalent implications.
+- Status: active
+- References: records/QUESTIONS.md
+
+- Date: 2026-01-20
+- Decision: Manually add the admin public key to SD cards at imaging time.
+- Context: SSH access is required on first boot; key lives at
+  `~/.ssh/id_ed25519.pub`.
+- Rationale: Manual injection is acceptable and avoids copying private keys
+  into the repo.
+- Status: active
+- References: records/QUESTIONS.md
+
+- Date: 2026-01-20
+- Decision: Ensure repo layout and configs stay compatible with file sync.
+- Context: Project is synchronized across machines via a file sync tool.
+- Rationale: Avoid platform-specific permissions or files that break on another machine.
+- Status: active
+- References: records/QUESTIONS.md
+
+- Date: 2026-01-20
+- Decision: Use NixOS flake configs with nixos-hardware modules for RPi3/4 SD images.
+- Context: Need reproducible provisioning for mixed RPi models.
+- Rationale: Leverages maintained hardware profiles and standard SD image modules.
+- Status: active
+- References: flake.nix, nixos/profiles/rpi3.nix, nixos/profiles/rpi4.nix
+
+- Date: 2026-01-20
+- Decision: Use `/etc/ssh/authorized_keys/%u` for manual key injection.
+- Context: SSH access is required at first boot without embedding keys in the repo.
+- Rationale: Allows injecting public keys into the SD image without user home dirs.
+- Status: active
+- References: nixos/modules/ssh.nix, docs/PROVISIONING.md
+
+- Date: 2026-01-20
+- Decision: Use public placeholders in the repo and keep sensitive overrides in
+  a gitignored private overlay.
+- Context: Repo may be published; need anonymized defaults and local-only data.
+- Rationale: Keeps the public repo clean while supporting real deployments.
+- Status: active
+- References: nixos/modules/private.nix, nixos/hosts/private/README.md
