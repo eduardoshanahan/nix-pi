@@ -80,10 +80,10 @@ Format
 - References: records/QUESTIONS.md
 
 - Date: 2026-01-20
-- Decision: Assign hostnames at build time (e.g., pi-node-01).
+- Decision: Assign hostnames at build time (e.g., `<hostname>`).
 - Context: Need predictable identification in DHCP and SSH access.
 - Rationale: Easier to map reserved IPs and roles to nodes.
-- Status: active
+- Status: superseded
 - References: records/QUESTIONS.md
 
 - Date: 2026-01-20
@@ -99,7 +99,7 @@ Format
   `~/.ssh/id_ed25519.pub`.
 - Rationale: Manual injection is acceptable and avoids copying private keys
   into the repo.
-- Status: active
+- Status: superseded
 - References: records/QUESTIONS.md
 
 - Date: 2026-01-20
@@ -123,6 +123,17 @@ Format
 - Status: active
 - References: nixos/modules/ssh.nix, docs/PROVISIONING.md
 
+- Date: 2026-01-22
+- Decision: Embed admin public key(s) into SD images via `lab.adminAuthorizedKeys`
+  (private overrides) and build with `path:.#...`.
+- Context: Manual SD card edits are error-prone and slow down repeatability; the
+  repo keeps sensitive values gitignored.
+- Rationale: Fully automated first-boot SSH access without post-flash SD mounting,
+  while keeping keys and usernames out of Git.
+- Status: active
+- References: nixos/modules/options.nix, nixos/modules/ssh.nix, docs/PROVISIONING.md,
+  nixos/hosts/private/README.md
+
 - Date: 2026-01-20
 - Decision: Use public placeholders in the repo and keep sensitive overrides in
   a gitignored private overlay.
@@ -130,3 +141,49 @@ Format
 - Rationale: Keeps the public repo clean while supporting real deployments.
 - Status: active
 - References: nixos/modules/private.nix, nixos/hosts/private/README.md
+
+- Date: 2026-01-20
+- Decision: At the start of each session, read all text files in the workspace
+  (tracked and untracked, including private/secrets), excluding `.git` and
+  binaries, to rehydrate full context.
+- Context: Avoid repeating onboarding/context questions across sessions.
+- Rationale: Ensures full project state is captured before continuing work.
+- Status: active
+- References: records/SESSION_PROMPT.md
+
+- Date: 2026-01-20
+- Decision: Use device-specific hostnames as first-class names in flake configs.
+- Context: Devices have stable hostnames and SD images can be built per host if
+  desired.
+- Rationale: Keeps host configs, DNS, and SSH mappings aligned with reality and
+  avoids placeholder naming.
+- Status: superseded
+- References: flake.nix
+
+- Date: 2026-01-20
+- Decision: Build two SD images (one Pi 4 aarch64, one Pi 3 armv7l) and set
+  hostnames later.
+- Context: Fleet has two Pi 4 devices and one Pi 3 device; per-host images are
+  optional if hostnames can be configured later.
+- Rationale: Reduces build count while keeping architecture-specific images.
+- Status: active
+- References: docs/PROVISIONING.md
+
+- Date: 2026-01-21
+- Decision: Build two generic SD images (RPi4 and RPi3) without hostnames.
+- Context: Fleet has two Pi 4 devices and one Pi 3 device; building per-host
+  images adds unnecessary work and creates churn across machines.
+- Rationale: One image per architecture is sufficient; hostnames can be set on
+  first boot via `hostnamectl` and later automated if desired.
+- Status: active
+- References: flake.nix, docs/PROVISIONING.md
+
+- Date: 2026-01-22
+- Decision: Run the Pi 3 on 64-bit NixOS (`aarch64-linux`) by default; keep armv7l
+  as an optional fallback.
+- Context: Pi 3 armv7l SD image builds on x86 took many hours and compiled large
+  toolchains under emulation due to limited binary cache coverage.
+- Rationale: aarch64 builds have significantly better substitute coverage and are
+  much faster on x86 hosts; Pi 3 hardware supports 64-bit.
+- Status: active
+- References: flake.nix, nixos/profiles/rpi3.nix, docs/PROVISIONING.md

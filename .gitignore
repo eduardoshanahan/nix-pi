@@ -9,5 +9,14 @@ private/
 nixos/hosts/private/
 !nixos/hosts/private/README.md
 
+# Nix build symlinks
+result
+result-*
+
+# Local SD image artifacts (keep in repo for syncing, but don't commit)
+sd-image/*.img
+sd-image/*.img.zst
+sd-image/*.sha256
+
 # OS / editor
 .DS_Store
