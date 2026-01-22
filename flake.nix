@@ -10,13 +10,10 @@
   outputs = { self, nixpkgs, flake-utils, nixos-hardware }:
     let
       lib = nixpkgs.lib;
-      mkHost = { hostname, system, profile, extraModules ? [] }:
+      mkBaseSystem = { system, profile, extraModules ? [], hostModule ? null, privateHostModule ? null }:
         lib.nixosSystem {
           inherit system;
           modules =
-          let
-            privateHost = ./nixos/hosts/private/${hostname}.nix;
-          in
           [
             ./nixos/modules/options.nix
             ./nixos/modules/base.nix
@@ -25,31 +22,32 @@
             ./nixos/modules/docker.nix
             ./nixos/modules/network.nix
             profile
-            ./nixos/hosts/${hostname}.nix
             ./nixos/modules/private.nix
           ]
+          ++ (if hostModule != null then [ hostModule ] else [])
           ++ extraModules
-          ++ (if builtins.pathExists privateHost then [ privateHost ] else []);
+          ++ (if privateHostModule != null then [ privateHostModule ] else []);
         };
     in
     {
       nixosConfigurations = {
-        pi-node-01 = mkHost {
-          hostname = "pi-node-01";
+        # Generic SD images (no hostname baked in).
+        rpi4 = mkBaseSystem {
           system = "aarch64-linux";
           profile = ./nixos/profiles/rpi4.nix;
           extraModules = [ nixos-hardware.nixosModules.raspberry-pi-4 ];
         };
-        pi-node-02 = mkHost {
-          hostname = "pi-node-02";
+        # Raspberry Pi 3 can run 64-bit (aarch64) and is much faster to build on x86 hosts
+        # due to better binary cache coverage than armv7l.
+        rpi3 = mkBaseSystem {
           system = "aarch64-linux";
-          profile = ./nixos/profiles/rpi4.nix;
-          extraModules = [ nixos-hardware.nixosModules.raspberry-pi-4 ];
-        };
-        pi-node-03 = mkHost {
-          hostname = "pi-node-03";
-          system = "armv7l-linux";
           profile = ./nixos/profiles/rpi3.nix;
+          extraModules = [ nixos-hardware.nixosModules.raspberry-pi-3 ];
+        };
+        # Optional 32-bit Pi 3 image (slow on x86; may require --impure and NIXPKGS_ALLOW_BROKEN=1).
+        rpi3-armv7l = mkBaseSystem {
+          system = "armv7l-linux";
+          profile = ./nixos/profiles/rpi3-armv7l.nix;
           extraModules = [ nixos-hardware.nixosModules.raspberry-pi-3 ];
         };
       };
@@ -64,6 +62,7 @@
             pkgs.git
             pkgs.prek
             pkgs.gitleaks
+            pkgs.zstd
           ];
 
           shellHook = ''

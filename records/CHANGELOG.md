@@ -109,8 +109,9 @@ Format
 
 - Date: 2026-01-20
 - Change: Added private hostname overrides.
-- Details: Added per-node private hostnames for rpi-box nodes.
-- References: nixos/hosts/private/pi-node-01.nix
+- Details: Added support for local, gitignored overrides (including hostnames)
+  to keep sensitive values out of Git.
+- References: nixos/hosts/private/README.md, nixos/modules/private.nix
 
 - Date: 2026-01-20
 - Change: Fixed SSH key assertion and removed deprecated RPi boot loader config.
@@ -146,3 +147,39 @@ Format
 - Change: Added provisioning troubleshooting notes.
 - Details: Documented common cross-architecture build errors and fixes.
 - References: docs/PROVISIONING.md
+
+- Date: 2026-01-20
+- Change: Switched primary host configs to rpi-box naming.
+- Details: Updated flake outputs and provisioning docs to use the current host
+  naming convention.
+- References: flake.nix, docs/PROVISIONING.md
+
+- Date: 2026-01-20
+- Change: Updated Pi 3 SD image module import.
+- Details: Switched to `sd-image-armv7l-multiplatform.nix` for armv7l images.
+- References: nixos/profiles/rpi3.nix
+
+- Date: 2026-01-21
+- Change: Clarified Pi 3 host build prerequisites.
+- Details: Documented required Nix daemon `system-features` (`gccarch-armv7-a`)
+  for armv7l SD image builds.
+- References: docs/PROVISIONING.md
+
+- Date: 2026-01-21
+- Change: Added generic Pi SD image outputs.
+- Details: Flake now provides `nixosConfigurations.rpi4` and `.rpi3` to build
+  two images (Pi 4 and Pi 3) without embedding hostnames.
+- References: flake.nix, docs/PROVISIONING.md
+
+- Date: 2026-01-22
+- Change: Switched Pi 3 to 64-bit (aarch64) by default.
+- Details: Updated flake outputs and provisioning docs to build Pi 3 images as
+  `aarch64-linux` for much faster builds on x86; kept an optional armv7l output
+  (`rpi3-armv7l`) for 32-bit fallback.
+- References: flake.nix, nixos/profiles/rpi3.nix, docs/PROVISIONING.md
+
+- Date: 2026-01-22
+- Change: Removed public per-host Pi configurations.
+- Details: Dropped public `rpi-box-*` host modules and flake outputs to keep the
+  repo anonymized; kept a single example host module.
+- References: flake.nix, nixos/hosts/example-host.nix, docs/PROVISIONING.md

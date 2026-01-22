@@ -1,11 +1,10 @@
 { lib, modulesPath, ... }:
 {
   imports = [
-    "${modulesPath}/installer/sd-card/sd-image-armv7l.nix"
+    "${modulesPath}/installer/sd-card/sd-image-aarch64.nix"
   ];
 
-  nixpkgs.hostPlatform = "armv7l-linux";
+  nixpkgs.hostPlatform = "aarch64-linux";
 
   hardware.enableAllHardware = lib.mkForce false;
-
 }

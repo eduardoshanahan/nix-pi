@@ -1,0 +1,80 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+  cat <<'USAGE'
+Usage:
+  scripts/inject-ssh-key <root-mount> <public-key-path> [--user <name>]...
+
+Installs an SSH public key onto a mounted NixOS SD card root partition using
+OpenSSH's AuthorizedKeysFile path:
+  /etc/ssh/authorized_keys/<user>
+
+Examples:
+  scripts/inject-ssh-key <root-mount> <public-key-path> --user <adminUser>
+USAGE
+}
+
+if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+  usage
+  exit 0
+fi
+
+rootmnt="${1:-}"
+pubkey="${2:-}"
+shift 2 || true
+
+users=()
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --user)
+      users+=("${2:?missing --user value}")
+      shift 2
+      ;;
+    *)
+      echo "Unknown arg: $1" >&2
+      usage >&2
+      exit 2
+      ;;
+  esac
+done
+
+if [[ -z "${rootmnt:-}" || -z "${pubkey:-}" || ${#users[@]} -eq 0 ]]; then
+  usage >&2
+  exit 2
+fi
+
+if [[ ! -d "$rootmnt" ]]; then
+  echo "Root mount not found: $rootmnt" >&2
+  exit 1
+fi
+
+if ! mountpoint -q "$rootmnt"; then
+  echo "Not a mountpoint: $rootmnt" >&2
+  exit 1
+fi
+
+if [[ ! -f "$pubkey" ]]; then
+  echo "Public key not found: $pubkey" >&2
+  exit 1
+fi
+
+destdir="$rootmnt/etc/ssh/authorized_keys"
+
+echo "Root mount: $rootmnt"
+echo "Public key: $pubkey"
+echo "Dest dir:   $destdir"
+echo "Users:      ${users[*]}"
+
+sudo install -d -m 0755 "$destdir"
+
+for user in "${users[@]}"; do
+  destfile="$destdir/$user"
+  sudo install -m 0644 -o root -g root "$pubkey" "$destfile"
+  echo "Wrote: $destfile"
+  if [[ ! -s "$destfile" ]]; then
+    echo "ERROR: wrote empty key file: $destfile" >&2
+    exit 1
+  fi
+  sudo ssh-keygen -lf "$destfile" >/dev/null
+done

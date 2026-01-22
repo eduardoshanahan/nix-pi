@@ -1,0 +1,138 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+  cat <<'USAGE'
+Usage:
+  scripts/export-sd-image <out-link> [dest-dir] [base-name] [--decompress] [--dry-run]
+
+Copies the built SD image out of the Nix store (via the build out-link) into a
+regular file under the project directory, so it can be synced/stored normally.
+
+Examples:
+  scripts/export-sd-image result-rpi4 sd-image rpi4
+  scripts/export-sd-image result-rpi4 sd-image rpi4 --decompress
+  scripts/export-sd-image result-rpi3 sd-image rpi3 --dry-run
+USAGE
+}
+
+if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+  usage
+  exit 0
+fi
+
+out_link="${1:-}"
+dest_dir="${2:-sd-image}"
+base_name="${3:-}"
+decompress="0"
+dry_run="0"
+
+for arg in "${@:4}"; do
+  case "$arg" in
+    --decompress) decompress="1" ;;
+    --dry-run) dry_run="1" ;;
+    *)
+      echo "Unknown arg: $arg" >&2
+      usage >&2
+      exit 2
+      ;;
+  esac
+done
+
+if [[ -z "$out_link" ]]; then
+  usage >&2
+  exit 2
+fi
+
+if [[ ! -e "$out_link" ]]; then
+  echo "Out link not found: $out_link" >&2
+  exit 1
+fi
+
+store_path="$(readlink -f "$out_link")"
+
+pick_image_from_dir() {
+  local dir="$1"
+  local candidate=""
+
+  if [[ -d "$dir/sd-image" ]]; then
+    candidate="$(ls -1t "$dir"/sd-image/*.img* 2>/dev/null | head -n 1 || true)"
+  fi
+
+  if [[ -z "$candidate" ]]; then
+    candidate="$(find "$dir" -maxdepth 2 -type f -name '*.img*' -print 2>/dev/null | head -n 1 || true)"
+  fi
+
+  printf '%s' "$candidate"
+}
+
+image_path=""
+if [[ -d "$store_path" ]]; then
+  image_path="$(pick_image_from_dir "$store_path")"
+elif [[ -f "$store_path" ]]; then
+  image_path="$store_path"
+fi
+
+if [[ -z "$image_path" || ! -e "$image_path" ]]; then
+  echo "Could not find an image under: $store_path" >&2
+  exit 1
+fi
+
+src_name="$(basename "$image_path")"
+ext=""
+if [[ "$src_name" == *.img.zst ]]; then
+  ext=".img.zst"
+elif [[ "$src_name" == *.img ]]; then
+  ext=".img"
+else
+  ext=""
+fi
+
+mkdir -p "$dest_dir"
+
+dest_name="$src_name"
+if [[ -n "$base_name" ]]; then
+  dest_name="${base_name}${ext}"
+fi
+
+dest_path="$dest_dir/$dest_name"
+tmp_path="$dest_path.tmp"
+
+echo "Out link:    $out_link"
+echo "Store path:  $store_path"
+echo "Image file:  $image_path"
+echo "Dest file:   $dest_path"
+
+if [[ "$dry_run" == "1" ]]; then
+  exit 0
+fi
+
+cp --reflink=auto --sparse=always "$image_path" "$tmp_path"
+mv -f "$tmp_path" "$dest_path"
+sha256sum "$dest_path" > "${dest_path}.sha256"
+
+echo "Wrote:       $dest_path"
+echo "Wrote:       ${dest_path}.sha256"
+
+if [[ "$decompress" == "1" ]]; then
+  if [[ "$dest_path" != *.zst ]]; then
+    echo "Refusing to decompress non-.zst file: $dest_path" >&2
+    exit 1
+  fi
+
+  if ! command -v unzstd >/dev/null 2>&1; then
+    echo "Missing 'unzstd' (zstd). Run from 'nix develop' or install zstd." >&2
+    exit 1
+  fi
+
+  img_dest_path="${dest_path%.zst}"
+  img_tmp_path="${img_dest_path}.tmp"
+
+  echo "Decompress:  $img_dest_path"
+  unzstd -c "$dest_path" > "$img_tmp_path"
+  mv -f "$img_tmp_path" "$img_dest_path"
+  sha256sum "$img_dest_path" > "${img_dest_path}.sha256"
+
+  echo "Wrote:       $img_dest_path"
+  echo "Wrote:       ${img_dest_path}.sha256"
+fi

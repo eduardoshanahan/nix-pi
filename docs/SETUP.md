@@ -75,6 +75,9 @@ The first check is a secrets scan via `gitleaks`.
 - Install Nix with flakes enabled.
 - Initialize Git in the repo (`git init`) if it is not already a Git repo.
 - Enter the dev shell (`nix develop`).
+- Create local private overrides (gitignored), if needed:
+  - `nixos/hosts/private/overrides.nix` (see `nixos/hosts/private/README.md`)
+  - Optional local runbook: `private/PROVISIONING_LOCAL.md`
 - Install hooks (`prek install`).
 - Run checks (`prek run --all-files`).
 
@@ -85,3 +88,4 @@ The first check is a secrets scan via `gitleaks`.
 - If `nix develop` reports `flake.nix` is not tracked, run `git init` and
   `git add flake.nix flake.lock` before retrying.
 - See `docs/PROVISIONING.md` for Raspberry Pi SD image workflow.
+- Private values should live in gitignored files; see `docs/CONFIDENTIALITY.md`.
