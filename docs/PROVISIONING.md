@@ -57,9 +57,7 @@ Optional: RPi 3 in 32-bit mode (armv7l). Much slower on x86 hosts and may requir
 `--impure` and `NIXPKGS_ALLOW_BROKEN=1`:
 
 ```bash
-NIXPKGS_ALLOW_BROKEN=1 nix build --impure \
-  path:.#nixosConfigurations.rpi3-armv7l.config.system.build.sdImage \
-  -o result-rpi3
+NIXPKGS_ALLOW_BROKEN=1 nix build --impure path:.#nixosConfigurations.rpi3-armv7l.config.system.build.sdImage -o result-rpi3
 ```
 
 If the build fails due to architecture emulation, enable binfmt support for

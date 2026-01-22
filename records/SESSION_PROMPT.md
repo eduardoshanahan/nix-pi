@@ -91,13 +91,7 @@ and binaries, before proceeding.
 - Build the Pi 3 image (aarch64) with private overrides included:
   `nix build path:.#nixosConfigurations.rpi3.config.system.build.sdImage -o result-rpi3`
 - Optional: for Pi 3 armv7l builds, use:
-
-  ```bash
-  NIXPKGS_ALLOW_BROKEN=1 nix build --impure \
-    path:.#nixosConfigurations.rpi3-armv7l.config.system.build.sdImage \
-    -o result-rpi3
-  ```
-
+  `NIXPKGS_ALLOW_BROKEN=1 nix build --impure path:.#nixosConfigurations.rpi3-armv7l.config.system.build.sdImage -o result-rpi3`
   and ensure `/etc/nix/nix.conf` includes `gccarch-armv7-a` in `system-features`.
 - Flash SD cards per `docs/PROVISIONING.md`.
 - If `lab.adminAuthorizedKeys` is not set, inject the key onto the SD card as a
