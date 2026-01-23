@@ -5,14 +5,16 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
     nixos-hardware.url = "github:NixOS/nixos-hardware";
+    nix-services.url = "github:eduardoshanahan/nix-services";
   };
 
-  outputs = { self, nixpkgs, flake-utils, nixos-hardware }:
+  outputs = inputs@{ nixpkgs, flake-utils, nixos-hardware, ... }:
     let
       lib = nixpkgs.lib;
       mkBaseSystem = { system, profile, extraModules ? [], hostModule ? null, privateHostModule ? null }:
         lib.nixosSystem {
           inherit system;
+          specialArgs = { inherit inputs; };
           modules =
           [
             ./nixos/modules/options.nix
@@ -50,6 +52,34 @@
           profile = ./nixos/profiles/rpi3-armv7l.nix;
           extraModules = [ nixos-hardware.nixosModules.raspberry-pi-3 ];
         };
+
+        # Host-specific configs (loaded from gitignored `nixos/hosts/private/` when present).
+        rpi-box-01 = mkBaseSystem {
+          system = "aarch64-linux";
+          profile = ./nixos/profiles/rpi4.nix;
+          extraModules = [ nixos-hardware.nixosModules.raspberry-pi-4 ];
+          privateHostModule =
+            let p = ./nixos/hosts/private/rpi-box-01;
+            in if builtins.pathExists p then p else null;
+        };
+
+        rpi-box-02 = mkBaseSystem {
+          system = "aarch64-linux";
+          profile = ./nixos/profiles/rpi4.nix;
+          extraModules = [ nixos-hardware.nixosModules.raspberry-pi-4 ];
+          privateHostModule =
+            let p = ./nixos/hosts/private/rpi-box-02;
+            in if builtins.pathExists p then p else null;
+        };
+
+        rpi-box-03 = mkBaseSystem {
+          system = "aarch64-linux";
+          profile = ./nixos/profiles/rpi4.nix;
+          extraModules = [ nixos-hardware.nixosModules.raspberry-pi-4 ];
+          privateHostModule =
+            let p = ./nixos/hosts/private/rpi-box-03;
+            in if builtins.pathExists p then p else null;
+        };
       };
     }
     // flake-utils.lib.eachDefaultSystem (system:
@@ -63,6 +93,8 @@
             pkgs.prek
             pkgs.gitleaks
             pkgs.zstd
+            pkgs.nixos-rebuild
+            pkgs.deadnix
           ];
 
           shellHook = ''
