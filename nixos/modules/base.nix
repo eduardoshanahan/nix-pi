@@ -7,4 +7,6 @@
   users.mutableUsers = false;
 
   services.timesyncd.enable = true;
+
+  security.sudo.wheelNeedsPassword = false;
 }
