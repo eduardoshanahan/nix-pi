@@ -242,6 +242,14 @@ After first boot, set the hostname on each node (example):
 sudo hostnamectl set-hostname <hostname>
 ```
 
+## Secrets bootstrap (sops-nix)
+
+Secrets are provisioned at activation/boot to `/run/secrets` (tmpfs). Each host
+must have its own age private key present on disk (outside Git and outside the
+Nix store) for decryption to work.
+
+See `docs/SECRETS.md`.
+
 ## Cross-machine sync
 
 This repo is synced across machines via a file sync tool. Avoid host-specific

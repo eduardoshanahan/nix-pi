@@ -6,6 +6,7 @@
     flake-utils.url = "github:numtide/flake-utils";
     nixos-hardware.url = "github:NixOS/nixos-hardware";
     nix-services.url = "github:eduardoshanahan/nix-services";
+    sops-nix.url = "github:Mic92/sops-nix";
   };
 
   outputs = inputs@{ nixpkgs, flake-utils, nixos-hardware, ... }:
@@ -23,6 +24,8 @@
             ./nixos/modules/ssh.nix
             ./nixos/modules/docker.nix
             ./nixos/modules/network.nix
+            inputs.sops-nix.nixosModules.sops
+            ./nixos/modules/secrets.nix
             profile
             ./nixos/modules/private.nix
           ]
@@ -59,7 +62,7 @@
           profile = ./nixos/profiles/rpi4.nix;
           extraModules = [ nixos-hardware.nixosModules.raspberry-pi-4 ];
           privateHostModule =
-            let p = ./nixos/hosts/private/rpi-box-01;
+            let p = ./nixos/hosts/private/rpi-box-01.nix;
             in if builtins.pathExists p then p else null;
         };
 
@@ -68,7 +71,7 @@
           profile = ./nixos/profiles/rpi4.nix;
           extraModules = [ nixos-hardware.nixosModules.raspberry-pi-4 ];
           privateHostModule =
-            let p = ./nixos/hosts/private/rpi-box-02;
+            let p = ./nixos/hosts/private/rpi-box-02.nix;
             in if builtins.pathExists p then p else null;
         };
 
@@ -77,7 +80,7 @@
           profile = ./nixos/profiles/rpi4.nix;
           extraModules = [ nixos-hardware.nixosModules.raspberry-pi-4 ];
           privateHostModule =
-            let p = ./nixos/hosts/private/rpi-box-03;
+            let p = ./nixos/hosts/private/rpi-box-03.nix;
             in if builtins.pathExists p then p else null;
         };
       };
@@ -92,6 +95,8 @@
             pkgs.git
             pkgs.prek
             pkgs.gitleaks
+            pkgs.sops
+            pkgs.age
             pkgs.zstd
             pkgs.nixos-rebuild
             pkgs.deadnix

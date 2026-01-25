@@ -1,8 +1,13 @@
-{ ... }:
+{ pkgs, ... }:
 {
   system.stateVersion = "24.11";
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
+
+  environment.systemPackages = [
+    pkgs.age
+    pkgs.sops
+  ];
 
   users.mutableUsers = false;
 
@@ -15,4 +20,3 @@
     "d /run/secrets 0700 root root -"
   ];
 }
-

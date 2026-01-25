@@ -6,6 +6,7 @@ anonymize artifacts before sharing.
 ## Rules of thumb
 
 - Do not commit secrets, credentials, tokens, or private identifiers.
+- Encrypted secrets (for example SOPS-encrypted files under `secrets/`) are allowed to be committed.
 - Keep private datasets and raw logs out of the repo; store them outside the
   workspace.
 - Anonymize any artifacts that could reveal sensitive information.

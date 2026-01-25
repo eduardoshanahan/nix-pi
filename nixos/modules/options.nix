@@ -27,5 +27,21 @@
       default = "lab.home.arpa";
       description = "Lab domain used for hostnames once DNS is available.";
     };
+
+    sops = {
+      ageKeyFile = lib.mkOption {
+        type = lib.types.str;
+        default = "/var/lib/sops/age.key";
+        description = "Path to the per-host age private key (must exist on the host; never in the Nix store).";
+        example = "/var/lib/sops/age.key";
+      };
+
+      defaultSopsFile = lib.mkOption {
+        type = lib.types.nullOr lib.types.path;
+        default = null;
+        description = "Optional default SOPS file path (unencrypted content never enters the Nix store).";
+        example = ./secrets/secrets.yaml;
+      };
+    };
   };
 }
