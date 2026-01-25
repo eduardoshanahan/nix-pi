@@ -2,7 +2,7 @@
 let
   admin = config.lab.adminUser;
   perNodeUsers = config.lab.perNodeUsers;
-  mkUser = name: {
+  mkUser = _name: {
     isNormalUser = true;
     extraGroups = [ "wheel" ];
   };

@@ -95,6 +95,7 @@
             pkgs.git
             pkgs.prek
             pkgs.gitleaks
+            pkgs.nodePackages.markdownlint-cli2
             pkgs.sops
             pkgs.age
             pkgs.zstd
@@ -104,6 +105,23 @@
 
           shellHook = ''
             echo "Entering nix-pi-2 dev shell"
+
+            # Auto-install (and optionally run) prek hooks when entering the dev shell.
+            # Opt out with `SKIP_PREK=1 nix develop`.
+            if [ -z "''${SKIP_PREK:-}" ] && [ -d .git ] && [ -f .pre-commit-config.yaml ] && command -v prek >/dev/null 2>&1; then
+              if [ -z "''${NIX_PI2_PREK_DONE:-}" ]; then
+                export NIX_PI2_PREK_DONE=1
+
+                echo "prek: installing git hooks"
+                prek install --install-hooks 2>/dev/null || prek install || true
+
+                # Run once on entry; disable with SKIP_PREK_RUN=1.
+                if [ -z "''${SKIP_PREK_RUN:-}" ]; then
+                  echo "prek: running hooks (all files)"
+                  prek run --all-files || true
+                fi
+              fi
+            fi
           '';
         };
       }
