@@ -1,0 +1,11 @@
+# SOPS config for this repo.
+#
+# Add your age recipients (public keys) here before encrypting any files.
+
+#
+# Public age keys ONLY (safe to commit)
+
+creation_rules:
+  - path_regex: secrets/.*\.ya?ml$
+    age:
+      - age1flh8zg3474qwhg50gnmaagavdpgneq7rwk7rc4l9pmatkt45qf4su4ztfs

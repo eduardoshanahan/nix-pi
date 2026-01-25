@@ -2,7 +2,6 @@
 config/local.env
 
 # Secrets or private data
-secrets/
 private/
 
 # Private host overrides
