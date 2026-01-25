@@ -28,6 +28,7 @@ The next step would be to add some applications, and things might change at that
 
 - Getting started: `docs/SETUP.md`
 - Provisioning (build, flash, first boot): `docs/PROVISIONING.md`
+- Secrets (sops-nix): `docs/SECRETS.md`
 - Private overrides (gitignored): `nixos/hosts/private/README.md`
 - Local runbook (gitignored): `private/PROVISIONING_LOCAL.md`
 - NixOS config layout:
