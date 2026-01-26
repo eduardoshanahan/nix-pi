@@ -47,7 +47,7 @@ If something feels confusing, **stop and consult this document**.
   - TCP: 80, 443, 53
   - UDP: 53
 
-✅ This is the **known-good baseline**.
+Baseline: this is the **known-good baseline**.
 Do not modify multiple axes at once.
 
 ---
@@ -78,7 +78,7 @@ Do not modify multiple axes at once.
 - [ ] Reflash & rejoin node runbook
 - [ ] Backup strategy document
 
-⚠️ No functional changes to the network in this phase.
+Warning: no functional changes to the network in this phase.
 
 ---
 
@@ -98,7 +98,7 @@ Do not modify multiple axes at once.
 4. Observe for 24h
 5. Roll back if needed
 
-🚫 No DHCP changes yet.
+Do not make DHCP changes yet.
 
 ---
 
