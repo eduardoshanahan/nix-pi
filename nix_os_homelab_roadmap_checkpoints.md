@@ -75,7 +75,7 @@ Do not modify multiple axes at once.
 - [x] Runtime secrets helper extracted
 - [x] Pi-hole deployment documented
 - [x] Zero-downtime DNS migration checklist
-- [ ] Reflash & rejoin node runbook
+- [x] Reflash & rejoin node runbook
 - [ ] Backup strategy document
 
 Warning: no functional changes to the network in this phase.
