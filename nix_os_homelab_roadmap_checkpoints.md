@@ -76,7 +76,7 @@ Do not modify multiple axes at once.
 - [x] Pi-hole deployment documented
 - [x] Zero-downtime DNS migration checklist
 - [x] Reflash & rejoin node runbook
-- [ ] Backup strategy document
+- [x] Backup strategy document
 
 Warning: no functional changes to the network in this phase.
 
