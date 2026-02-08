@@ -1,0 +1,13 @@
+{
+  "terminal.integrated.shellIntegration.enabled": false,
+  "terminal.integrated.defaultProfile.linux": "nix-develop",
+  "terminal.integrated.profiles.linux": {
+    "nix-develop": {
+      "path": "/nix/store/lw117lsr8d585xs63kx5k233impyrq7q-bash-5.3p3/bin/bash",
+      "args": [
+        "-lc",
+        "nix develop"
+      ]
+    }
+  }
+}
