@@ -52,3 +52,13 @@ If you want local image files in this repo (for sync/backups), export them:
 scripts/export-sd-image result-rpi4 sd-image rpi4 --decompress
 scripts/export-sd-image result-rpi3 sd-image rpi3 --decompress
 ```
+
+Deploy (building in the target)
+
+```bash
+nixos-rebuild switch \
+  --flake path:.#rpi-box-02 \
+  --target-host eduardo@rpi-box-02 \
+  --build-host eduardo@rpi-box-02 \
+  --sudo
+```
