@@ -19,3 +19,5 @@ sd-image/*.sha256
 
 # OS / editor
 .DS_Store
+
+.direnv/
