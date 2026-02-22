@@ -187,3 +187,12 @@ Format
   much faster on x86 hosts; Pi 3 hardware supports 64-bit.
 - Status: active
 - References: flake.nix, nixos/profiles/rpi3.nix, docs/PROVISIONING.md
+
+- Date: 2026-02-22
+- Decision: Keep `sops-nix` and standardize a one-time per-host age-key bootstrap script.
+- Context: TLS rollout failed on a host that lacked `/var/lib/sops/age.key`, which
+  blocked `sops-install-secrets` during activation.
+- Rationale: This keeps the existing secrets architecture and makes the bootstrap
+  precondition explicit, repeatable, and scriptable instead of ad-hoc.
+- Status: active
+- References: scripts/bootstrap-sops-age-key, docs/SECRETS.md, docs/PROVISIONING.md
