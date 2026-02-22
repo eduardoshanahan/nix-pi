@@ -64,7 +64,7 @@ git push
 
 
 cd /home/eduardo/Programming/nix-pi
-nix flake lock --update-input nix-services
+nix flake update nix-services
 git add .
 git commit -m "update"
 
