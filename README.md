@@ -96,3 +96,19 @@ nixos-rebuild switch \
 ssh-copy-id -i ~/.ssh/meganix_ed25519.pub eduardo@hhnas4.hhlab.home.arpa
 
 ```
+
+## Known Good Checks (Excalidraw on `rpi-box-02`)
+
+```bash
+ssh -o BatchMode=yes -o ConnectTimeout=6 rpi-box-02 "systemctl is-active excalidraw; sudo systemctl --no-pager --lines=40 status excalidraw"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 rpi-box-02 "docker inspect --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}}' excalidraw"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 rpi-box-02 "curl -sSI -H 'Host: excalidraw.hhlab.home.arpa' http://127.0.0.1/ | sed -n '1,6p'"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 rpi-box-02 "curl -skI -H 'Host: excalidraw.hhlab.home.arpa' https://127.0.0.1/ | sed -n '1,12p'"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 rpi-box-02 "systemctl status excalidraw-healthcheck.timer --no-pager"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 rpi-box-02 "journalctl -u excalidraw-healthcheck -n 50 --no-pager"
+```
