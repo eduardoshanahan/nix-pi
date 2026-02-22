@@ -57,12 +57,16 @@ Deploy (building in the target)
 
 ```bash
 
-commit and push to github
+cd /home/eduardo/Programming/nix-services
+git add .
+git commit -m "updated"
+git push
+
 
 cd /home/eduardo/Programming/nix-pi
 nix flake lock --update-input nix-services
-git add flake.lock
-git commit -m "update lock"
+git add .
+git commit -m "update"
 
 
 nixos-rebuild switch \
