@@ -69,6 +69,7 @@ git add .
 git commit -m "update"
 
 
+cd /home/eduardo/Programming/nix-pi
 nixos-rebuild switch \
   --flake path:.#pi-node-a \
   --target-host eduardo@pi-node-a \
@@ -76,6 +77,7 @@ nixos-rebuild switch \
   --sudo
 
 
+cd /home/eduardo/Programming/nix-pi
 nixos-rebuild switch \
   --flake path:.#pi-node-b \
   --target-host eduardo@pi-node-b \
@@ -83,6 +85,7 @@ nixos-rebuild switch \
   --sudo
 
 
+cd /home/eduardo/Programming/nix-pi
 nixos-rebuild switch \
   --flake path:.#pi-node-c \
   --target-host eduardo@pi-node-c \
