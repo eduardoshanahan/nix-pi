@@ -69,6 +69,7 @@ git add .
 git commit -m "update"
 
 
+cd /home/eduardo/Programming/nix-pi
 nixos-rebuild switch \
   --flake path:.#rpi-box-01 \
   --target-host eduardo@rpi-box-01 \
@@ -76,6 +77,7 @@ nixos-rebuild switch \
   --sudo
 
 
+cd /home/eduardo/Programming/nix-pi
 nixos-rebuild switch \
   --flake path:.#rpi-box-02 \
   --target-host eduardo@rpi-box-02 \
@@ -83,6 +85,7 @@ nixos-rebuild switch \
   --sudo
 
 
+cd /home/eduardo/Programming/nix-pi
 nixos-rebuild switch \
   --flake path:.#rpi-box-03 \
   --target-host eduardo@rpi-box-03 \
