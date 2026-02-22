@@ -59,14 +59,14 @@ Deploy (building in the target)
 
 cd /home/eduardo/Programming/nix-services
 git add .
-git commit -m "promtail update"
+git commit -m "<describe change>"
 git push
 
 
 cd /home/eduardo/Programming/nix-pi
 nix flake update nix-services
 git add .
-git commit -m "promtail update"
+git commit -m "<describe change>"
 git push
 
 
@@ -95,6 +95,18 @@ nixos-rebuild switch \
 
 ssh-copy-id -i ~/.ssh/meganix_ed25519.pub eduardo@hhnas4.hhlab.home.arpa
 
+```
+
+## Known Good Checks (Loki + Promtail + Node Exporter)
+
+```bash
+ssh -o BatchMode=yes -o ConnectTimeout=6 rpi-box-03 "systemctl is-active loki; docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}' | rg '^loki'; curl -sS -o /dev/null -w '%{http_code}\n' http://192.168.1.10:3100/ready"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 rpi-box-03 "systemctl is-enabled loki-backup.timer; systemctl status loki-backup.timer --no-pager --lines=12"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 rpi-box-01 "systemctl is-active promtail prometheus-node-exporter; curl -sS -o /dev/null -w 'promtail=%{http_code}\n' http://127.0.0.1:9080/ready; curl -sS -o /dev/null -w 'node=%{http_code}\n' http://127.0.0.1:9100/metrics"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 rpi-box-02 "systemctl is-active promtail prometheus-node-exporter; curl -sS -o /dev/null -w 'promtail=%{http_code}\n' http://127.0.0.1:9080/ready; curl -sS -o /dev/null -w 'node=%{http_code}\n' http://127.0.0.1:9100/metrics"
 ```
 
 ## Known Good Checks (Excalidraw on `rpi-box-02`)
