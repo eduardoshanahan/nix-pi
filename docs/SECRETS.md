@@ -8,6 +8,25 @@ Decrypted material is written only to `/run/secrets` (tmpfs) and is lost on rebo
 - The age private key already exists on the host at `/var/lib/sops/age.key`.
 - The corresponding age public key is safe to commit (it is only a recipient identifier).
 
+## One-time host bootstrap (required)
+
+Before a host can decrypt any SOPS-managed secret, bootstrap its age private key.
+
+Recommended helper:
+
+```bash
+scripts/bootstrap-sops-age-key <source-host> <target-host> [target-host...]
+```
+
+Example:
+
+```bash
+scripts/bootstrap-sops-age-key rpi-box-01 rpi-box-02 rpi-box-03
+```
+
+This copies `/var/lib/sops/age.key` from the source host to each target host
+with mode `0600`.
+
 ## Configure SOPS recipients
 
 Add your age recipients to `.sops.yaml` (public keys only), for example:

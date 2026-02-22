@@ -1,0 +1,74 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+  cat <<'USAGE'
+Usage:
+  scripts/bootstrap-sops-age-key <source-host> <target-host> [target-host...]
+  scripts/bootstrap-sops-age-key --from-file <age-key-file> <target-host> [target-host...]
+
+Copies the sops age private key to one or more target hosts at:
+  /var/lib/sops/age.key
+
+This is a one-time bootstrap step required before sops-nix can decrypt secrets
+on a host.
+
+Examples:
+  scripts/bootstrap-sops-age-key rpi-box-01 rpi-box-02 rpi-box-03
+  scripts/bootstrap-sops-age-key --from-file ~/.config/sops/age/keys.txt rpi-box-02
+USAGE
+}
+
+if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+  usage
+  exit 0
+fi
+
+key_path="/var/lib/sops/age.key"
+from_file=""
+source_host=""
+targets=()
+
+if [[ "${1:-}" == "--from-file" ]]; then
+  from_file="${2:-}"
+  shift 2 || true
+fi
+
+if [[ -n "$from_file" ]]; then
+  if [[ $# -lt 1 ]]; then
+    usage >&2
+    exit 2
+  fi
+  targets=("$@")
+else
+  if [[ $# -lt 2 ]]; then
+    usage >&2
+    exit 2
+  fi
+  source_host="${1:-}"
+  shift
+  targets=("$@")
+fi
+
+if [[ -n "$from_file" ]]; then
+  if [[ ! -f "$from_file" ]]; then
+    echo "Key file not found: $from_file" >&2
+    exit 1
+  fi
+fi
+
+for target in "${targets[@]}"; do
+  echo "Bootstrapping sops age key on: $target"
+
+  if [[ -n "$from_file" ]]; then
+    cat "$from_file" \
+      | ssh "$target" "sudo install -D -m 600 /dev/stdin ${key_path}"
+  else
+    ssh "$source_host" "sudo cat ${key_path}" \
+      | ssh "$target" "sudo install -D -m 600 /dev/stdin ${key_path}"
+  fi
+
+  ssh "$target" "sudo test -s ${key_path} && sudo ls -l ${key_path}"
+done
+
+echo "Done. Hosts can now decrypt sops secrets from ${key_path}."

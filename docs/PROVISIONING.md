@@ -248,6 +248,20 @@ Secrets are provisioned at activation/boot to `/run/secrets` (tmpfs). Each host
 must have its own age private key present on disk (outside Git and outside the
 Nix store) for decryption to work.
 
+One-time bootstrap helper:
+
+```bash
+scripts/bootstrap-sops-age-key <source-host> <target-host> [target-host...]
+```
+
+Example:
+
+```bash
+scripts/bootstrap-sops-age-key rpi-box-01 rpi-box-02 rpi-box-03
+```
+
+Run this before the first rebuild that depends on SOPS secrets on a target host.
+
 See `docs/SECRETS.md`.
 
 ## Cross-machine sync
