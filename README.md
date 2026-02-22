@@ -67,6 +67,7 @@ cd /home/eduardo/Programming/nix-pi
 nix flake update nix-services
 git add .
 git commit -m "update"
+git push
 
 
 cd /home/eduardo/Programming/nix-pi
