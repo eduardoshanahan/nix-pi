@@ -96,3 +96,19 @@ nixos-rebuild switch \
 ssh-copy-id -i ~/.ssh/id_ed25519_homelab.pub eduardo@nas-host.internal.example
 
 ```
+
+## Known Good Checks (Excalidraw on `pi-node-b`)
+
+```bash
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "systemctl is-active excalidraw; sudo systemctl --no-pager --lines=40 status excalidraw"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "docker inspect --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}}' excalidraw"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "curl -sSI -H 'Host: excalidraw.internal.example' http://127.0.0.1/ | sed -n '1,6p'"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "curl -skI -H 'Host: excalidraw.internal.example' https://127.0.0.1/ | sed -n '1,12p'"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "systemctl status excalidraw-healthcheck.timer --no-pager"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "journalctl -u excalidraw-healthcheck -n 50 --no-pager"
+```
