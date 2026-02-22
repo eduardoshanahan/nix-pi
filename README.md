@@ -93,5 +93,6 @@ nixos-rebuild switch \
   --build-host eduardo@rpi-box-02 \
   --sudo
 
+ssh-copy-id -i ~/.ssh/meganix_ed25519.pub eduardo@hhnas4.hhlab.home.arpa
 
 ```
