@@ -59,7 +59,7 @@ Deploy (building in the target)
 
 cd /home/eduardo/Programming/nix-services
 git add .
-git commit -m "updated"
+git commit -m "excalidraw"
 git push
 
 
