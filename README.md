@@ -56,9 +56,34 @@ scripts/export-sd-image result-rpi3 sd-image rpi3 --decompress
 Deploy (building in the target)
 
 ```bash
+
+commit and push to github
+
+cd /home/eduardo/Programming/nix-pi
+nix flake lock --update-input nix-services
+git add flake.lock
+git commit -m "update lock"
+
+
+nixos-rebuild switch \
+  --flake path:.#rpi-box-01 \
+  --target-host eduardo@rpi-box-01 \
+  --build-host eduardo@rpi-box-01 \
+  --sudo
+
+
 nixos-rebuild switch \
   --flake path:.#rpi-box-02 \
   --target-host eduardo@rpi-box-02 \
   --build-host eduardo@rpi-box-02 \
   --sudo
+
+
+nixos-rebuild switch \
+  --flake path:.#rpi-box-03 \
+  --target-host eduardo@rpi-box-03 \
+  --build-host eduardo@rpi-box-02 \
+  --sudo
+
+
 ```
