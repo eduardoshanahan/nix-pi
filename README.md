@@ -59,14 +59,14 @@ Deploy (building in the target)
 
 cd /home/eduardo/Programming/nix-services
 git add .
-git commit -m "<describe change>"
+git commit -m "rebuild"
 git push
 
 
 cd /home/eduardo/Programming/nix-pi
 nix flake update nix-services
 git add .
-git commit -m "<describe change>"
+git commit -m "rebuild"
 git push
 
 
