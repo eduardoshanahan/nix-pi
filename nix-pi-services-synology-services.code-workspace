@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "../nix-services"
+		},
+		{
+			"path": "."
+		},
+		{
+			"path": "../synology-services"
+		}
+	],
+	"settings": {}
+}
