@@ -124,3 +124,38 @@ ssh -o BatchMode=yes -o ConnectTimeout=6 rpi-box-02 "systemctl status excalidraw
 
 ssh -o BatchMode=yes -o ConnectTimeout=6 rpi-box-02 "journalctl -u excalidraw-healthcheck -n 50 --no-pager"
 ```
+
+## Uptime Kuma (`rpi-box-02`)
+
+- URL: `https://kuma.hhlab.home.arpa`
+- Initial database selection: `SQLite`
+- Persistent data path: `/var/lib/uptime-kuma` (bind-mounted to `/app/data`)
+
+### Baseline monitors configured
+
+- `pihole01`
+- `Pi-hole Admin`
+- `diagrams.net`
+- `Excalidraw`
+- `Kuma Self`
+- `Loki Ready`
+- `Node Exporter rpi-box-01`
+- `Node Exporter rpi-box-02`
+- `Node Exporter rpi-box-03`
+- `DNS Pi-hole`
+
+### TLS note for internal services
+
+If Kuma reports certificate verification failures for internal HTTPS monitors,
+set `ignoreTls = true` in the Kuma monitor settings (or install internal CA
+trust in the container).
+
+### Quick checks
+
+```bash
+ssh -o BatchMode=yes -o ConnectTimeout=6 rpi-box-02 "systemctl is-active uptime-kuma; sudo systemctl --no-pager --lines=40 status uptime-kuma"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 rpi-box-02 "docker ps --filter name=uptime-kuma --format 'table {{.Names}}\t{{.Status}}\t{{.Image}}'"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 rpi-box-02 "curl -skI https://kuma.hhlab.home.arpa/ | sed -n '1,12p'"
+```
