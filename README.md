@@ -124,3 +124,38 @@ ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "systemctl status excalidraw-
 
 ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "journalctl -u excalidraw-healthcheck -n 50 --no-pager"
 ```
+
+## Uptime Kuma (`pi-node-b`)
+
+- URL: `https://kuma.internal.example`
+- Initial database selection: `SQLite`
+- Persistent data path: `/var/lib/uptime-kuma` (bind-mounted to `/app/data`)
+
+### Baseline monitors configured
+
+- `pihole01`
+- `Pi-hole Admin`
+- `diagrams.net`
+- `Excalidraw`
+- `Kuma Self`
+- `Loki Ready`
+- `Node Exporter pi-node-a`
+- `Node Exporter pi-node-b`
+- `Node Exporter pi-node-c`
+- `DNS Pi-hole`
+
+### TLS note for internal services
+
+If Kuma reports certificate verification failures for internal HTTPS monitors,
+set `ignoreTls = true` in the Kuma monitor settings (or install internal CA
+trust in the container).
+
+### Quick checks
+
+```bash
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "systemctl is-active uptime-kuma; sudo systemctl --no-pager --lines=40 status uptime-kuma"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "docker ps --filter name=uptime-kuma --format 'table {{.Names}}\t{{.Status}}\t{{.Image}}'"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "curl -skI https://kuma.internal.example/ | sed -n '1,12p'"
+```
