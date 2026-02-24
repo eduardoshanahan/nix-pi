@@ -42,11 +42,11 @@
         "nixpkgs": "nixpkgs"
       },
       "locked": {
-        "lastModified": 1771957324,
-        "narHash": "sha256-t6U4+g7VZJ3RqEHBC5NM8ntmblz6+rPpDGQTaoH0Phc=",
+        "lastModified": 1771957915,
+        "narHash": "sha256-pZAYb+R4i58NZgb16Rd9csChEvkLGD1eX07ki5r8TdA=",
         "owner": "eduardoshanahan",
         "repo": "nix-services",
-        "rev": "ae5427632026e4fa27ab746e7a2a0f55fbcc76d2",
+        "rev": "da45e3ed9e625a78b1ab59665bc3064fc86d9a30",
         "type": "github"
       },
       "original": {
