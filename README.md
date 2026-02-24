@@ -159,3 +159,49 @@ ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "docker ps --filter name=upti
 
 ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "curl -skI https://kuma.internal.example/ | sed -n '1,12p'"
 ```
+
+## Grafana (`pi-node-b`)
+
+- URL: `https://grafana.internal.example`
+- Datasources are provisioned declaratively:
+  - `Prometheus` (`http://prometheus:9090`)
+  - `Loki` (`http://loki.internal.example:3100`)
+- Starter dashboard is provisioned as `Homelab Overview` in folder `Homelab`.
+
+### Quick checks
+
+```bash
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "systemctl is-active grafana grafana-healthcheck.timer; sudo systemctl --no-pager --lines=40 status grafana grafana-healthcheck.timer"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "docker inspect --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}}' grafana"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "curl -sSI -H 'Host: grafana.internal.example' http://127.0.0.1/ | sed -n '1,8p'"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "curl -skI https://grafana.internal.example/ | sed -n '1,12p'"
+```
+
+### Admin password note
+
+- On first startup with a fresh Grafana data directory, admin password comes from
+  `GF_SECURITY_ADMIN_PASSWORD` (generated from `/run/secrets/grafana-admin-password`).
+- On an existing Grafana DB, changing the secret does not auto-rotate admin password.
+  Reset manually when needed:
+
+```bash
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b 'pw="$(sudo docker exec grafana printenv GF_SECURITY_ADMIN_PASSWORD)"; sudo docker exec grafana grafana cli admin reset-admin-password "$pw"'
+```
+
+## Future Reminder: Alertmanager Notifications
+
+Pending task (not enabled yet): configure Alertmanager email + Telegram receivers on `pi-node-b`.
+
+- Add SOPS entries in `secrets/secrets.yaml`:
+  - `alertmanager-smtp-password`
+  - `alertmanager-telegram-bot-token`
+- Wire them as `sops.secrets` on `pi-node-b`:
+  - `/run/secrets/alertmanager-smtp-password`
+  - `/run/secrets/alertmanager-telegram-bot-token`
+- In `nixos/hosts/private/pi-node-b.nix`, set:
+  - `services.alertmanager.notifications.email.enable = true;`
+  - `services.alertmanager.notifications.telegram.enable = true;`
+  - Real values for `from`, `to`, `authUsername`, and `chatId`.
