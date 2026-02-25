@@ -10,6 +10,12 @@ This repo builds SD card images for:
 The public repo stays anonymized; environment-specific values (admin username,
 SSH public keys, domains, IPs) live in gitignored private overrides.
 
+## Public Repo Hygiene
+
+Before commit/push, run the sanitization checklist in:
+
+`PUBLIC_REPO_SANITIZATION_POLICY.md`
+
 ## Why This Project
 
 I tried to implement this using Ubuntu, which I have been using for years, and tried to base projects on devcontainers.
