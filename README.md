@@ -93,14 +93,14 @@ nixos-rebuild switch \
   --build-host eduardo@pi-node-b \
   --sudo
 
-ssh-copy-id -i ~/.ssh/id_ed25519_homelab.pub eduardo@nas-host.internal.example
+ssh-copy-id -i ~/.ssh/id_ed25519_homelab.pub eduardo@<nas-fqdn>
 
 ```
 
 ## Known Good Checks (Loki + Promtail + Node Exporter)
 
 ```bash
-ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-c "systemctl is-active loki; docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}' | rg '^loki'; curl -sS -o /dev/null -w '%{http_code}\n' http://192.0.2.10:3100/ready"
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-c "systemctl is-active loki; docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}' | rg '^loki'; curl -sS -o /dev/null -w '%{http_code}\n' http://<logs-node-lan-ip>:3100/ready"
 
 ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-c "systemctl is-enabled loki-backup.timer; systemctl status loki-backup.timer --no-pager --lines=12"
 
@@ -116,9 +116,9 @@ ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "systemctl is-active excalidr
 
 ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "docker inspect --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}}' excalidraw"
 
-ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "curl -sSI -H 'Host: excalidraw.internal.example' http://127.0.0.1/ | sed -n '1,6p'"
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "curl -sSI -H 'Host: <excalidraw-fqdn>' http://127.0.0.1/ | sed -n '1,6p'"
 
-ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "curl -skI -H 'Host: excalidraw.internal.example' https://127.0.0.1/ | sed -n '1,12p'"
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "curl -skI -H 'Host: <excalidraw-fqdn>' https://127.0.0.1/ | sed -n '1,12p'"
 
 ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "systemctl status excalidraw-healthcheck.timer --no-pager"
 
@@ -127,7 +127,7 @@ ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "journalctl -u excalidraw-hea
 
 ## Uptime Kuma (`pi-node-b`)
 
-- URL: `https://kuma.internal.example`
+- URL: `https://<kuma-fqdn>`
 - Initial database selection: `SQLite`
 - Persistent data path: `/var/lib/uptime-kuma` (bind-mounted to `/app/data`)
 
@@ -157,12 +157,12 @@ ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "systemctl is-active uptime-k
 
 ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "docker ps --filter name=uptime-kuma --format 'table {{.Names}}\t{{.Status}}\t{{.Image}}'"
 
-ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "curl -skI https://kuma.internal.example/ | sed -n '1,12p'"
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "curl -skI https://<kuma-fqdn>/ | sed -n '1,12p'"
 ```
 
 ## Grafana (`pi-node-b`)
 
-- URL: `https://grafana.internal.example`
+- URL: `https://<grafana-fqdn>`
 - Datasources are provisioned declaratively:
   - `Prometheus` (`http://prometheus:9090`)
   - `Loki` (`http://loki.internal.example:3100`)
@@ -175,9 +175,9 @@ ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "systemctl is-active grafana 
 
 ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "docker inspect --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}}' grafana"
 
-ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "curl -sSI -H 'Host: grafana.internal.example' http://127.0.0.1/ | sed -n '1,8p'"
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "curl -sSI -H 'Host: <grafana-fqdn>' http://127.0.0.1/ | sed -n '1,8p'"
 
-ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "curl -skI https://grafana.internal.example/ | sed -n '1,12p'"
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "curl -skI https://<grafana-fqdn>/ | sed -n '1,12p'"
 ```
 
 ### Admin password note
@@ -193,17 +193,17 @@ ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b 'pw="$(sudo docker exec grafa
 
 ## Synology Observability
 
-- NAS hosts: `nas-host.internal.example`, `nas2.internal.example`
-- `nas-host` is scraped via node-exporter under job `synology-nodes`
-- `hhsnas2` (DS215j) is scraped via SNMP (through `snmp-exporter` on `pi-node-b`) under job `synology-snmp`
+- NAS hosts: `<nas-a-fqdn>`, `<nas-b-fqdn>`
+- NAS-A is scraped via node-exporter under job `synology-nodes`
+- NAS-B (older Synology class) is scraped via SNMP (through `snmp-exporter` on `pi-node-b`) under job `synology-snmp`
 - Prometheus scrape targets are configured on `pi-node-b` via:
-  - `services.prometheusCompose.scrape.synologyNodeTargets = [ "nas-host.${config.lab.domain}:9100" ];`
-  - `services.prometheusCompose.scrape.synologySnmpTargets = [ "nas2.${config.lab.domain}" ];`
+  - `services.prometheusCompose.scrape.synologyNodeTargets = [ "nas-a.${config.lab.domain}:9100" ];`
+  - `services.prometheusCompose.scrape.synologySnmpTargets = [ "nas-b.${config.lab.domain}" ];`
   - `services.prometheusCompose.scrape.synologySnmpExporterAddress = "pi-node-b-metrics.${config.lab.domain}:9116";`
 
-### DSM SNMP settings (required for `nas2`)
+### DSM SNMP settings (required for NAS-B)
 
-In DSM on `nas2`:
+In DSM on NAS-B:
 
 - Control Panel -> Terminal & SNMP -> SNMP
 - Enable SNMP service
@@ -215,7 +215,7 @@ In DSM on `nas2`:
 
 - `pi-node-c` promtail listens for DSM syslog on `0.0.0.0:1514`
 - DSM Log Center forwarding target:
-  - server: `192.0.2.10` (or `loki.internal.example`)
+  - server: `<logs-node-lan-ip>` (or `loki.internal.example`)
   - protocol: `TCP`
   - port: `1514`
 - In Grafana Explore (Loki), use:
