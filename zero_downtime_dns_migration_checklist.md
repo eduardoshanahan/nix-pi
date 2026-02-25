@@ -8,6 +8,11 @@ Safely migrate DNS resolution from the UCG to Pi‑hole **without downtime**, **
 This checklist is written to be followed line‑by‑line during execution.
 No step should be skipped or reordered.
 
+## Documentation Boundary
+
+- This checklist is the operator execution source of truth for DNS cutover sequencing.
+- Service-side constraints and invariants remain canonical in `nix-services/pi_hole_deployment_plan_traefik_no_dns_→_dns_transition.md`.
+
 ---
 
 ## Preconditions (MUST ALL BE TRUE)
