@@ -191,6 +191,30 @@ ssh -o BatchMode=yes -o ConnectTimeout=6 rpi-box-02 "curl -skI https://grafana.h
 ssh -o BatchMode=yes -o ConnectTimeout=6 rpi-box-02 'pw="$(sudo docker exec grafana printenv GF_SECURITY_ADMIN_PASSWORD)"; sudo docker exec grafana grafana cli admin reset-admin-password "$pw"'
 ```
 
+## Synology Observability
+
+- NAS host: `hhnas4.hhlab.home.arpa`
+- Node exporter is running on the NAS and scraped by Prometheus under job `synology-nodes`
+- Prometheus scrape target is configured on `rpi-box-02` via:
+  - `services.prometheusCompose.scrape.synologyNodeTargets = [ "hhnas4.${config.lab.domain}:9100" ];`
+
+### DSM file activity -> Loki
+
+- `rpi-box-03` promtail listens for DSM syslog on `0.0.0.0:1514`
+- DSM Log Center forwarding target:
+  - server: `192.168.1.10` (or `loki.hhlab.home.arpa`)
+  - protocol: `TCP`
+  - port: `1514`
+- In Grafana Explore (Loki), use:
+  - `{job="synology-file-activity"}`
+
+### NAS observability dashboards
+
+Provisioned in Grafana folder `Homelab`:
+
+- `NAS Detail`
+- `NAS File Activity`
+
 ## Future Reminder: Alertmanager Notifications
 
 Pending task (not enabled yet): configure Alertmanager email + Telegram receivers on `rpi-box-02`.
