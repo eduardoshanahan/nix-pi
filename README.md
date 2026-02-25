@@ -30,6 +30,21 @@ So far it seems a lot more solid: working in a `nix develop` shell is a lot less
 
 The next step would be to add some applications, and things might change at that point, but right now I am very happy with the results.
 
+## Documentation Ownership
+
+To avoid duplication and contradictions with `nix-services`, docs are split by responsibility:
+
+- `nix-pi` owns host lifecycle docs: setup, provisioning, flashing, bootstrap, rebuild commands, and SOPS host provisioning.
+- `nix-services` owns service lifecycle docs: module options/behavior, Compose + systemd runtime patterns, and service runbooks.
+
+Current-state rule:
+
+- Services are already deployed and stable. Deployment plans should be treated as rebuild/disaster-recovery/expansion references unless a new rollout is explicitly requested.
+
+For the ownership baseline and contradiction register, see:
+
+- `nix-services/documentation_unification_block_1.md`
+
 ## Table of Contents
 
 - Getting started: `docs/SETUP.md`
@@ -68,13 +83,11 @@ git add .
 git commit -m "rebuild"
 git push
 
-
 cd /home/eduardo/Programming/nix-pi
 nix flake update nix-services
 git add .
 git commit -m "rebuild"
 git push
-
 
 cd /home/eduardo/Programming/nix-pi
 nixos-rebuild switch \
@@ -83,14 +96,12 @@ nixos-rebuild switch \
   --build-host eduardo@rpi-box-01 \
   --sudo
 
-
 cd /home/eduardo/Programming/nix-pi
 nixos-rebuild switch \
   --flake path:.#rpi-box-02 \
   --target-host eduardo@rpi-box-02 \
   --build-host eduardo@rpi-box-02 \
   --sudo
-
 
 cd /home/eduardo/Programming/nix-pi
 nixos-rebuild switch \
@@ -102,6 +113,11 @@ nixos-rebuild switch \
 ssh-copy-id -i ~/.ssh/meganix_ed25519.pub eduardo@<nas-fqdn>
 
 ```
+
+## Monitoring Documentation Boundary
+
+- This README owns host-specific runtime checks and operator quick commands for the currently deployed environment.
+- Service-side monitoring architecture, module contracts, and constraints are canonical in `nix-services/monitoring_and_metrics_plan_prometheus_traefik.md` and `nix-services/services/*/README.md`.
 
 ## Known Good Checks (Loki + Promtail + Node Exporter)
 
