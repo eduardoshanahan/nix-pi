@@ -193,10 +193,23 @@ ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b 'pw="$(sudo docker exec grafa
 
 ## Synology Observability
 
-- NAS host: `nas-host.internal.example`
-- Node exporter is running on the NAS and scraped by Prometheus under job `synology-nodes`
-- Prometheus scrape target is configured on `pi-node-b` via:
+- NAS hosts: `nas-host.internal.example`, `nas2.internal.example`
+- `nas-host` is scraped via node-exporter under job `synology-nodes`
+- `hhsnas2` (DS215j) is scraped via SNMP (through `snmp-exporter` on `pi-node-b`) under job `synology-snmp`
+- Prometheus scrape targets are configured on `pi-node-b` via:
   - `services.prometheusCompose.scrape.synologyNodeTargets = [ "nas-host.${config.lab.domain}:9100" ];`
+  - `services.prometheusCompose.scrape.synologySnmpTargets = [ "nas-host.${config.lab.domain}" "nas2.${config.lab.domain}" ];`
+  - `services.prometheusCompose.scrape.synologySnmpExporterAddress = "pi-node-b-metrics.${config.lab.domain}:9116";`
+
+### DSM SNMP settings (required for `nas2`)
+
+In DSM on `nas2`:
+
+- Control Panel -> Terminal & SNMP -> SNMP
+- Enable SNMP service
+- SNMP version: `v2c`
+- Community: `public` (or set a custom value and match `services.prometheusCompose.scrape.synologySnmpAuth`)
+- Allow SNMP from your Prometheus/snmp-exporter node IP or network
 
 ### DSM file activity -> Loki
 
