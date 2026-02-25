@@ -150,7 +150,7 @@ If Kuma reports certificate verification failures for internal HTTPS monitors,
 set `ignoreTls = true` in the Kuma monitor settings (or install internal CA
 trust in the container).
 
-### Quick checks
+### Kuma quick checks
 
 ```bash
 ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "systemctl is-active uptime-kuma; sudo systemctl --no-pager --lines=40 status uptime-kuma"
@@ -168,7 +168,7 @@ ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "curl -skI https://kuma.inter
   - `Loki` (`http://loki.internal.example:3100`)
 - Starter dashboard is provisioned as `Homelab Overview` in folder `Homelab`.
 
-### Quick checks
+### Grafana quick checks
 
 ```bash
 ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "systemctl is-active grafana grafana-healthcheck.timer; sudo systemctl --no-pager --lines=40 status grafana grafana-healthcheck.timer"
