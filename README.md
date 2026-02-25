@@ -198,7 +198,7 @@ ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b 'pw="$(sudo docker exec grafa
 - `hhsnas2` (DS215j) is scraped via SNMP (through `snmp-exporter` on `pi-node-b`) under job `synology-snmp`
 - Prometheus scrape targets are configured on `pi-node-b` via:
   - `services.prometheusCompose.scrape.synologyNodeTargets = [ "nas-host.${config.lab.domain}:9100" ];`
-  - `services.prometheusCompose.scrape.synologySnmpTargets = [ "nas-host.${config.lab.domain}" "nas2.${config.lab.domain}" ];`
+  - `services.prometheusCompose.scrape.synologySnmpTargets = [ "nas2.${config.lab.domain}" ];`
   - `services.prometheusCompose.scrape.synologySnmpExporterAddress = "pi-node-b-metrics.${config.lab.domain}:9116";`
 
 ### DSM SNMP settings (required for `nas2`)
