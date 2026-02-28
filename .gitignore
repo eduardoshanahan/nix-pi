@@ -3,6 +3,9 @@ config/local.env
 
 # Secrets or private data
 private/
+secrets/*.yaml
+secrets/*.yml
+!secrets/README.md
 
 # Private host overrides
 nixos/hosts/private/
