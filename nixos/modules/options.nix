@@ -24,7 +24,7 @@
 
     domain = lib.mkOption {
       type = lib.types.str;
-      default = "lab.internal.example";
+      default = "internal.example";
       description = "Lab domain used for hostnames once DNS is available.";
     };
 

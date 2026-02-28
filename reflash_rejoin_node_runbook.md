@@ -215,7 +215,7 @@ ping <hostname>.local
 ```bash
 arp -a | grep -i <hostname>
 # or
-sudo nmap -sn 192.0.2.10/24
+sudo nmap -sn 198.51.100.0/24
 ```
 
 Actions (SSH):
