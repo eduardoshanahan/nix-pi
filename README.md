@@ -153,7 +153,20 @@ ssh -o BatchMode=yes -o ConnectTimeout=6 rpi-box-02 "journalctl -u excalidraw-he
 - Initial database selection: `SQLite`
 - Persistent data path: `/var/lib/uptime-kuma` (bind-mounted to `/app/data`)
 
-### Baseline monitors configured
+### Baseline UI-managed monitors
+
+These are the monitors currently configured in the Uptime Kuma UI.
+They are documented here for operator continuity, but they are not
+declaratively provisioned from source code yet.
+
+The desired future monitor set is now generated on `rpi-box-02` at:
+
+- `/etc/uptime-kuma/desired-monitors.json`
+
+This file is the declarative source of truth for the host-managed monitors.
+On existing deployments, `uptime-kuma` now syncs and prunes tagged
+host-managed monitors in the SQLite database during startup before the
+container is started.
 
 - `pihole01`
 - `Pi-hole Admin`
