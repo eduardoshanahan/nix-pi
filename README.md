@@ -78,32 +78,32 @@ Deploy (building in the target)
 
 ```bash
 
-cd /home/eduardo/private/Programming/nix-services
+cd /home/eduardo/Programming/private/nix-services
 git add .
 git commit -m "rebuild"
 git push
 
-cd /home/eduardo/private/Programming/nix-pi
+cd /home/eduardo/Programming/private/nix-pi
 nix flake update nix-services
 git add .
 git commit -m "rebuild"
 git push
 
-cd /home/eduardo/private/Programming/nix-pi
+cd /home/eduardo/Programming/private/nix-pi
 nixos-rebuild switch \
   --flake path:.#rpi-box-01 \
   --target-host eduardo@rpi-box-01 \
   --build-host eduardo@rpi-box-01 \
   --sudo
 
-cd /home/eduardo/private/Programming/nix-pi
+cd /home/eduardo/Programming/private/nix-pi
 nixos-rebuild switch \
   --flake path:.#rpi-box-02 \
   --target-host eduardo@rpi-box-02 \
   --build-host eduardo@rpi-box-02 \
   --sudo
 
-cd /home/eduardo/private/Programming/nix-pi
+cd /home/eduardo/Programming/private/nix-pi
 nixos-rebuild switch \
   --flake path:.#rpi-box-03 \
   --target-host eduardo@rpi-box-03 \
