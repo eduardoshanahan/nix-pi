@@ -131,6 +131,18 @@ ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-a "systemctl is-active promtail
 ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "systemctl is-active promtail prometheus-node-exporter; curl -sS -o /dev/null -w 'promtail=%{http_code}\n' http://127.0.0.1:9080/ready; curl -sS -o /dev/null -w 'node=%{http_code}\n' http://127.0.0.1:9100/metrics"
 ```
 
+## Known Good Checks (cAdvisor on `pi-node-a` / `pi-node-b` / `pi-node-c`)
+
+```bash
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-a "systemctl is-active cadvisor; docker ps --filter name=cadvisor --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'; curl -sS -o /dev/null -w 'cadvisor=%{http_code}\n' http://127.0.0.1:8081/metrics"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "systemctl is-active cadvisor; docker ps --filter name=cadvisor --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'; curl -sS -o /dev/null -w 'cadvisor=%{http_code}\n' http://127.0.0.1:8081/metrics"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-c "systemctl is-active cadvisor; docker ps --filter name=cadvisor --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'; curl -sS -o /dev/null -w 'cadvisor=%{http_code}\n' http://127.0.0.1:8081/metrics"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "sudo docker exec prometheus wget -qO- 'http://127.0.0.1:9090/api/v1/query?query=up%7Bjob%3D%22cadvisor%22%7D'"
+```
+
 ## Known Good Checks (Excalidraw on `pi-node-b`)
 
 ```bash
