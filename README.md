@@ -231,10 +231,17 @@ ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b 'pw="$(sudo docker exec grafa
 - NAS hosts: `<nas-a-fqdn>`, `<nas-b-fqdn>`
 - NAS-A is scraped via node-exporter under job `synology-nodes`
 - NAS-B (older Synology class) is scraped via SNMP (through `snmp-exporter` on `pi-node-b`) under job `synology-snmp`
+- The `snmp-exporter` service on `pi-node-b` is also scraped directly under job `snmp-exporter`
 - Prometheus scrape targets are configured on `pi-node-b` via:
   - `services.prometheusCompose.scrape.synologyNodeTargets = [ "nas-a.${config.lab.domain}:9100" ];`
   - `services.prometheusCompose.scrape.synologySnmpTargets = [ "nas-b.${config.lab.domain}" ];`
   - `services.prometheusCompose.scrape.synologySnmpExporterAddress = "pi-node-b-metrics.${config.lab.domain}:9116";`
+
+### Prometheus quick check for `snmp-exporter`
+
+```bash
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "sudo docker exec prometheus wget -qO- 'http://127.0.0.1:9090/api/v1/query?query=up%7Bjob%3D%22snmp-exporter%22%7D'"
+```
 
 ### DSM SNMP settings (required for NAS-B)
 
