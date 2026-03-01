@@ -159,6 +159,22 @@ ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "systemctl status excalidraw-
 ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "journalctl -u excalidraw-healthcheck -n 50 --no-pager"
 ```
 
+## OwnTracks Recorder (`pi-node-b`)
+
+- URL (cleartext, internal-only): `http://owntracks.<lab-domain>:8084/`
+- Mobile app publish endpoint: `http://owntracks.<lab-domain>:8084/pub`
+- Persistent data path on `pi-node-b`: `/srv/prometheus/owntracks`
+- Storage is on the USB-backed `/srv/prometheus` filesystem, not the SD card.
+
+### Backup note
+
+- Include `/srv/prometheus/owntracks` in the same host-level backup flow as the
+  other USB-backed application data on `pi-node-b`.
+- The important subpaths are:
+  - `last/` for current per-device state
+  - `rec/` for monthly track history
+  - `ghash/` for Recorder metadata
+
 ## Uptime Kuma (`pi-node-b`)
 
 - URL: `https://<kuma-fqdn>`
