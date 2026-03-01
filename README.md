@@ -131,6 +131,18 @@ ssh -o BatchMode=yes -o ConnectTimeout=6 rpi-box-01 "systemctl is-active promtai
 ssh -o BatchMode=yes -o ConnectTimeout=6 rpi-box-02 "systemctl is-active promtail prometheus-node-exporter; curl -sS -o /dev/null -w 'promtail=%{http_code}\n' http://127.0.0.1:9080/ready; curl -sS -o /dev/null -w 'node=%{http_code}\n' http://127.0.0.1:9100/metrics"
 ```
 
+## Known Good Checks (cAdvisor on `rpi-box-01` / `rpi-box-02` / `rpi-box-03`)
+
+```bash
+ssh -o BatchMode=yes -o ConnectTimeout=6 rpi-box-01 "systemctl is-active cadvisor; docker ps --filter name=cadvisor --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'; curl -sS -o /dev/null -w 'cadvisor=%{http_code}\n' http://127.0.0.1:8081/metrics"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 rpi-box-02 "systemctl is-active cadvisor; docker ps --filter name=cadvisor --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'; curl -sS -o /dev/null -w 'cadvisor=%{http_code}\n' http://127.0.0.1:8081/metrics"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 rpi-box-03 "systemctl is-active cadvisor; docker ps --filter name=cadvisor --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'; curl -sS -o /dev/null -w 'cadvisor=%{http_code}\n' http://127.0.0.1:8081/metrics"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 rpi-box-02 "sudo docker exec prometheus wget -qO- 'http://127.0.0.1:9090/api/v1/query?query=up%7Bjob%3D%22cadvisor%22%7D'"
+```
+
 ## Known Good Checks (Excalidraw on `rpi-box-02`)
 
 ```bash
