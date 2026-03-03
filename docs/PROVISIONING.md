@@ -268,3 +268,14 @@ See `docs/SECRETS.md`.
 
 This repo is synced across machines via a file sync tool. Avoid host-specific
 permissions or files that cause conflicts across machines.
+
+## Remote builder identities
+
+If a host is used as a remote builder for another host, keep its Nix signing
+identity recoverable outside Git so the same trust relationship can be restored
+after rebuild or replacement.
+
+Use `scripts/bootstrap-nix-signing-key` to restore an existing builder identity
+onto a rebuilt host, then rebuild declaratively.
+
+See `docs/REMOTE_BUILDS.md`.

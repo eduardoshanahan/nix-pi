@@ -196,3 +196,27 @@ Format
   precondition explicit, repeatable, and scriptable instead of ad-hoc.
 - Status: active
 - References: scripts/bootstrap-sops-age-key, docs/SECRETS.md, docs/PROVISIONING.md
+
+- Date: 2026-03-03
+- Decision: Use `pi-node-b` as the remote builder and Nix signer for `pi-node-c`.
+- Context: `pi-node-c` does not have enough resources to build its own system
+  reliably, but `nixos-rebuild` still needs signed store paths when copying
+  locally built outputs from `pi-node-b` to `pi-node-c`.
+- Rationale: Keep the established remote-build workflow while making cross-host
+  store copies explicit and trustworthy: `pi-node-b` signs locally built paths
+  and `pi-node-c` trusts the builder public key.
+- Status: active
+- References: nixos/modules/options.nix, nixos/modules/base.nix,
+  nixos/hosts/private/pi-node-b.nix, nixos/hosts/private/pi-node-c.nix, README.md
+
+- Date: 2026-03-03
+- Decision: Treat remote builder signing identities as explicitly bootstrapped host material with a documented rotation process.
+- Context: A rebuilt remote builder must recover the same signing identity
+  intentionally if targets are to keep trusting it without emergency bootstrap
+  steps.
+- Rationale: Separate the operational signing identity from normal service
+  secrets while still making backup, restore, expansion, and rotation explicit
+  and repeatable.
+- Status: active
+- References: scripts/bootstrap-nix-signing-key, docs/SECRETS.md,
+  docs/PROVISIONING.md, docs/REMOTE_BUILDS.md

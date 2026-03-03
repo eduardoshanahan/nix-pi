@@ -70,3 +70,22 @@ Notes:
 
 - Only encrypted SOPS files are stored in the Nix store; decrypted outputs stay in `/run/secrets`.
 - If you create `secrets/secrets.yaml`, `nixos/modules/secrets.nix` will auto-use it as `sops.defaultSopsFile`.
+
+## Remote builder signing keys
+
+Nix builder signing keys are separate from SOPS and are not stored in Git or in
+the Nix store. They are operational host identities used so one machine can
+trust store paths built on another machine.
+
+If a builder host must recover an existing signing identity after reinstall,
+bootstrap the keypair explicitly:
+
+```bash
+scripts/bootstrap-nix-signing-key <key-name> <source-host> <target-host> [target-host...]
+scripts/bootstrap-nix-signing-key --from-files <private-key-file> <public-key-file> <key-name> <target-host> [target-host...]
+```
+
+Keep any backup copy of the private signing key outside Git, and treat it like
+other privileged host material.
+
+See `docs/REMOTE_BUILDS.md` for the trust model and rotation procedure.

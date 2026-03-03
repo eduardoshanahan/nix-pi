@@ -43,5 +43,23 @@
         example = ./secrets/secrets.yaml;
       };
     };
+
+    nix = {
+      signingKeyFile = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        default = null;
+        description = "Optional local Nix store signing key file for this host.";
+        example = "/etc/nix/pi-node-b-priv.pem";
+      };
+
+      trustedPublicKeys = lib.mkOption {
+        type = lib.types.listOf lib.types.str;
+        default = [];
+        description = "Additional trusted Nix signing public keys for cross-host store copies.";
+        example = [
+          "pi-node-b:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+        ];
+      };
+    };
   };
 }

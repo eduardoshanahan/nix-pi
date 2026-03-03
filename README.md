@@ -50,6 +50,7 @@ For the ownership baseline and contradiction register, see:
 - Getting started: `docs/SETUP.md`
 - Provisioning (build, flash, first boot): `docs/PROVISIONING.md`
 - Secrets (sops-nix): `docs/SECRETS.md`
+- Remote builds and signing: `docs/REMOTE_BUILDS.md`
 - Private overrides (gitignored): `nixos/hosts/private/README.md`
 - Local runbook (gitignored): `private/PROVISIONING_LOCAL.md`
 - NixOS config layout:
@@ -74,7 +75,7 @@ scripts/export-sd-image result-rpi4 sd-image rpi4 --decompress
 scripts/export-sd-image result-rpi3 sd-image rpi3 --decompress
 ```
 
-Deploy (building in the target)
+Deploy (host-local for `pi-node-a` / `pi-node-b`, remote builder for `pi-node-c`)
 
 ```bash
 
@@ -113,6 +114,15 @@ nixos-rebuild switch \
 ssh-copy-id -i ~/.ssh/id_ed25519_homelab.pub eduardo@<nas-fqdn>
 
 ```
+
+Remote build note:
+
+- `pi-node-c` builds on `pi-node-b` because `pi-node-c` does not have enough local build capacity.
+- Cross-host Nix store copies require the builder to sign locally built paths and the target to trust the builder public key.
+- In the current setup, `pi-node-b` signs with `/etc/nix/pi-node-b-priv.pem`, and `pi-node-c` trusts `pi-node-b:Tn8hXVRqRBvg1734Z/0xcpiRGJocvYC3rqogAGMRQL8=`.
+- If the builder signing key changes or `pi-node-c` is rebuilt from scratch, re-establish target trust before using `--build-host eduardo@pi-node-b` again.
+
+For bootstrap, expansion, and key rotation details, see `docs/REMOTE_BUILDS.md`.
 
 ## Monitoring Documentation Boundary
 

@@ -1,0 +1,98 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+  cat <<'USAGE'
+Usage:
+  scripts/bootstrap-nix-signing-key <key-name> <source-host> <target-host> [target-host...]
+  scripts/bootstrap-nix-signing-key --from-files <private-key-file> <public-key-file> <key-name> <target-host> [target-host...]
+
+Copies a Nix signing keypair to one or more target hosts at:
+  /etc/nix/<key-name>-priv.pem
+  /etc/nix/<key-name>-pub.pem
+
+This is a one-time bootstrap step used when a host must recover an existing
+builder signing identity after reinstall or replacement.
+
+Examples:
+  scripts/bootstrap-nix-signing-key pi-node-b pi-node-b pi-node-c
+  scripts/bootstrap-nix-signing-key --from-files ./pi-node-b-priv.pem ./pi-node-b-pub.pem pi-node-b pi-node-b
+USAGE
+}
+
+if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+  usage
+  exit 0
+fi
+
+from_files=0
+private_key_file=""
+public_key_file=""
+key_name=""
+source_host=""
+targets=()
+
+if [[ "${1:-}" == "--from-files" ]]; then
+  from_files=1
+  private_key_file="${2:-}"
+  public_key_file="${3:-}"
+  shift 3 || true
+fi
+
+if [[ $from_files -eq 1 ]]; then
+  if [[ $# -lt 2 ]]; then
+    usage >&2
+    exit 2
+  fi
+  key_name="${1:-}"
+  shift
+  targets=("$@")
+else
+  if [[ $# -lt 3 ]]; then
+    usage >&2
+    exit 2
+  fi
+  key_name="${1:-}"
+  source_host="${2:-}"
+  shift 2
+  targets=("$@")
+fi
+
+if [[ -z "$key_name" ]]; then
+  echo "Missing key name" >&2
+  exit 2
+fi
+
+priv_path="/etc/nix/${key_name}-priv.pem"
+pub_path="/etc/nix/${key_name}-pub.pem"
+
+if [[ $from_files -eq 1 ]]; then
+  if [[ ! -f "$private_key_file" ]]; then
+    echo "Private key file not found: $private_key_file" >&2
+    exit 1
+  fi
+  if [[ ! -f "$public_key_file" ]]; then
+    echo "Public key file not found: $public_key_file" >&2
+    exit 1
+  fi
+fi
+
+for target in "${targets[@]}"; do
+  echo "Bootstrapping Nix signing key '${key_name}' on: $target"
+
+  if [[ $from_files -eq 1 ]]; then
+    cat "$private_key_file" \
+      | ssh "$target" "sudo install -D -m 600 /dev/stdin ${priv_path}"
+    cat "$public_key_file" \
+      | ssh "$target" "sudo install -D -m 644 /dev/stdin ${pub_path}"
+  else
+    ssh "$source_host" "sudo cat ${priv_path}" \
+      | ssh "$target" "sudo install -D -m 600 /dev/stdin ${priv_path}"
+    ssh "$source_host" "sudo cat ${pub_path}" \
+      | ssh "$target" "sudo install -D -m 644 /dev/stdin ${pub_path}"
+  fi
+
+  ssh "$target" "sudo test -s ${priv_path} && sudo test -s ${pub_path} && sudo ls -l ${priv_path} ${pub_path}"
+done
+
+echo "Done. Targets now have the signing identity at ${priv_path} and ${pub_path}."

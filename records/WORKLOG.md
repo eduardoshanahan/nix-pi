@@ -242,3 +242,20 @@ Format
   `NIXPKGS_ALLOW_BROKEN=1` and daemon `system-features` to include
   `gccarch-armv7-a`; build was started but not completed within tool timeout.
 - References: flake.nix, nixos/profiles/rpi3.nix
+
+- Date: 2026-03-03
+- Work: Enabled signed remote builds from `pi-node-b` to `pi-node-c`.
+- Details: Added host options for Nix signing/trust, configured `pi-node-b` to
+  sign local store paths, configured `pi-node-c` to trust the builder key, and
+  completed the first successful rebuild after a one-time live trust bootstrap
+  and closure signing pass for pre-existing unsigned outputs.
+- References: nixos/modules/options.nix, nixos/modules/base.nix,
+  nixos/hosts/private/pi-node-b.nix, nixos/hosts/private/pi-node-c.nix, README.md
+
+- Date: 2026-03-03
+- Work: Added explicit remote builder bootstrap and rotation documentation.
+- Details: Added a helper script to restore Nix signing identities onto rebuilt
+  builders, documented the remote-build trust model, and added guidance for
+  expansion and key rotation.
+- References: scripts/bootstrap-nix-signing-key, docs/REMOTE_BUILDS.md,
+  docs/SECRETS.md, docs/PROVISIONING.md, private/PROVISIONING_LOCAL.md
