@@ -5,7 +5,7 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
     nixos-hardware.url = "github:NixOS/nixos-hardware";
-    nix-services.url = "github:eduardoshanahan/nix-services";
+    nix-services.url = "git+ssh://git@gitea.internal.example:2222/eduardo/nix-services.git?ref=main";
     sops-nix.url = "github:Mic92/sops-nix";
   };
 

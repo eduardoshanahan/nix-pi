@@ -44,15 +44,16 @@
       "locked": {
         "lastModified": 1772398801,
         "narHash": "sha256-idANUqrMVCkcvI5l4AYlqJOHkVrVc8LoBMhmyAROYRA=",
-        "owner": "eduardoshanahan",
-        "repo": "nix-services",
+        "ref": "main",
         "rev": "93612041bb535edbb93c22960a8dbb6c2ba3452c",
-        "type": "github"
+        "revCount": 162,
+        "type": "git",
+        "url": "ssh://git@gitea.internal.example:2222/eduardo/nix-services.git"
       },
       "original": {
-        "owner": "eduardoshanahan",
-        "repo": "nix-services",
-        "type": "github"
+        "ref": "main",
+        "type": "git",
+        "url": "ssh://git@gitea.internal.example:2222/eduardo/nix-services.git"
       }
     },
     "nixos-hardware": {
