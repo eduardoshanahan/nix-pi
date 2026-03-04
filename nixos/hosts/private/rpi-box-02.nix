@@ -258,6 +258,7 @@ let
       vikunja = "https://vikunja.${config.lab.domain}/";
       ghost = "https://blog.${config.lab.domain}/";
       gitea = "https://gitea.${config.lab.domain}/";
+      homepage = "https://homepage.${config.lab.domain}/";
     };
     direct = {
       lokiReady = "http://loki.${config.lab.domain}:3100/ready";
@@ -283,6 +284,7 @@ let
       (mkHttpMonitor "Vikunja" availabilityTargets.routed.vikunja)
       (mkHttpMonitor "Ghost" availabilityTargets.routed.ghost)
       (mkHttpMonitor "Gitea" availabilityTargets.routed.gitea)
+      (mkHttpMonitor "Homepage" availabilityTargets.routed.homepage)
       (mkKeywordMonitor "Loki Ready" availabilityTargets.direct.lokiReady "ready")
       (mkDnsMonitor "DNS Pi-hole" "google.com" "192.0.2.10")
     ]
@@ -532,6 +534,7 @@ in {
     inputs.nix-services.services.excalidraw
     inputs.nix-services.services.uptimeKuma
     inputs.nix-services.services.vikunjaCompose
+    inputs.nix-services.services.homepageDashboard
     inputs.nix-services.services.owntracksRecorder
     inputs.nix-services.services.ghost
     inputs.nix-services.services.promtail
@@ -708,6 +711,126 @@ in {
     enable = true;
     hostname = "vikunja.${config.lab.domain}";
     tls = true;
+  };
+
+  services.homepageDashboard = {
+    enable = true;
+    hostname = "homepage.${config.lab.domain}";
+    tls = true;
+
+    docker.enable = true;
+
+    config = {
+      settings = {
+        title = "HHLab";
+        description = "Internal service dashboard";
+      };
+
+      services = [
+        {
+          "Core" = [
+            {
+              "Homepage" = {
+                href = availabilityTargets.routed.homepage;
+                description = "Service dashboard";
+                server = "local";
+                container = "homepage";
+              };
+            }
+            {
+              "Pi-hole Secondary" = {
+                href = availabilityTargets.routed.piholeSecondary;
+                description = "Local DNS admin";
+                server = "local";
+                container = "pihole";
+              };
+            }
+            {
+              "Grafana" = {
+                href = availabilityTargets.routed.grafana;
+                description = "Dashboards and metrics";
+                server = "local";
+                container = "grafana";
+              };
+            }
+            {
+              "Prometheus" = {
+                href = availabilityTargets.routed.prometheus;
+                description = "Metrics collection";
+                server = "local";
+                container = "prometheus";
+              };
+            }
+            {
+              "Alertmanager" = {
+                href = availabilityTargets.routed.alertmanager;
+                description = "Alert routing";
+                server = "local";
+                container = "alertmanager";
+              };
+            }
+          ];
+        }
+        {
+          "Apps" = [
+            {
+              "diagrams.net" = {
+                href = availabilityTargets.routed.diagramsNet;
+                description = "Diagram editor";
+                server = "local";
+                container = "diagrams-net";
+              };
+            }
+            {
+              "Excalidraw" = {
+                href = availabilityTargets.routed.excalidraw;
+                description = "Whiteboard";
+                server = "local";
+                container = "excalidraw";
+              };
+            }
+            {
+              "Uptime Kuma" = {
+                href = availabilityTargets.routed.kuma;
+                description = "Availability checks";
+                server = "local";
+                container = "uptime-kuma";
+              };
+            }
+            {
+              "Vikunja" = {
+                href = availabilityTargets.routed.vikunja;
+                description = "Tasks";
+                server = "local";
+                container = "vikunja";
+              };
+            }
+            {
+              "OwnTracks" = {
+                href = availabilityTargets.routed.owntracks;
+                description = "Location recorder";
+                server = "local";
+                container = "owntracks-recorder";
+              };
+            }
+            {
+              "Ghost" = {
+                href = availabilityTargets.routed.ghost;
+                description = "Internal blog";
+                server = "local";
+                container = "ghost";
+              };
+            }
+            {
+              "Gitea" = {
+                href = availabilityTargets.routed.gitea;
+                description = "Code forge on nas-host";
+              };
+            }
+          ];
+        }
+      ];
+    };
   };
 
   services.owntracksRecorder = {

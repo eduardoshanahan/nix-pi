@@ -211,6 +211,7 @@ container is started.
 - `diagrams.net`
 - `Excalidraw`
 - `Kuma Self`
+- `Homepage`
 - `Loki Ready`
 - `Node Exporter pi-node-a`
 - `Node Exporter pi-node-b`
@@ -251,6 +252,25 @@ ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "docker inspect --format '{{i
 ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "curl -sSI -H 'Host: <grafana-fqdn>' http://127.0.0.1/ | sed -n '1,8p'"
 
 ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "curl -skI https://<grafana-fqdn>/ | sed -n '1,12p'"
+```
+
+## Homepage (`pi-node-b`)
+
+- URL: `https://<homepage-fqdn>`
+- Config files are generated declaratively under `/etc/homepage/config`.
+- The service mounts the local Docker socket read-only so Homepage can show
+  container-backed status for local cards.
+
+### Homepage quick checks
+
+```bash
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "systemctl is-active homepage; sudo systemctl --no-pager --lines=40 status homepage"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "docker ps --filter name=homepage --format 'table {{.Names}}\t{{.Status}}\t{{.Image}}'"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "curl -sSI -H 'Host: <homepage-fqdn>' http://127.0.0.1/ | sed -n '1,8p'"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "curl -skI https://<homepage-fqdn>/ | sed -n '1,12p'"
 ```
 
 ### Admin password note
