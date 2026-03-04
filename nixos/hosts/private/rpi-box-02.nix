@@ -738,6 +738,12 @@ in {
               };
             }
             {
+              "Pi-hole Primary" = {
+                href = availabilityTargets.routed.piholePrimary;
+                description = "Primary DNS admin";
+              };
+            }
+            {
               "Pi-hole Secondary" = {
                 href = availabilityTargets.routed.piholeSecondary;
                 description = "Local DNS admin";
@@ -745,6 +751,10 @@ in {
                 container = "pihole";
               };
             }
+          ];
+        }
+        {
+          "Monitoring" = [
             {
               "Grafana" = {
                 href = availabilityTargets.routed.grafana;
@@ -772,7 +782,7 @@ in {
           ];
         }
         {
-          "Apps" = [
+          "Workspace" = [
             {
               "diagrams.net" = {
                 href = availabilityTargets.routed.diagramsNet;
@@ -790,19 +800,23 @@ in {
               };
             }
             {
-              "Uptime Kuma" = {
-                href = availabilityTargets.routed.kuma;
-                description = "Availability checks";
-                server = "local";
-                container = "uptime-kuma";
-              };
-            }
-            {
               "Vikunja" = {
                 href = availabilityTargets.routed.vikunja;
                 description = "Tasks";
                 server = "local";
                 container = "vikunja";
+              };
+            }
+          ];
+        }
+        {
+          "Apps" = [
+            {
+              "Uptime Kuma" = {
+                href = availabilityTargets.routed.kuma;
+                description = "Availability checks";
+                server = "local";
+                container = "uptime-kuma";
               };
             }
             {
