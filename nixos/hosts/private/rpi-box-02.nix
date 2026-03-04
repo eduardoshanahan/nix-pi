@@ -260,6 +260,7 @@ let
       gitea = "https://gitea.${config.lab.domain}/";
       homepage = "https://homepage.${config.lab.domain}/";
       archivebox = "https://archivebox.${config.lab.domain}/";
+      outline = "https://outline.${config.lab.domain}/";
     };
     direct = {
       lokiReady = "http://loki.${config.lab.domain}:3100/ready";
@@ -855,6 +856,12 @@ in {
               "ArchiveBox" = {
                 href = availabilityTargets.routed.archivebox;
                 description = "Web archive (health in Uptime Kuma)";
+              };
+            }
+            {
+              "Outline" = {
+                href = availabilityTargets.routed.outline;
+                description = "Knowledge base";
               };
             }
           ];
