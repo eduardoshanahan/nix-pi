@@ -259,6 +259,7 @@ let
       ghost = "https://blog.${config.lab.domain}/";
       gitea = "https://gitea.${config.lab.domain}/";
       homepage = "https://homepage.${config.lab.domain}/";
+      archivebox = "https://archivebox.${config.lab.domain}/";
     };
     direct = {
       lokiReady = "http://loki.${config.lab.domain}:3100/ready";
@@ -285,6 +286,7 @@ let
       (mkHttpMonitor "Ghost" availabilityTargets.routed.ghost)
       (mkHttpMonitor "Gitea" availabilityTargets.routed.gitea)
       (mkHttpMonitor "Homepage" availabilityTargets.routed.homepage)
+      (mkHttpMonitor "ArchiveBox" availabilityTargets.routed.archivebox)
       (mkKeywordMonitor "Loki Ready" availabilityTargets.direct.lokiReady "ready")
       (mkDnsMonitor "DNS Pi-hole" "google.com" "192.0.2.10")
     ]
@@ -738,12 +740,6 @@ in {
               };
             }
             {
-              "Pi-hole Primary" = {
-                href = availabilityTargets.routed.piholePrimary;
-                description = "Primary DNS admin";
-              };
-            }
-            {
               "Pi-hole Secondary" = {
                 href = availabilityTargets.routed.piholeSecondary;
                 description = "Local DNS admin";
@@ -835,10 +831,30 @@ in {
                 container = "ghost";
               };
             }
+          ];
+        }
+        {
+          "pi-node-a" = [
+            {
+              "Pi-hole Primary" = {
+                href = availabilityTargets.routed.piholePrimary;
+                description = "Primary DNS admin (health in Uptime Kuma)";
+              };
+            }
+          ];
+        }
+        {
+          "nas-host" = [
             {
               "Gitea" = {
                 href = availabilityTargets.routed.gitea;
-                description = "Code forge on nas-host";
+                description = "Code forge (health in Uptime Kuma)";
+              };
+            }
+            {
+              "ArchiveBox" = {
+                href = availabilityTargets.routed.archivebox;
+                description = "Web archive (health in Uptime Kuma)";
               };
             }
           ];
