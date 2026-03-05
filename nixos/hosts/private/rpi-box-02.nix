@@ -524,7 +524,7 @@ let
     PY
   '';
   hasSmtpRelayModule = inputs.nix-services.services ? smtpRelay;
-in ({
+in lib.recursiveUpdate ({
   imports = [
     inputs.nix-services.services.traefik
     inputs.nix-services.services.pihole
@@ -1076,7 +1076,7 @@ in ({
     listenAddress = "0.0.0.0";
     listenPort = 9130;
   };
-} // lib.optionalAttrs hasSmtpRelayModule {
+}) (lib.optionalAttrs hasSmtpRelayModule {
   services.smtpRelayCompose = {
     enable = true;
     hostname = "smtp-relay.${config.lab.domain}";
