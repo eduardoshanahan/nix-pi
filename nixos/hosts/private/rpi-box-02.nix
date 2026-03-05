@@ -257,7 +257,6 @@ let
       alertmanager = "https://alertmanager.${config.lab.domain}/";
       vikunja = "https://vikunja.${config.lab.domain}/";
       ghost = "https://blog.${config.lab.domain}/";
-      solidtime = "https://solidtime.${config.lab.domain}/";
       gitea = "https://gitea.${config.lab.domain}/";
       homepage = "https://homepage.${config.lab.domain}/";
       archivebox = "https://archivebox.${config.lab.domain}/";
@@ -286,7 +285,6 @@ let
       (mkHttpMonitor "Alertmanager" availabilityTargets.routed.alertmanager)
       (mkHttpMonitor "Vikunja" availabilityTargets.routed.vikunja)
       (mkHttpMonitor "Ghost" availabilityTargets.routed.ghost)
-      (mkHttpMonitor "Solidtime" availabilityTargets.routed.solidtime)
       (mkHttpMonitor "Gitea" availabilityTargets.routed.gitea)
       (mkHttpMonitor "Homepage" availabilityTargets.routed.homepage)
       (mkHttpMonitor "ArchiveBox" availabilityTargets.routed.archivebox)
@@ -526,7 +524,6 @@ let
     PY
   '';
   hasSmtpRelayModule = inputs.nix-services.services ? smtpRelay;
-  hasSolidtimeModule = inputs.nix-services.services ? solidtimeCompose;
 in lib.recursiveUpdate ({
   imports = [
     inputs.nix-services.services.traefik
@@ -547,8 +544,7 @@ in lib.recursiveUpdate ({
     inputs.nix-services.services.promtail
     inputs.nix-services.services.snmpExporter
     inputs.nix-services.services.unpoller
-  ] ++ lib.optional hasSmtpRelayModule inputs.nix-services.services.smtpRelay
-    ++ lib.optional hasSolidtimeModule inputs.nix-services.services.solidtimeCompose;
+  ] ++ lib.optional hasSmtpRelayModule inputs.nix-services.services.smtpRelay;
 
   networking.hostName = "pi-node-b";
   lab.nix.signingKeyFile = "/etc/nix/pi-node-b-priv.pem";
@@ -639,16 +635,6 @@ in lib.recursiveUpdate ({
     format = "yaml";
     key = "ghost-mail-password";
     path = "/run/secrets/ghost-mail-password";
-    owner = "root";
-    group = "root";
-    mode = "0400";
-  };
-
-  sops.secrets.solidtime-secrets-env = {
-    sopsFile = ../../../secrets/secrets.yaml;
-    format = "yaml";
-    key = "solidtime-secrets-env";
-    path = "/run/secrets/solidtime-secrets.env";
     owner = "root";
     group = "root";
     mode = "0400";
@@ -845,14 +831,6 @@ in lib.recursiveUpdate ({
                 description = "Internal blog";
                 server = "local";
                 container = "ghost";
-              };
-            }
-            {
-              "Solidtime" = {
-                href = availabilityTargets.routed.solidtime;
-                description = "Time tracking";
-                server = "local";
-                container = "solidtime-app";
               };
             }
           ];
@@ -1098,8 +1076,7 @@ in lib.recursiveUpdate ({
     listenAddress = "0.0.0.0";
     listenPort = 9130;
   };
-}) (lib.recursiveUpdate
-  (lib.optionalAttrs hasSmtpRelayModule {
+}) (lib.optionalAttrs hasSmtpRelayModule {
     services.smtpRelayCompose = {
       enable = true;
       hostname = "smtp-relay.${config.lab.domain}";
@@ -1121,31 +1098,3 @@ in lib.recursiveUpdate ({
       ];
     };
   })
-  (lib.optionalAttrs hasSolidtimeModule {
-    services.solidtimeCompose = {
-      # Enable after provisioning `/run/secrets/solidtime-secrets.env`
-      # (for example via a sops-nix secret declaration).
-      enable = true;
-      hostname = "solidtime.${config.lab.domain}";
-      tls = true;
-      dataDir = "/var/lib/solidtime";
-      secretFile = config.sops.secrets.solidtime-secrets-env.path;
-
-      database = {
-        host = "postgres.internal.example";
-        port = 5433;
-        name = "solidtime";
-        user = "solidtime";
-        sslmode = "disable";
-      };
-
-      mail = {
-        host = "smtp-relay.${config.lab.domain}";
-        port = 2525;
-        encryption = "";
-        fromAddress = "no-reply@solidtime.${config.lab.domain}";
-        fromName = "solidtime";
-        username = "";
-      };
-    };
-  }))
