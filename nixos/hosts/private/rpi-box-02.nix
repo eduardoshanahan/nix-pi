@@ -731,6 +731,7 @@ in lib.recursiveUpdate ({
     dataDir = "/srv/prometheus/home-assistant";
     tls = true;
     image.tag = "2026.3.0";
+    reverseProxy.trustedProxies = [ "172.18.0.0/16" ];
   };
 
   services.uptimeKuma = {
