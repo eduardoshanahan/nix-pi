@@ -523,7 +523,8 @@ let
     conn.close()
     PY
   '';
-in {
+  hasSmtpRelayModule = inputs.nix-services.services ? smtpRelay;
+in ({
   imports = [
     inputs.nix-services.services.traefik
     inputs.nix-services.services.pihole
@@ -543,7 +544,7 @@ in {
     inputs.nix-services.services.promtail
     inputs.nix-services.services.snmpExporter
     inputs.nix-services.services.unpoller
-  ];
+  ] ++ lib.optional hasSmtpRelayModule inputs.nix-services.services.smtpRelay;
 
   networking.hostName = "pi-node-b";
   lab.nix.signingKeyFile = "/etc/nix/pi-node-b-priv.pem";
@@ -910,10 +911,10 @@ in {
     mail = {
       enable = true;
       from = "eduardoshanahan@gmail.com";
-      host = "smtp.gmail.com";
-      port = 465;
-      secure = true;
-      user = "eduardoshanahan@gmail.com";
+      host = if hasSmtpRelayModule then "smtp-relay.${config.lab.domain}" else "smtp.gmail.com";
+      port = if hasSmtpRelayModule then 2525 else 465;
+      secure = if hasSmtpRelayModule then false else true;
+      user = if hasSmtpRelayModule then "" else "eduardoshanahan@gmail.com";
       passwordFile = config.sops.secrets.ghost-mail-password.path;
     };
   };
@@ -941,6 +942,8 @@ in {
       # Enable after adding these secrets in sops and wiring sops.secrets entries.
       email = {
         enable = false;
+        smarthost = if hasSmtpRelayModule then "smtp-relay.${config.lab.domain}:2525" else "smtp.gmail.com:587";
+        requireTls = !hasSmtpRelayModule;
         from = "homelab-alerts@example.com";
         to = "you@example.com";
         authUsername = "homelab-alerts@example.com";
@@ -1073,4 +1076,25 @@ in {
     listenAddress = "0.0.0.0";
     listenPort = 9130;
   };
-}
+} // lib.optionalAttrs hasSmtpRelayModule {
+  services.smtpRelayCompose = {
+    enable = true;
+    hostname = "smtp-relay.${config.lab.domain}";
+    listenAddress = "0.0.0.0";
+    listenPort = 2525;
+    openFirewall = true;
+
+    upstream = {
+      host = "smtp.gmail.com";
+      port = 587;
+      username = "eduardoshanahan@gmail.com";
+      passwordFile = config.sops.secrets.ghost-mail-password.path;
+    };
+
+    allowedSenderDomains = [
+      config.lab.domain
+      "gmail.com"
+      "example.com"
+    ];
+  };
+})
