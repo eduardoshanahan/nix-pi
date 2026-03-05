@@ -849,7 +849,7 @@ in lib.recursiveUpdate ({
                 href = availabilityTargets.routed.ghost;
                 description = "Internal blog";
                 server = "local";
-                container = "ghost";
+                container = "ghost-blog";
               };
             }
           ];
