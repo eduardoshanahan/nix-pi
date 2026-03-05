@@ -42,11 +42,11 @@
         "nixpkgs": "nixpkgs"
       },
       "locked": {
-        "lastModified": 1772711433,
-        "narHash": "sha256-VRA5iWtmW2Kv9BZQpmNu2IOJhBVnN9yzFXr6iDELBT8=",
+        "lastModified": 1772715636,
+        "narHash": "sha256-yFR08cjy+UKSc1JmcplGXWjlB2rJaqr80UDnSmXV7GM=",
         "ref": "main",
-        "rev": "8999bac0156cdec3e54493628f5aca07312669d6",
-        "revCount": 174,
+        "rev": "538bd6bcf2d81b9cd0f1d46331a9a60233335f69",
+        "revCount": 175,
         "type": "git",
         "url": "ssh://git@gitea.internal.example:2222/eduardo/nix-services.git"
       },
