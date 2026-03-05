@@ -913,29 +913,52 @@ in lib.recursiveUpdate ({
     config.environment.etc."uptime-kuma/desired-monitors.json".source
   ];
 
-  services.ghost = {
-    enable = true;
-    hostname = "blog.${config.lab.domain}";
-    tls = true;
-    dataDir = "/var/lib/ghost";
+  services.ghost.instances = {
+    blog = {
+      hostname = "blog.${config.lab.domain}";
+      tls = true;
+      dataDir = "/var/lib/ghost";
 
-    database = {
-      host = "nas-host.${config.lab.domain}";
-      port = 3306;
-      name = "ghost";
-      user = "ghost";
-      passwordFile = config.sops.secrets.ghost-db-password.path;
+      database = {
+        host = "nas-host.${config.lab.domain}";
+        port = 3306;
+        name = "ghost";
+        user = "ghost";
+        passwordFile = config.sops.secrets.ghost-db-password.path;
+      };
+
+      mail = {
+        enable = true;
+        from = "eduardoshanahan@gmail.com";
+        host = if hasSmtpRelayModule then "smtp-relay.${config.lab.domain}" else "smtp.gmail.com";
+        port = if hasSmtpRelayModule then 2525 else 465;
+        secure = if hasSmtpRelayModule then false else true;
+        user = if hasSmtpRelayModule then "" else "eduardoshanahan@gmail.com";
+        passwordFile = config.sops.secrets.ghost-mail-password.path;
+      };
     };
 
-    mail = {
-      enable = true;
-      from = "eduardoshanahan@gmail.com";
-      host = if hasSmtpRelayModule then "smtp-relay.${config.lab.domain}" else "smtp.gmail.com";
-      port = if hasSmtpRelayModule then 2525 else 465;
-      secure = if hasSmtpRelayModule then false else true;
-      user = if hasSmtpRelayModule then "" else "eduardoshanahan@gmail.com";
-      passwordFile = config.sops.secrets.ghost-mail-password.path;
-    };
+    # blog2 = {
+    #   hostname = "blog2.${config.lab.domain}";
+    #   tls = true;
+    #   dataDir = "/var/lib/ghost-blog2";
+    #   database = {
+    #     host = "nas-host.${config.lab.domain}";
+    #     port = 3306;
+    #     name = "ghost_blog2";
+    #     user = "ghost_blog2";
+    #     passwordFile = "/run/secrets/ghost-blog2-db-password";
+    #   };
+    #   mail = {
+    #     enable = true;
+    #     from = "eduardoshanahan@gmail.com";
+    #     host = "smtp-relay.${config.lab.domain}";
+    #     port = 2525;
+    #     secure = false;
+    #     user = "";
+    #     passwordFile = config.sops.secrets.ghost-mail-password.path;
+    #   };
+    # };
   };
 
   services.grafanaCompose = {
