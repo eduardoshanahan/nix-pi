@@ -1092,6 +1092,7 @@ in lib.recursiveUpdate ({
 
       allowedSenderDomains = [
         config.lab.domain
+        "primary.example"
         "gmail.com"
         "example.com"
       ];
