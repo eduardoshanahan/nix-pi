@@ -19,12 +19,12 @@
   }];
 
   networking.defaultGateway = "192.0.2.10";
-  # Keep upstream resolver first for host stability; add Pi-hole second so this
-  # host can still resolve internal zones such as *.internal.example.
+  # Use internal DNS only so split-horizon zones (for example
+  # *.internal.example) always resolve correctly. Keep peer first so this host
+  # can still resolve while local Pi-hole restarts.
   networking.nameservers = lib.mkForce [
     "192.0.2.10"
     "192.0.2.10"
-    "1.1.1.1"
   ];
 
   # Force sops-nix to use the per-host age key file (lab.sops.ageKeyFile) rather

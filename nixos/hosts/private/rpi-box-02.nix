@@ -550,8 +550,7 @@ in lib.recursiveUpdate ({
   lab.nix.signingKeyFile = "/etc/nix/pi-node-b-priv.pem";
   networking.nameservers = lib.mkForce [
     "192.0.2.10"
-    "1.1.1.1"
-    "1.0.0.1"
+    "192.0.2.10"
   ];
 
   fileSystems."/srv/prometheus" = {
