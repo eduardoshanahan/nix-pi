@@ -79,32 +79,32 @@ Deploy (host-local for `pi-node-a` / `pi-node-b`, remote builder for `pi-node-c`
 
 ```bash
 
-cd /home/eduardo/Programming/private/nix-services
+cd /home/eduardo/Programming/gitea.internal.example/hhlab-insfrastructure/nix-services
 git add .
 git commit -m "rebuild"
 git push
 
-cd /home/eduardo/Programming/private/nix-pi
+cd /home/eduardo/Programming/gitea.internal.example/hhlab-insfrastructure/nix-pi
 nix flake update nix-services
 git add .
 git commit -m "rebuild"
 git push
 
-cd /home/eduardo/Programming/private/nix-pi
+cd /home/eduardo/Programming/gitea.internal.example/hhlab-insfrastructure/nix-pi
 nixos-rebuild switch \
   --flake path:.#pi-node-a \
   --target-host eduardo@pi-node-a \
   --build-host eduardo@pi-node-a \
   --sudo
 
-cd /home/eduardo/Programming/private/nix-pi
+cd /home/eduardo/Programming/gitea.internal.example/hhlab-insfrastructure/nix-pi
 nixos-rebuild switch \
   --flake path:.#pi-node-b \
   --target-host eduardo@pi-node-b \
   --build-host eduardo@pi-node-b \
   --sudo
 
-cd /home/eduardo/Programming/private/nix-pi
+cd /home/eduardo/Programming/gitea.internal.example/hhlab-insfrastructure/nix-pi
 nixos-rebuild switch \
   --flake path:.#pi-node-c \
   --target-host eduardo@pi-node-c \
@@ -184,6 +184,23 @@ ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "journalctl -u excalidraw-hea
   - `last/` for current per-device state
   - `rec/` for monthly track history
   - `ghash/` for Recorder metadata
+
+## SMTP Relay (`pi-node-b`)
+
+- Internal relay endpoint: `smtp-relay.<lab-domain>:2525`
+- Backing service: `services.smtpRelayCompose` (from `nix-services`)
+- Upstream relay: `smtp.gmail.com:587` (authenticated)
+- Current status: deployed and verified (`status=sent` in Postfix logs)
+
+### SMTP relay quick checks
+
+```bash
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "systemctl is-active smtp-relay; sudo systemctl --no-pager --lines=40 status smtp-relay"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "docker ps --filter name=smtp-relay --format 'table {{.Names}}\t{{.Status}}\t{{.Image}}\t{{.Ports}}'"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "sudo docker logs --tail 80 smtp-relay | grep -E 'status=sent|to=<|from=<' | tail -n 20"
+```
 
 ## Uptime Kuma (`pi-node-b`)
 
@@ -340,5 +357,7 @@ Pending task (not enabled yet): configure Alertmanager email + Telegram receiver
   - `/run/secrets/alertmanager-telegram-bot-token`
 - In `nixos/hosts/private/pi-node-b.nix`, set:
   - `services.alertmanager.notifications.email.enable = true;`
+  - keep `services.alertmanager.notifications.email.smarthost = "smtp-relay.${config.lab.domain}:2525";`
+  - keep `services.alertmanager.notifications.email.requireTls = false;` (TLS is between relay and upstream)
   - `services.alertmanager.notifications.telegram.enable = true;`
   - Real values for `from`, `to`, `authUsername`, and `chatId`.
