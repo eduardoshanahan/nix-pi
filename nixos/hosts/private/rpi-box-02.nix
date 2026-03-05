@@ -541,6 +541,7 @@ in lib.recursiveUpdate ({
     inputs.nix-services.services.homepageDashboard
     inputs.nix-services.services.owntracksRecorder
     inputs.nix-services.services.ghost
+    inputs.nix-services.services.homeAssistant
     inputs.nix-services.services.promtail
     inputs.nix-services.services.snmpExporter
     inputs.nix-services.services.unpoller
@@ -722,6 +723,13 @@ in lib.recursiveUpdate ({
       repository = "excalidraw/excalidraw";
       digest = "sha256:3c2513e830bb6e195147c05b34ecf8393d0ba2b1cc86e93b407a5777d6135c6c";
     };
+  };
+
+  services.homeAssistant = {
+    enable = true;
+    hostname = "homeassistant.${config.lab.domain}";
+    dataDir = "/srv/prometheus/home-assistant";
+    tls = true;
   };
 
   services.uptimeKuma = {
