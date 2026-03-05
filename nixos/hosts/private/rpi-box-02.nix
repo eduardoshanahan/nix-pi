@@ -639,6 +639,16 @@ in lib.recursiveUpdate ({
     mode = "0400";
   };
 
+  sops.secrets.smtp-relay-upstream-password = {
+    sopsFile = ../../../secrets/secrets.yaml;
+    format = "yaml";
+    key = "smtp-relay-upstream-password";
+    path = "/run/secrets/smtp-relay-upstream-password";
+    owner = "root";
+    group = "root";
+    mode = "0400";
+  };
+
   sops.secrets.alertmanager-smtp-password = {
     sopsFile = ../../../secrets/secrets.yaml;
     format = "yaml";
@@ -1096,7 +1106,7 @@ in lib.recursiveUpdate ({
         host = "smtp.gmail.com";
         port = 587;
         username = "eduardoshanahan@gmail.com";
-        passwordFile = config.sops.secrets.ghost-mail-password.path;
+        passwordFile = config.sops.secrets.smtp-relay-upstream-password.path;
       };
 
       allowedSenderDomains = [

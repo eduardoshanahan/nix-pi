@@ -190,6 +190,7 @@ ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "journalctl -u excalidraw-hea
 - Internal relay endpoint: `smtp-relay.<lab-domain>:2525`
 - Backing service: `services.smtpRelayCompose` (from `nix-services`)
 - Upstream relay: `smtp.gmail.com:587` (authenticated)
+- Upstream credential secret: `smtp-relay-upstream-password` -> `/run/secrets/smtp-relay-upstream-password`
 - Current status: deployed and verified (`status=sent` in Postfix logs)
 
 ### SMTP relay quick checks
@@ -345,19 +346,8 @@ Provisioned in Grafana folder `Homelab`:
 - `NAS Detail`
 - `NAS File Activity`
 
-## Future Reminder: Alertmanager Notifications
+## Alertmanager Notifications (`pi-node-b`)
 
-Pending task (not enabled yet): configure Alertmanager email + Telegram receivers on `pi-node-b`.
-
-- Add SOPS entries in `secrets/secrets.yaml`:
-  - `alertmanager-smtp-password`
-  - `alertmanager-telegram-bot-token`
-- Wire them as `sops.secrets` on `pi-node-b`:
-  - `/run/secrets/alertmanager-smtp-password`
-  - `/run/secrets/alertmanager-telegram-bot-token`
-- In `nixos/hosts/private/pi-node-b.nix`, set:
-  - `services.alertmanager.notifications.email.enable = true;`
-  - keep `services.alertmanager.notifications.email.smarthost = "smtp-relay.${config.lab.domain}:2525";`
-  - keep `services.alertmanager.notifications.email.requireTls = false;` (TLS is between relay and upstream)
-  - `services.alertmanager.notifications.telegram.enable = true;`
-  - Real values for `from`, `to`, `authUsername`, and `chatId`.
+- Email notifications are enabled and routed through `smtp-relay.<lab-domain>:2525`.
+- Runtime SMTP credential secret: `alertmanager-smtp-password` -> `/run/secrets/alertmanager-smtp-password`.
+- Telegram remains disabled by default in current config.
