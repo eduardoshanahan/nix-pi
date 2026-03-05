@@ -639,6 +639,16 @@ in lib.recursiveUpdate ({
     mode = "0400";
   };
 
+  sops.secrets.alertmanager-smtp-password = {
+    sopsFile = ../../../secrets/secrets.yaml;
+    format = "yaml";
+    key = "alertmanager-smtp-password";
+    path = "/run/secrets/alertmanager-smtp-password";
+    owner = "root";
+    group = "root";
+    mode = "0400";
+  };
+
   services.traefik.tls = {
     enable = true;
     certFile = config.sops.secrets.traefik-tls-crt.path;
@@ -938,15 +948,14 @@ in lib.recursiveUpdate ({
     tls = true;
 
     notifications = {
-      # Enable after adding these secrets in sops and wiring sops.secrets entries.
       email = {
-        enable = false;
+        enable = true;
         smarthost = if hasSmtpRelayModule then "smtp-relay.${config.lab.domain}:2525" else "smtp.gmail.com:587";
         requireTls = !hasSmtpRelayModule;
-        from = "homelab-alerts@example.com";
-        to = "you@example.com";
-        authUsername = "homelab-alerts@example.com";
-        authPasswordFile = "/run/secrets/alertmanager-smtp-password";
+        from = "noreply@internal.example";
+        to = "contact@primary.example";
+        authUsername = "eduardoshanahan@gmail.com";
+        authPasswordFile = config.sops.secrets.alertmanager-smtp-password.path;
       };
       telegram = {
         enable = false;
