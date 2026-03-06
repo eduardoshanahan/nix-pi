@@ -16,6 +16,14 @@ Before commit/push, run the sanitization checklist in:
 
 `PUBLIC_REPO_SANITIZATION_POLICY.md`
 
+## Housekeeping Reminder
+
+- Added on 2026-03-06.
+- Do housekeeping follow-up on 2026-03-10 (or later) after confirming stability:
+  - Remove obsolete local sqlite files left from migrations (for example old Grafana/Kuma DB files).
+  - Keep current backup snapshots for at least a few more days before deleting any historical copies.
+  - Re-check service health and alert noise after the recent database centralization changes.
+
 ## Why This Project
 
 I tried to implement this using Ubuntu, which I have been using for years, and tried to base projects on devcontainers.
@@ -78,6 +86,22 @@ scripts/export-sd-image result-rpi3 sd-image rpi3 --decompress
 Deploy (host-local for `pi-node-a` / `pi-node-b`, remote builder for `pi-node-c`)
 
 ```bash
+
+Yes, a few good “next central services” are still missing and could help:
+
+Central object storage (MinIO/S3-compatible)
+Useful for app uploads/backups/log archives.
+Many apps can move file blobs there later.
+
+SMTP relay exists; next step is making it a formal shared platform service with quotas/alerts/backup config.
+
+Central identity provider (SSO)
+Authentik or Keycloak for unified login across Grafana, Gitea, etc.
+
+Central message bus
+NATS (lightweight) or RabbitMQ for event-driven integrations/automation.
+
+Given your current stack, the most immediately useful is usually MinIO (for backups/artifacts) or SSO (for user management).
 
 cd /home/eduardo/Programming/gitea.internal.example/hhlab-insfrastructure/nix-services
 git add .
@@ -201,6 +225,23 @@ ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "systemctl is-active smtp-rel
 ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "docker ps --filter name=smtp-relay --format 'table {{.Names}}\t{{.Status}}\t{{.Image}}\t{{.Ports}}'"
 
 ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "sudo docker logs --tail 80 smtp-relay | grep -E 'status=sent|to=<|from=<' | tail -n 20"
+```
+
+## Shared Redis (`nas-host`)
+
+- Shared endpoint: `redis.<lab-domain>:6379`
+- Runtime owner: `synology-services/nas-host/redis` (not a `nix-pi` host module)
+- Current client already using shared Redis: Outline
+- Authentication: password-required (`REDIS_URL` with `redis://:<password>@redis.<lab-domain>:6379`)
+
+### Shared Redis quick checks
+
+```bash
+ssh -o BatchMode=yes -o ConnectTimeout=6 nas-host "cd /volume1/docker/homelab/nas-host/redis && sudo -n /usr/local/bin/docker compose ps"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 nas-host "cd /volume1/docker/homelab/nas-host/redis && sudo -n /usr/local/bin/docker compose logs --tail 60"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 nas-host "cd /volume1/docker/homelab/nas-host/outline && sudo -n /usr/local/bin/docker inspect -f '{{range .Config.Env}}{{println .}}{{end}}' outline | grep '^REDIS_URL='"
 ```
 
 ## Home Assistant (`pi-node-b`)
