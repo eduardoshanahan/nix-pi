@@ -557,6 +557,7 @@ in lib.recursiveUpdate ({
     inputs.nix-services.services.owntracksRecorder
     inputs.nix-services.services.ghost
     inputs.nix-services.services.homeAssistant
+    inputs.nix-services.services.authentikCompose
     inputs.nix-services.services.promtail
     inputs.nix-services.services.snmpExporter
     inputs.nix-services.services.unpoller
@@ -715,6 +716,36 @@ in lib.recursiveUpdate ({
     mode = "0400";
   };
 
+  sops.secrets.authentik-db-password = {
+    sopsFile = ../../../secrets/secrets.yaml;
+    format = "yaml";
+    key = "authentik-db-password";
+    path = "/run/secrets/authentik-db-password";
+    owner = "root";
+    group = "root";
+    mode = "0400";
+  };
+
+  sops.secrets.authentik-secret-key = {
+    sopsFile = ../../../secrets/secrets.yaml;
+    format = "yaml";
+    key = "authentik-secret-key";
+    path = "/run/secrets/authentik-secret-key";
+    owner = "root";
+    group = "root";
+    mode = "0400";
+  };
+
+  sops.secrets.authentik-bootstrap-password = {
+    sopsFile = ../../../secrets/secrets.yaml;
+    format = "yaml";
+    key = "authentik-bootstrap-password";
+    path = "/run/secrets/authentik-bootstrap-password";
+    owner = "root";
+    group = "root";
+    mode = "0400";
+  };
+
   services.traefik.tls = {
     enable = true;
     certFile = config.sops.secrets.traefik-tls-crt.path;
@@ -788,6 +819,26 @@ in lib.recursiveUpdate ({
     image.tag = "2026.3.0";
     reverseProxy.trustedProxies = [ "172.18.0.0/16" ];
     recorder.dbUrlFile = config.sops.secrets.homeassistant-recorder-db-url.path;
+  };
+
+  services.authentikCompose = {
+    enable = true;
+    hostname = "authentik.${config.lab.domain}";
+    tls = true;
+    dataDir = "/srv/prometheus/authentik";
+    database.postgres = {
+      host = "postgres.${config.lab.domain}";
+      port = 5433;
+      name = "authentik";
+      user = "authentik";
+      passwordFile = config.sops.secrets.authentik-db-password.path;
+      sslMode = "disable";
+    };
+    secretKeyFile = config.sops.secrets.authentik-secret-key.path;
+    bootstrap = {
+      email = "contact@primary.example";
+      passwordFile = config.sops.secrets.authentik-bootstrap-password.path;
+    };
   };
 
   services.uptimeKuma = {

@@ -95,13 +95,9 @@ Many apps can move file blobs there later.
 
 SMTP relay exists; next step is making it a formal shared platform service with quotas/alerts/backup config.
 
-Central identity provider (SSO)
-Authentik or Keycloak for unified login across Grafana, Gitea, etc.
-
 Central message bus
 NATS (lightweight) or RabbitMQ for event-driven integrations/automation.
 
-Given your current stack, the most immediately useful is usually MinIO (for backups/artifacts) or SSO (for user management).
 
 cd /home/eduardo/Programming/gitea.internal.example/hhlab-insfrastructure/nix-services
 git add .
