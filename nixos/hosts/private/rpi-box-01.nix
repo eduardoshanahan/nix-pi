@@ -7,6 +7,7 @@
     inputs.nix-services.services.cadvisor
     inputs.nix-services.services.promtail
     inputs.nix-services.services.tailscale
+    inputs.nix-services.services.dockerSocketProxyCompose
   ];
 
   networking.hostName = "pi-node-a";
@@ -111,34 +112,15 @@
     listenPort = 8081;
   };
 
-  # Read-only Docker API proxy for Homepage on pi-node-b.
-  virtualisation.oci-containers.containers.docker-socket-proxy = {
-    image = "docker.io/tecnativa/docker-socket-proxy:latest";
-    ports = [
-      "192.0.2.10:2375:2375"
-    ];
-    volumes = [
-      "/var/run/docker.sock:/var/run/docker.sock:ro"
-    ];
-    environment = {
-      CONTAINERS = "1";
-      EVENTS = "1";
-      IMAGES = "1";
-      INFO = "1";
-      NETWORKS = "1";
-      PING = "1";
-      VERSION = "1";
-      VOLUMES = "1";
-      POST = "0";
-      AUTH = "0";
-      SECRETS = "0";
-      SERVICES = "0";
-      SWARM = "0";
-      TASKS = "0";
+  services.dockerSocketProxyCompose = {
+    enable = true;
+    listenAddress = "192.0.2.10";
+    listenPort = 2375;
+    socketPath = "/var/run/docker.sock";
+    image = {
+      tag = "latest";
+      allowMutableTag = true;
     };
-    extraOptions = [
-      "--pull=always"
-    ];
   };
 
   services.prometheus.exporters.node = {
