@@ -1143,6 +1143,7 @@ in lib.recursiveUpdate ({
       apiUrl = "https://authentik.${config.lab.domain}/application/o/userinfo/";
       scopes = "openid profile email";
       usePkce = true;
+      tlsSkipVerifyInsecure = true;
     };
     tls = true;
     provisioning.datasources.loki.url = "http://loki.${config.lab.domain}:3100";
