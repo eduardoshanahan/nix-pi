@@ -1123,7 +1123,8 @@ in lib.recursiveUpdate ({
   };
 
   # Homepage supports multiple Docker servers via docker.yaml.
-  environment.etc."static/homepage/config/docker.yaml".text = lib.mkForce ''
+  # Override the exact path read by the container mount.
+  environment.etc."homepage/config/docker.yaml".text = lib.mkForce ''
     local:
       socket: /var/run/docker.sock
     pi-node-a:
