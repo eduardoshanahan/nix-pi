@@ -1094,6 +1094,38 @@ in lib.recursiveUpdate ({
                 container = "pihole";
               };
             }
+            {
+              "cAdvisor (box 1)" = {
+                href = "http://${metricsHost "pi-node-a"}:8081/metrics";
+                description = "Container metrics endpoint";
+                server = "pi-node-a";
+                container = "cadvisor";
+              };
+            }
+            {
+              "Promtail (box 1)" = {
+                href = "http://${metricsHost "pi-node-a"}:9080/ready";
+                description = "Log shipper readiness";
+                server = "pi-node-a";
+                container = "promtail";
+              };
+            }
+            {
+              "Traefik (box 1)" = {
+                href = "http://${metricsHost "pi-node-a"}:8082/metrics";
+                description = "Ingress metrics endpoint";
+                server = "pi-node-a";
+                container = "traefik";
+              };
+            }
+            {
+              "Pi-hole Exporter (box 1)" = {
+                href = "http://${metricsHost "pi-node-a"}:9617/metrics";
+                description = "Pi-hole exporter metrics";
+                server = "pi-node-a";
+                container = "pihole-exporter";
+              };
+            }
           ];
         }
         {
@@ -1102,18 +1134,24 @@ in lib.recursiveUpdate ({
               "Gitea" = {
                 href = availabilityTargets.routed.gitea;
                 description = "Code forge (health in Uptime Kuma)";
+                server = "nas-host";
+                container = "gitea";
               };
             }
             {
               "ArchiveBox" = {
                 href = availabilityTargets.routed.archivebox;
                 description = "Web archive (health in Uptime Kuma)";
+                server = "nas-host";
+                container = "archivebox";
               };
             }
             {
               "Outline" = {
                 href = availabilityTargets.routed.outline;
                 description = "Knowledge base";
+                server = "nas-host";
+                container = "outline";
               };
             }
           ];
@@ -1129,6 +1167,9 @@ in lib.recursiveUpdate ({
       socket: /var/run/docker.sock
     pi-node-a:
       host: pi-node-a.${config.lab.domain}
+      port: 2375
+    nas-host:
+      host: nas-host.${config.lab.domain}
       port: 2375
   '';
 

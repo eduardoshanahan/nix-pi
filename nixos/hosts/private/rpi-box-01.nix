@@ -113,7 +113,7 @@
 
   # Read-only Docker API proxy for Homepage on pi-node-b.
   virtualisation.oci-containers.containers.docker-socket-proxy = {
-    image = "ghcr.io/tecnativa/docker-socket-proxy:0.4.1";
+    image = "docker.io/tecnativa/docker-socket-proxy:latest";
     ports = [
       "192.0.2.10:2375:2375"
     ];
