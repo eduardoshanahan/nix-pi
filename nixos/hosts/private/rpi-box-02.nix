@@ -660,6 +660,16 @@ in lib.recursiveUpdate ({
     mode = "0400";
   };
 
+  sops.secrets.vikunja-db-password = {
+    sopsFile = ../../../secrets/secrets.yaml;
+    format = "yaml";
+    key = "vikunja-db-password";
+    path = "/run/secrets/vikunja-db-password";
+    owner = "root";
+    group = "root";
+    mode = "0400";
+  };
+
   services.traefik.tls = {
     enable = true;
     certFile = config.sops.secrets.traefik-tls-crt.path;
@@ -744,6 +754,17 @@ in lib.recursiveUpdate ({
     enable = true;
     hostname = "vikunja.${config.lab.domain}";
     tls = true;
+    database = {
+      type = "postgres";
+      postgres = {
+        host = "postgres.${config.lab.domain}";
+        port = 5433;
+        name = "vikunja";
+        user = "vikunja";
+        passwordFile = config.sops.secrets.vikunja-db-password.path;
+        sslMode = "disable";
+      };
+    };
   };
 
   services.homepageDashboard = {
