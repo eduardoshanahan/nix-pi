@@ -93,7 +93,6 @@ Central object storage (MinIO/S3-compatible)
 Useful for app uploads/backups/log archives.
 Many apps can move file blobs there later.
 
-SMTP relay exists; next step is making it a formal shared platform service with quotas/alerts/backup config.
 
 Central message bus
 NATS (lightweight) or RabbitMQ for event-driven integrations/automation.
@@ -211,6 +210,15 @@ ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "journalctl -u excalidraw-hea
 - Backing service: `services.smtpRelayCompose` (from `nix-services`)
 - Upstream relay: `smtp.gmail.com:587` (authenticated)
 - Upstream credential secret: `smtp-relay-upstream-password` -> `/run/secrets/smtp-relay-upstream-password`
+- Allowed sender domains are restricted to:
+  - `<lab-domain>`
+  - `primary.example`
+  - `gmail.com`
+- Uptime Kuma includes a host-managed `SMTP Relay` monitor on port `2525`.
+- Automated backup timer:
+  - unit: `smtp-relay-backup.service`
+  - schedule: daily (`smtp-relay-backup.timer`)
+  - output: `/srv/prometheus/backups/smtp-relay/<timestamp>/`
 - Current status: deployed and verified (`status=sent` in Postfix logs)
 
 ### SMTP relay quick checks
@@ -221,6 +229,10 @@ ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "systemctl is-active smtp-rel
 ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "docker ps --filter name=smtp-relay --format 'table {{.Names}}\t{{.Status}}\t{{.Image}}\t{{.Ports}}'"
 
 ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "sudo docker logs --tail 80 smtp-relay | grep -E 'status=sent|to=<|from=<' | tail -n 20"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "systemctl is-enabled smtp-relay-backup.timer; systemctl --no-pager --lines=20 status smtp-relay-backup.timer"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "sudo ls -la /srv/prometheus/backups/smtp-relay | tail -n 20"
 ```
 
 ## Shared Redis (`nas-host`)
@@ -337,6 +349,7 @@ monitors in the SQLite database during startup before the container is started.
 - `Excalidraw`
 - `Kuma Self`
 - `Homepage`
+- `SMTP Relay`
 - `Loki Ready`
 - `Node Exporter pi-node-a`
 - `Node Exporter pi-node-b`

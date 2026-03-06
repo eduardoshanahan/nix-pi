@@ -202,6 +202,10 @@ let
     inherit name hostname dnsResolveServer;
     kind = "dns";
   };
+  mkPortMonitor = name: hostname: port: {
+    inherit name hostname port;
+    kind = "port";
+  };
   mkNamedHttpMonitors = names: urls:
     lib.zipListsWith (name: url: mkHttpMonitor name url) names urls;
   metricsHost = host: "${host}-metrics.${config.lab.domain}";
@@ -288,6 +292,7 @@ let
       (mkHttpMonitor "Gitea" availabilityTargets.routed.gitea)
       (mkHttpMonitor "Homepage" availabilityTargets.routed.homepage)
       (mkHttpMonitor "ArchiveBox" availabilityTargets.routed.archivebox)
+      (mkPortMonitor "SMTP Relay" "smtp-relay.${config.lab.domain}" 2525)
       (mkKeywordMonitor "Loki Ready" availabilityTargets.direct.lokiReady "ready")
       (mkDnsMonitor "DNS Pi-hole" "google.com" "192.0.2.10")
     ]
@@ -416,11 +421,26 @@ with conn.cursor() as cur:
                 "conditions": "[]",
                 "timeout": 0,
             }
+        elif kind == "port":
+            values = {
+                **common,
+                "type": "port",
+                "url": "https://",
+                "hostname": monitor["hostname"],
+                "port": monitor["port"],
+                "dns_resolve_server": None,
+                "dns_resolve_type": "A",
+                "ignore_tls": 0,
+                "accepted_statuscodes_json": '["200-299"]',
+                "method": "GET",
+                "conditions": "[]",
+                "timeout": 0,
+            }
         else:
             continue
 
         if row is None:
-            if kind == "dns":
+            if kind == "dns" or kind == "port":
                 cur.execute(
                     """
                     INSERT INTO monitor (
@@ -1332,7 +1352,7 @@ in lib.recursiveUpdate ({
     listenPort = 9130;
   };
 }) (lib.optionalAttrs hasSmtpRelayModule {
-    services.smtpRelayCompose = {
+      services.smtpRelayCompose = {
       enable = true;
       hostname = "smtp-relay.${config.lab.domain}";
       listenAddress = "0.0.0.0";
@@ -1350,7 +1370,66 @@ in lib.recursiveUpdate ({
         config.lab.domain
         "primary.example"
         "gmail.com"
-        "example.com"
       ];
+    };
+
+    systemd.services.smtp-relay-backup = {
+      description = "Backup SMTP relay runtime volumes";
+      serviceConfig = {
+        Type = "oneshot";
+      };
+      path = with pkgs; [ coreutils docker gnutar gzip ];
+      script = ''
+        set -euo pipefail
+
+        backup_root="/srv/prometheus/backups/smtp-relay"
+        ts="$(date -u +%Y%m%dT%H%M%SZ)"
+        out_dir="''${backup_root}/''${ts}"
+
+        mkdir -p "$out_dir"
+
+        if [ ! -f /etc/smtp-relay/docker-compose.yml ]; then
+          echo "smtp-relay backup: missing /etc/smtp-relay/docker-compose.yml" >&2
+          exit 1
+        fi
+
+        cp /etc/smtp-relay/docker-compose.yml "$out_dir/docker-compose.yml"
+
+        backup_mount() {
+          local destination="$1"
+          local archive_name="$2"
+          local volume_name mountpoint
+
+          volume_name="$(docker inspect smtp-relay --format "{{range .Mounts}}{{if eq .Destination \"''${destination}\"}}{{.Name}}{{end}}{{end}}")"
+          if [ -z "$volume_name" ]; then
+            echo "smtp-relay backup: no docker volume mapped at ''${destination}" >&2
+            return 1
+          fi
+
+          mountpoint="$(docker volume inspect "$volume_name" --format '{{.Mountpoint}}')"
+          tar -C "$mountpoint" -czf "$out_dir/''${archive_name}" .
+        }
+
+        backup_mount "/etc/postfix" "etc-postfix.tar.gz"
+        backup_mount "/var/spool/postfix" "var-spool-postfix.tar.gz"
+        backup_mount "/etc/opendkim/keys" "etc-opendkim-keys.tar.gz"
+
+        (
+          cd "$out_dir"
+          sha256sum docker-compose.yml *.tar.gz > SHA256SUMS
+        )
+
+        # Keep roughly 30 days of backups.
+        find "$backup_root" -mindepth 1 -maxdepth 1 -type d -mtime +30 -exec rm -rf {} +
+      '';
+    };
+
+    systemd.timers.smtp-relay-backup = {
+      wantedBy = [ "timers.target" ];
+      timerConfig = {
+        OnCalendar = "daily";
+        RandomizedDelaySec = "20m";
+        Persistent = true;
+      };
     };
   })
