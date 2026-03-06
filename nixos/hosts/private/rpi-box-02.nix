@@ -705,6 +705,16 @@ in lib.recursiveUpdate ({
     mode = "0400";
   };
 
+  sops.secrets.grafana-db-password = {
+    sopsFile = ../../../secrets/secrets.yaml;
+    format = "yaml";
+    key = "grafana-db-password";
+    path = "/run/secrets/grafana-db-password";
+    owner = "root";
+    group = "root";
+    mode = "0400";
+  };
+
   services.traefik.tls = {
     enable = true;
     certFile = config.sops.secrets.traefik-tls-crt.path;
@@ -1042,6 +1052,17 @@ in lib.recursiveUpdate ({
     enable = true;
     hostname = "grafana.${config.lab.domain}";
     adminPasswordFile = config.sops.secrets.grafana-admin-password.path;
+    database = {
+      type = "postgres";
+      postgres = {
+        host = "postgres.${config.lab.domain}";
+        port = 5433;
+        name = "grafana";
+        user = "grafana";
+        passwordFile = config.sops.secrets.grafana-db-password.path;
+        sslMode = "disable";
+      };
+    };
     tls = true;
     provisioning.datasources.loki.url = "http://loki.${config.lab.domain}:3100";
     backup = {
