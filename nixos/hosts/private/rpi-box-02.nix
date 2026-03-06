@@ -736,6 +736,26 @@ in lib.recursiveUpdate ({
     mode = "0400";
   };
 
+  sops.secrets.vikunja-oidc-client-id = {
+    sopsFile = ../../../secrets/secrets.yaml;
+    format = "yaml";
+    key = "vikunja-oidc-client-id";
+    path = "/run/secrets/vikunja-oidc-client-id";
+    owner = "root";
+    group = "root";
+    mode = "0400";
+  };
+
+  sops.secrets.vikunja-oidc-client-secret = {
+    sopsFile = ../../../secrets/secrets.yaml;
+    format = "yaml";
+    key = "vikunja-oidc-client-secret";
+    path = "/run/secrets/vikunja-oidc-client-secret";
+    owner = "root";
+    group = "root";
+    mode = "0400";
+  };
+
   sops.secrets.authentik-db-password = {
     sopsFile = ../../../secrets/secrets.yaml;
     format = "yaml";
@@ -881,6 +901,20 @@ in lib.recursiveUpdate ({
     enable = true;
     hostname = "vikunja.${config.lab.domain}";
     tls = true;
+    auth = {
+      local.enable = true;
+      openid = {
+        enable = true;
+        providerKey = "authentik";
+        name = "Authentik";
+        authUrl = "https://authentik.${config.lab.domain}/application/o/vikunja/";
+        clientIdFile = config.sops.secrets.vikunja-oidc-client-id.path;
+        clientSecretFile = config.sops.secrets.vikunja-oidc-client-secret.path;
+        scopes = "openid profile email";
+        usernameFallback = true;
+        emailFallback = true;
+      };
+    };
     database = {
       type = "postgres";
       postgres = {
