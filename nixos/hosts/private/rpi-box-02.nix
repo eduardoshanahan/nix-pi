@@ -716,6 +716,26 @@ in lib.recursiveUpdate ({
     mode = "0400";
   };
 
+  sops.secrets.grafana-oidc-client-id = {
+    sopsFile = ../../../secrets/secrets.yaml;
+    format = "yaml";
+    key = "grafana-oidc-client-id";
+    path = "/run/secrets/grafana-oidc-client-id";
+    owner = "root";
+    group = "root";
+    mode = "0400";
+  };
+
+  sops.secrets.grafana-oidc-client-secret = {
+    sopsFile = ../../../secrets/secrets.yaml;
+    format = "yaml";
+    key = "grafana-oidc-client-secret";
+    path = "/run/secrets/grafana-oidc-client-secret";
+    owner = "root";
+    group = "root";
+    mode = "0400";
+  };
+
   sops.secrets.authentik-db-password = {
     sopsFile = ../../../secrets/secrets.yaml;
     format = "yaml";
@@ -1113,6 +1133,16 @@ in lib.recursiveUpdate ({
         passwordFile = config.sops.secrets.grafana-db-password.path;
         sslMode = "disable";
       };
+    };
+    auth.genericOauth = {
+      enable = true;
+      clientIdFile = config.sops.secrets.grafana-oidc-client-id.path;
+      clientSecretFile = config.sops.secrets.grafana-oidc-client-secret.path;
+      authUrl = "https://authentik.${config.lab.domain}/application/o/authorize/";
+      tokenUrl = "https://authentik.${config.lab.domain}/application/o/token/";
+      apiUrl = "https://authentik.${config.lab.domain}/application/o/userinfo/";
+      scopes = "openid profile email";
+      usePkce = true;
     };
     tls = true;
     provisioning.datasources.loki.url = "http://loki.${config.lab.domain}:3100";
