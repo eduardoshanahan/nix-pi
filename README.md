@@ -210,6 +210,24 @@ ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "sudo docker logs --tail 80 s
 - Persistent data path: `/srv/prometheus/home-assistant` (mounted to `/config`)
 - Image tag: `ghcr.io/home-assistant/home-assistant:2026.3.0`
 
+### Recorder on Postgres
+
+- Recorder database backend is PostgreSQL (not SQLite) via:
+  - `services.homeAssistant.recorder.dbUrlFile = config.sops.secrets.homeassistant-recorder-db-url.path`
+- Required SOPS key in `secrets/secrets.yaml`:
+  - `homeassistant-recorder-db-url`
+  - Value format example:
+    - `postgresql://homeassistant:<password>@postgres.<lab-domain>:5433/homeassistant?sslmode=disable`
+- Postgres resources (on `nas-host`):
+  - Role/user: `homeassistant`
+  - Database: `homeassistant`
+
+Migration note:
+
+- Existing SQLite history is not auto-imported.
+- Pre-migration SQLite backups are stored on `pi-node-b` under:
+  - `/srv/prometheus/home-assistant/sqlite-backups/`
+
 ### Reverse proxy behavior (Traefik)
 
 - Home Assistant is routed through Traefik on the `traefik` Docker network.
@@ -229,7 +247,11 @@ ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "docker ps --filter name=home
 
 ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "docker inspect --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}}' home-assistant"
 
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "docker inspect --format '{{range .Config.Env}}{{println .}}{{end}}' home-assistant | grep HOME_ASSISTANT_RECORDER_DB_URL"
+
 curl -sk -o /dev/null -w '%{http_code}\n' https://homeassistant.<lab-domain>/
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 nas-host "sudo -n /usr/local/bin/docker exec -i nas-host-postgres psql -U postgres -d homeassistant -Atc \"SELECT count(*) FROM information_schema.tables WHERE table_schema='public';\""
 ```
 
 Expected HTTP behavior:

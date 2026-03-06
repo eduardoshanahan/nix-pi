@@ -670,6 +670,16 @@ in lib.recursiveUpdate ({
     mode = "0400";
   };
 
+  sops.secrets.homeassistant-recorder-db-url = {
+    sopsFile = ../../../secrets/secrets.yaml;
+    format = "yaml";
+    key = "homeassistant-recorder-db-url";
+    path = "/run/secrets/homeassistant-recorder-db-url";
+    owner = "root";
+    group = "root";
+    mode = "0400";
+  };
+
   services.traefik.tls = {
     enable = true;
     certFile = config.sops.secrets.traefik-tls-crt.path;
@@ -742,6 +752,7 @@ in lib.recursiveUpdate ({
     tls = true;
     image.tag = "2026.3.0";
     reverseProxy.trustedProxies = [ "172.18.0.0/16" ];
+    recorder.dbUrlFile = config.sops.secrets.homeassistant-recorder-db-url.path;
   };
 
   services.uptimeKuma = {
