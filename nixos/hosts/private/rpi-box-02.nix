@@ -743,7 +743,7 @@ in lib.recursiveUpdate ({
     path = "/run/secrets/vikunja-oidc-client-id";
     owner = "root";
     group = "root";
-    mode = "0400";
+    mode = "0440";
   };
 
   sops.secrets.vikunja-oidc-client-secret = {
@@ -753,7 +753,7 @@ in lib.recursiveUpdate ({
     path = "/run/secrets/vikunja-oidc-client-secret";
     owner = "root";
     group = "root";
-    mode = "0400";
+    mode = "0440";
   };
 
   sops.secrets.authentik-db-password = {
