@@ -262,8 +262,23 @@ Expected HTTP behavior:
 ## Uptime Kuma (`pi-node-b`)
 
 - URL: `https://<kuma-fqdn>`
-- Initial database selection: `SQLite`
+- Current database backend: `MySQL` (`database.type = "mariadb"` in Kuma config)
 - Persistent data path: `/var/lib/uptime-kuma` (bind-mounted to `/app/data`)
+- Dedicated DB credentials secret: `kuma-db-password` -> `/run/secrets/kuma-db-password`
+
+### Database backend details
+
+- Host: `nas-host.<lab-domain>:3306`
+- Database: `uptime_kuma`
+- User: `uptime_kuma`
+- Kuma uses dedicated service credentials (not MySQL root).
+
+Migration note:
+
+- A pre-migration SQLite backup is stored under:
+  - `/var/lib/uptime-kuma/sqlite-backups/`
+- After switching from SQLite to MySQL, Kuma starts with a fresh DB unless data
+  is migrated separately.
 
 ### Baseline UI-managed monitors
 
@@ -276,9 +291,8 @@ The desired future monitor set is now generated on `pi-node-b` at:
 - `/etc/uptime-kuma/desired-monitors.json`
 
 This file is the declarative source of truth for the host-managed monitors.
-On existing deployments, `uptime-kuma` now syncs and prunes tagged
-host-managed monitors in the SQLite database during startup before the
-container is started.
+On SQLite deployments, `uptime-kuma` syncs and prunes tagged host-managed
+monitors in the SQLite database during startup before the container is started.
 
 - `pihole01`
 - `Pi-hole Admin`
