@@ -98,7 +98,6 @@ SMTP relay exists; next step is making it a formal shared platform service with 
 Central message bus
 NATS (lightweight) or RabbitMQ for event-driven integrations/automation.
 
-I hit a sandbox limit writing SOPS-encrypted keys (can’t access local Nix daemon in sandbox). I’m rerunning the exact secret-encryption step with elevated permissions so the new Vikunja OIDC secrets are properly encrypted in secrets.yaml.
 
 cd /home/eduardo/Programming/gitea.internal.example/hhlab-insfrastructure/nix-services
 git add .
