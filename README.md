@@ -203,6 +203,40 @@ ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "docker ps --filter name=smtp
 ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "sudo docker logs --tail 80 smtp-relay | grep -E 'status=sent|to=<|from=<' | tail -n 20"
 ```
 
+## Home Assistant (`pi-node-b`)
+
+- URL: `https://homeassistant.<lab-domain>/`
+- Service module: `services.homeAssistant` (from `nix-services`)
+- Persistent data path: `/srv/prometheus/home-assistant` (mounted to `/config`)
+- Image tag: `ghcr.io/home-assistant/home-assistant:2026.3.0`
+
+### Reverse proxy behavior (Traefik)
+
+- Home Assistant is routed through Traefik on the `traefik` Docker network.
+- Reverse-proxy trust is configured declaratively via:
+  - `services.homeAssistant.reverseProxy.enable = true` (default)
+  - `services.homeAssistant.reverseProxy.trustedProxies = [ "172.18.0.0/16" ]`
+- The module manages a marked block in `configuration.yaml`:
+  - `# BEGIN NIX-SERVICES HOME-ASSISTANT REVERSE PROXY`
+  - `# END NIX-SERVICES HOME-ASSISTANT REVERSE PROXY`
+
+### Home Assistant quick checks
+
+```bash
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "systemctl is-active home-assistant; sudo systemctl --no-pager --lines=40 status home-assistant"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "docker ps --filter name=home-assistant --format 'table {{.Names}}\t{{.Status}}\t{{.Image}}'"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "docker inspect --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}}' home-assistant"
+
+curl -sk -o /dev/null -w '%{http_code}\n' https://homeassistant.<lab-domain>/
+```
+
+Expected HTTP behavior:
+
+- `GET /` usually returns `302` (redirect to onboarding/login path).
+- `HEAD /` may return `405` (method not allowed), which is normal for this endpoint.
+
 ## Uptime Kuma (`pi-node-b`)
 
 - URL: `https://<kuma-fqdn>`
