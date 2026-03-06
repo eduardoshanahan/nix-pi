@@ -267,6 +267,7 @@ let
       outline = "https://outline.${config.lab.domain}/";
       homeAssistant = "https://homeassistant.${config.lab.domain}/";
       authentik = "https://authentik.${config.lab.domain}/";
+      timeTagger = "https://timetagger.${config.lab.domain}/";
     };
     direct = {
       lokiReady = "http://loki.${config.lab.domain}:3100/ready";
@@ -294,6 +295,7 @@ let
       (mkHttpMonitor "Gitea" availabilityTargets.routed.gitea)
       (mkHttpMonitor "Homepage" availabilityTargets.routed.homepage)
       (mkHttpMonitor "ArchiveBox" availabilityTargets.routed.archivebox)
+      (mkHttpMonitor "TimeTagger" availabilityTargets.routed.timeTagger)
       (mkPortMonitor "SMTP Relay" "smtp-relay.${config.lab.domain}" 2525)
       (mkKeywordMonitor "Loki Ready" availabilityTargets.direct.lokiReady "ready")
       (mkDnsMonitor "DNS Pi-hole" "google.com" "192.0.2.10")
@@ -580,6 +582,7 @@ in lib.recursiveUpdate ({
     inputs.nix-services.services.ghost
     inputs.nix-services.services.homeAssistant
     inputs.nix-services.services.authentikCompose
+    inputs.nix-services.services.timeTaggerCompose
     inputs.nix-services.services.promtail
     inputs.nix-services.services.snmpExporter
     inputs.nix-services.services.unpoller
@@ -903,6 +906,17 @@ in lib.recursiveUpdate ({
     };
   };
 
+  services.timeTaggerCompose = {
+    enable = true;
+    hostname = "timetagger.${config.lab.domain}";
+    tls = true;
+    dataDir = "/srv/prometheus/timetagger";
+    image = {
+      tag = "latest";
+      allowMutableTag = true;
+    };
+  };
+
   services.uptimeKuma = {
     enable = true;
     hostname = "kuma.${config.lab.domain}";
@@ -1080,6 +1094,14 @@ in lib.recursiveUpdate ({
                 description = "Identity provider";
                 server = "local";
                 container = "authentik-server";
+              };
+            }
+            {
+              "TimeTagger" = {
+                href = availabilityTargets.routed.timeTagger;
+                description = "Time tracking";
+                server = "local";
+                container = "timetagger";
               };
             }
           ];
