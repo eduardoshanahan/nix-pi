@@ -111,6 +111,36 @@
     listenPort = 8081;
   };
 
+  # Read-only Docker API proxy for Homepage on pi-node-b.
+  virtualisation.oci-containers.containers.docker-socket-proxy = {
+    image = "ghcr.io/tecnativa/docker-socket-proxy:0.4.1";
+    ports = [
+      "192.0.2.10:2375:2375"
+    ];
+    volumes = [
+      "/var/run/docker.sock:/var/run/docker.sock:ro"
+    ];
+    environment = {
+      CONTAINERS = "1";
+      EVENTS = "1";
+      IMAGES = "1";
+      INFO = "1";
+      NETWORKS = "1";
+      PING = "1";
+      VERSION = "1";
+      VOLUMES = "1";
+      POST = "0";
+      AUTH = "0";
+      SECRETS = "0";
+      SERVICES = "0";
+      SWARM = "0";
+      TASKS = "0";
+    };
+    extraOptions = [
+      "--pull=always"
+    ];
+  };
+
   services.prometheus.exporters.node = {
     enable = true;
     port = 9100;
@@ -148,5 +178,10 @@
     allowedUDPPorts = [
       53    # DNS (Pi-hole)
     ];
+
+    # Allow Docker socket proxy only from pi-node-b.
+    extraInputRules = ''
+      ip saddr 192.0.2.10 tcp dport 2375 accept
+    '';
   };
 }

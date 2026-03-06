@@ -265,6 +265,8 @@ let
       homepage = "https://homepage.${config.lab.domain}/";
       archivebox = "https://archivebox.${config.lab.domain}/";
       outline = "https://outline.${config.lab.domain}/";
+      homeAssistant = "https://homeassistant.${config.lab.domain}/";
+      authentik = "https://authentik.${config.lab.domain}/";
     };
     direct = {
       lokiReady = "http://loki.${config.lab.domain}:3100/ready";
@@ -1064,6 +1066,22 @@ in lib.recursiveUpdate ({
                 container = "ghost-blog";
               };
             }
+            {
+              "Home Assistant" = {
+                href = availabilityTargets.routed.homeAssistant;
+                description = "Home automation";
+                server = "local";
+                container = "home-assistant";
+              };
+            }
+            {
+              "Authentik" = {
+                href = availabilityTargets.routed.authentik;
+                description = "Identity provider";
+                server = "local";
+                container = "authentik-server";
+              };
+            }
           ];
         }
         {
@@ -1072,6 +1090,8 @@ in lib.recursiveUpdate ({
               "Pi-hole Primary" = {
                 href = availabilityTargets.routed.piholePrimary;
                 description = "Primary DNS admin (health in Uptime Kuma)";
+                server = "pi-node-a";
+                container = "pihole";
               };
             }
           ];
@@ -1101,6 +1121,15 @@ in lib.recursiveUpdate ({
       ];
     };
   };
+
+  # Homepage supports multiple Docker servers via docker.yaml.
+  environment.etc."static/homepage/config/docker.yaml".text = lib.mkForce ''
+    local:
+      socket: /var/run/docker.sock
+    pi-node-a:
+      host: pi-node-a.${config.lab.domain}
+      port: 2375
+  '';
 
   services.owntracksRecorder = {
     enable = true;
