@@ -915,22 +915,6 @@ in lib.recursiveUpdate ({
       tag = "latest";
       allowMutableTag = true;
     };
-    auth.proxy = {
-      enable = true;
-      header = "X-authentik-username";
-      trusted = "127.0.0.1,172.18.0.0/16";
-    };
-    authentikForwardAuth = {
-      enable = true;
-      address = "http://authentik-server:9000/outpost.goauthentik.io/auth/traefik";
-      trustForwardHeader = true;
-      responseHeaders = [
-        "X-authentik-username"
-        "X-authentik-email"
-        "X-authentik-name"
-        "X-authentik-groups"
-      ];
-    };
   };
 
   services.uptimeKuma = {
