@@ -610,8 +610,8 @@ PY
   hasPostgresExporterModule = inputs.nix-services.services ? postgresExporterCompose;
   hasRedisExporterModule = inputs.nix-services.services ? redisExporterCompose;
   hasMysqlExporterModule = inputs.nix-services.services ? mysqlExporterCompose;
-  enableRedisExporter = false;
-  enableMysqlExporter = false;
+  enableRedisExporter = true;
+  enableMysqlExporter = true;
 in lib.recursiveUpdate ({
   imports = [
     inputs.nix-services.services.traefik
@@ -789,6 +789,16 @@ in lib.recursiveUpdate ({
     format = "yaml";
     key = "grafana-db-password";
     path = "/run/secrets/grafana-db-password";
+    owner = "root";
+    group = "root";
+    mode = "0400";
+  };
+
+  sops.secrets.redis-password = {
+    sopsFile = ../../../secrets/secrets.yaml;
+    format = "yaml";
+    key = "redis-password";
+    path = "/run/secrets/redis-password";
     owner = "root";
     group = "root";
     mode = "0400";
@@ -1670,11 +1680,12 @@ in lib.recursiveUpdate ({
       services.redisExporterCompose = {
         enable = true;
         listenPort = 9121;
-        redis = {
+      redis = {
+          username = "redis-admin";
           host = "redis.${config.lab.domain}";
           port = 6379;
           passwordFile = config.sops.secrets.redis-password.path;
-        };
+      };
       };
 
       services.prometheusCompose.scrape.redisExporterTargets = monitoringTargets.redisExporter;
@@ -1683,7 +1694,12 @@ in lib.recursiveUpdate ({
       services.mysqlExporterCompose = {
         enable = true;
         listenPort = 9104;
-        dataSourceNameFile = config.sops.secrets.mysql-exporter-dsn.path;
+        mysql = {
+          host = "nas-host.${config.lab.domain}";
+          port = 3306;
+          username = "ghost";
+          passwordFile = config.sops.secrets.ghost-db-password.path;
+        };
       };
 
       services.prometheusCompose.scrape.mysqlExporterTargets = monitoringTargets.mysqlExporter;
