@@ -911,6 +911,7 @@ in lib.recursiveUpdate ({
     hostname = "timetagger.${config.lab.domain}";
     tls = true;
     dataDir = "/srv/prometheus/timetagger";
+    credentials = "eduardo:$2b$12$VjK7w0lS.IfPf8GpnhfzPOUaCLBZRnXb/D0z9NYjnvUvBffv2Zobe";
     image = {
       tag = "latest";
       allowMutableTag = true;
