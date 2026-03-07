@@ -300,6 +300,10 @@ let
       (mkHttpMonitor "Authentik" availabilityTargets.routed.authentik)
       (mkHttpMonitor "TimeTagger" availabilityTargets.routed.timeTagger)
       (mkPortMonitor "SMTP Relay" "smtp-relay.${config.lab.domain}" 2525)
+      (mkPortMonitor "nas-host Postgres" "postgres.${config.lab.domain}" 5433)
+      (mkPortMonitor "nas-host Redis" "redis.${config.lab.domain}" 6379)
+      (mkPortMonitor "nas-host ghost-mysql" "nas-host.${config.lab.domain}" 3306)
+      (mkPortMonitor "nas-host Docker Socket Proxy" "nas-host.${config.lab.domain}" 2375)
       (mkKeywordMonitor "Loki Ready" availabilityTargets.direct.lokiReady "ready")
       (mkDnsMonitor "DNS Pi-hole" "google.com" "192.0.2.10")
     ]
@@ -1028,6 +1032,38 @@ in lib.recursiveUpdate ({
                 container = "alertmanager";
               };
             }
+            {
+              "SMTP Relay" = {
+                href = availabilityTargets.routed.kuma;
+                description = "Shared relay (TCP 2525, monitored in Kuma)";
+                server = "local";
+                container = "smtp-relay";
+              };
+            }
+            {
+              "Loki" = {
+                href = availabilityTargets.direct.lokiReady;
+                description = "Log storage readiness";
+                server = "pi-node-c";
+                container = "loki";
+              };
+            }
+            {
+              "SNMP Exporter" = {
+                href = "http://${metricsHost "pi-node-b"}:9116/metrics";
+                description = "Synology SNMP metrics endpoint";
+                server = "local";
+                container = "snmp-exporter";
+              };
+            }
+            {
+              "Unpoller" = {
+                href = "http://${metricsHost "pi-node-b"}:9130/metrics";
+                description = "UniFi metrics endpoint";
+                server = "local";
+                container = "unpoller";
+              };
+            }
           ];
         }
         {
@@ -1178,6 +1214,28 @@ in lib.recursiveUpdate ({
                 description = "Knowledge base";
                 server = "nas-host";
                 container = "outline";
+              };
+            }
+            {
+              "Postgres (shared)" = {
+                href = "http://postgres.${config.lab.domain}:5433";
+                description = "Shared DB endpoint (TCP check in Kuma)";
+                server = "nas-host";
+              };
+            }
+            {
+              "Redis (shared)" = {
+                href = "http://redis.${config.lab.domain}:6379";
+                description = "Shared cache endpoint (TCP check in Kuma)";
+                server = "nas-host";
+              };
+            }
+            {
+              "Docker Socket Proxy" = {
+                href = "http://nas-host.${config.lab.domain}:2375/_ping";
+                description = "Read-only Docker API proxy";
+                server = "nas-host";
+                container = "docker-socket-proxy";
               };
             }
           ];
