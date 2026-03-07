@@ -954,6 +954,10 @@ in lib.recursiveUpdate ({
     hostname = "authentik.${config.lab.domain}";
     tls = true;
     dataDir = "/srv/prometheus/authentik";
+    metrics = {
+      enable = true;
+      listenAddress = "0.0.0.0:9300";
+    };
     database.postgres = {
       host = "postgres.${config.lab.domain}";
       port = 5433;
@@ -1001,6 +1005,7 @@ in lib.recursiveUpdate ({
     enable = true;
     hostname = "vikunja.${config.lab.domain}";
     tls = true;
+    metrics.enable = true;
     auth = {
       local.enable = true;
       openid = {
@@ -1509,6 +1514,13 @@ in lib.recursiveUpdate ({
         "gitea.${config.lab.domain}:3000"
       ];
       githubProfileTargets = monitoringTargets.githubProfile;
+      authentikTargets = [
+        "authentik-server:9300"
+        "authentik-worker:9300"
+      ];
+      vikunjaTargets = [
+        "vikunja:3456"
+      ];
       unpollerTargets = monitoringTargets.unpoller;
     };
 
