@@ -1516,7 +1516,6 @@ in lib.recursiveUpdate ({
       githubProfileTargets = monitoringTargets.githubProfile;
       authentikTargets = [
         "authentik-server:9300"
-        "authentik-worker:9300"
       ];
       vikunjaTargets = [
         "vikunja:3456"
