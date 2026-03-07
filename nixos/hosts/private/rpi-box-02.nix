@@ -249,6 +249,15 @@ let
     unpoller = [
       "${metricsHost "pi-node-b"}:9130"
     ];
+    postgresExporter = [
+      "${metricsHost "pi-node-b"}:9187"
+    ];
+    redisExporter = [
+      "${metricsHost "pi-node-b"}:9121"
+    ];
+    mysqlExporter = [
+      "${metricsHost "pi-node-b"}:9104"
+    ];
   };
   availabilityTargets = {
     routed = {
@@ -279,6 +288,9 @@ let
       piholeExporterMetrics = map (target: "http://${target}/metrics") monitoringTargets.piholeExporter;
       githubProfileMetrics = map (target: "http://${target}/metrics") monitoringTargets.githubProfile;
       unpollerMetrics = map (target: "http://${target}/metrics") monitoringTargets.unpoller;
+      postgresExporterMetrics = map (target: "http://${target}/metrics") monitoringTargets.postgresExporter;
+      redisExporterMetrics = map (target: "http://${target}/metrics") monitoringTargets.redisExporter;
+      mysqlExporterMetrics = map (target: "http://${target}/metrics") monitoringTargets.mysqlExporter;
     };
   };
   kumaDesiredMonitors =
@@ -340,7 +352,22 @@ let
     ] availabilityTargets.direct.githubProfileMetrics)
     ++ (mkNamedHttpMonitors [
       "Unpoller"
-    ] availabilityTargets.direct.unpollerMetrics);
+    ] availabilityTargets.direct.unpollerMetrics)
+    ++ lib.optionals hasPostgresExporterModule (
+      mkNamedHttpMonitors [
+        "Postgres Exporter pi-node-b"
+      ] availabilityTargets.direct.postgresExporterMetrics
+    )
+    ++ lib.optionals (hasRedisExporterModule && enableRedisExporter) (
+      mkNamedHttpMonitors [
+        "Redis Exporter pi-node-b"
+      ] availabilityTargets.direct.redisExporterMetrics
+    )
+    ++ lib.optionals (hasMysqlExporterModule && enableMysqlExporter) (
+      mkNamedHttpMonitors [
+        "MySQL Exporter pi-node-b"
+      ] availabilityTargets.direct.mysqlExporterMetrics
+    );
   uptimeKumaMonitorSync = pkgs.writeShellScript "uptime-kuma-monitor-sync" ''
     set -euo pipefail
 
@@ -580,6 +607,11 @@ conn.close()
 PY
   '';
   hasSmtpRelayModule = inputs.nix-services.services ? smtpRelay;
+  hasPostgresExporterModule = inputs.nix-services.services ? postgresExporterCompose;
+  hasRedisExporterModule = inputs.nix-services.services ? redisExporterCompose;
+  hasMysqlExporterModule = inputs.nix-services.services ? mysqlExporterCompose;
+  enableRedisExporter = false;
+  enableMysqlExporter = false;
 in lib.recursiveUpdate ({
   imports = [
     inputs.nix-services.services.traefik
@@ -603,7 +635,11 @@ in lib.recursiveUpdate ({
     inputs.nix-services.services.promtail
     inputs.nix-services.services.snmpExporter
     inputs.nix-services.services.unpoller
-  ] ++ lib.optional hasSmtpRelayModule inputs.nix-services.services.smtpRelay;
+  ]
+  ++ lib.optional hasSmtpRelayModule inputs.nix-services.services.smtpRelay
+  ++ lib.optional hasPostgresExporterModule inputs.nix-services.services.postgresExporterCompose
+  ++ lib.optional hasRedisExporterModule inputs.nix-services.services.redisExporterCompose
+  ++ lib.optional hasMysqlExporterModule inputs.nix-services.services.mysqlExporterCompose;
 
   networking.hostName = "pi-node-b";
   lab.nix.signingKeyFile = "/etc/nix/pi-node-b-priv.pem";
@@ -1518,6 +1554,11 @@ in lib.recursiveUpdate ({
     9617
     9130
     9145
+    9187
+  ] ++ lib.optionals enableRedisExporter [
+    9121
+  ] ++ lib.optionals enableMysqlExporter [
+    9104
   ];
   networking.firewall.allowedUDPPorts = [
     53
@@ -1531,85 +1572,119 @@ in lib.recursiveUpdate ({
     listenAddress = "0.0.0.0";
     listenPort = 9130;
   };
-}) (lib.optionalAttrs hasSmtpRelayModule {
+}) (lib.recursiveUpdate
+  (lib.recursiveUpdate
+    (lib.optionalAttrs hasSmtpRelayModule {
       services.smtpRelayCompose = {
-      enable = true;
-      hostname = "smtp-relay.${config.lab.domain}";
-      listenAddress = "0.0.0.0";
-      listenPort = 2525;
-      openFirewall = true;
+        enable = true;
+        hostname = "smtp-relay.${config.lab.domain}";
+        listenAddress = "0.0.0.0";
+        listenPort = 2525;
+        openFirewall = true;
 
-      upstream = {
-        host = "smtp.gmail.com";
-        port = 587;
-        username = "eduardoshanahan@gmail.com";
-        passwordFile = config.sops.secrets.smtp-relay-upstream-password.path;
+        upstream = {
+          host = "smtp.gmail.com";
+          port = 587;
+          username = "eduardoshanahan@gmail.com";
+          passwordFile = config.sops.secrets.smtp-relay-upstream-password.path;
+        };
+
+        allowedSenderDomains = [
+          config.lab.domain
+          "primary.example"
+          "gmail.com"
+        ];
       };
 
-      allowedSenderDomains = [
-        config.lab.domain
-        "primary.example"
-        "gmail.com"
-      ];
-    };
+      systemd.services.smtp-relay-backup = {
+        description = "Backup SMTP relay runtime volumes";
+        serviceConfig = {
+          Type = "oneshot";
+        };
+        path = with pkgs; [ coreutils docker gnutar gzip ];
+        script = ''
+          set -euo pipefail
 
-    systemd.services.smtp-relay-backup = {
-      description = "Backup SMTP relay runtime volumes";
-      serviceConfig = {
-        Type = "oneshot";
-      };
-      path = with pkgs; [ coreutils docker gnutar gzip ];
-      script = ''
-        set -euo pipefail
+          backup_root="/srv/prometheus/backups/smtp-relay"
+          ts="$(date -u +%Y%m%dT%H%M%SZ)"
+          out_dir="''${backup_root}/''${ts}"
 
-        backup_root="/srv/prometheus/backups/smtp-relay"
-        ts="$(date -u +%Y%m%dT%H%M%SZ)"
-        out_dir="''${backup_root}/''${ts}"
+          mkdir -p "$out_dir"
 
-        mkdir -p "$out_dir"
-
-        if [ ! -f /etc/smtp-relay/docker-compose.yml ]; then
-          echo "smtp-relay backup: missing /etc/smtp-relay/docker-compose.yml" >&2
-          exit 1
-        fi
-
-        cp /etc/smtp-relay/docker-compose.yml "$out_dir/docker-compose.yml"
-
-        backup_mount() {
-          local destination="$1"
-          local archive_name="$2"
-          local volume_name mountpoint
-
-          volume_name="$(docker inspect smtp-relay --format "{{range .Mounts}}{{if eq .Destination \"''${destination}\"}}{{.Name}}{{end}}{{end}}")"
-          if [ -z "$volume_name" ]; then
-            echo "smtp-relay backup: no docker volume mapped at ''${destination}" >&2
-            return 1
+          if [ ! -f /etc/smtp-relay/docker-compose.yml ]; then
+            echo "smtp-relay backup: missing /etc/smtp-relay/docker-compose.yml" >&2
+            exit 1
           fi
 
-          mountpoint="$(docker volume inspect "$volume_name" --format '{{.Mountpoint}}')"
-          tar -C "$mountpoint" -czf "$out_dir/''${archive_name}" .
-        }
+          cp /etc/smtp-relay/docker-compose.yml "$out_dir/docker-compose.yml"
 
-        backup_mount "/etc/postfix" "etc-postfix.tar.gz"
-        backup_mount "/var/spool/postfix" "var-spool-postfix.tar.gz"
-        backup_mount "/etc/opendkim/keys" "etc-opendkim-keys.tar.gz"
+          backup_mount() {
+            local destination="$1"
+            local archive_name="$2"
+            local volume_name mountpoint
 
-        (
-          cd "$out_dir"
-          sha256sum docker-compose.yml *.tar.gz > SHA256SUMS
-        )
+            volume_name="$(docker inspect smtp-relay --format "{{range .Mounts}}{{if eq .Destination \"''${destination}\"}}{{.Name}}{{end}}{{end}}")"
+            if [ -z "$volume_name" ]; then
+              echo "smtp-relay backup: no docker volume mapped at ''${destination}" >&2
+              return 1
+            fi
 
-        # Keep roughly 30 days of backups.
-        find "$backup_root" -mindepth 1 -maxdepth 1 -type d -mtime +30 -exec rm -rf {} +
-      '';
-    };
+            mountpoint="$(docker volume inspect "$volume_name" --format '{{.Mountpoint}}')"
+            tar -C "$mountpoint" -czf "$out_dir/''${archive_name}" .
+          }
 
-    systemd.timers.smtp-relay-backup = {
-      wantedBy = [ "timers.target" ];
-      timerConfig = {
-        OnCalendar = "daily";
-        RandomizedDelaySec = "20m";
-        Persistent = true;
+          backup_mount "/etc/postfix" "etc-postfix.tar.gz"
+          backup_mount "/var/spool/postfix" "var-spool-postfix.tar.gz"
+          backup_mount "/etc/opendkim/keys" "etc-opendkim-keys.tar.gz"
+
+          (
+            cd "$out_dir"
+            sha256sum docker-compose.yml *.tar.gz > SHA256SUMS
+          )
+
+          # Keep roughly 30 days of backups.
+          find "$backup_root" -mindepth 1 -maxdepth 1 -type d -mtime +30 -exec rm -rf {} +
+        '';
       };
-    };
-  })
+
+      systemd.timers.smtp-relay-backup = {
+        wantedBy = [ "timers.target" ];
+        timerConfig = {
+          OnCalendar = "daily";
+          RandomizedDelaySec = "20m";
+          Persistent = true;
+        };
+      };
+    })
+    (lib.optionalAttrs hasPostgresExporterModule {
+      services.postgresExporterCompose = {
+        enable = true;
+        listenPort = 9187;
+        dataSourceNameFile = config.sops.secrets.homeassistant-recorder-db-url.path;
+      };
+
+      services.prometheusCompose.scrape.postgresExporterTargets = monitoringTargets.postgresExporter;
+    }))
+  (lib.recursiveUpdate
+    (lib.optionalAttrs (hasRedisExporterModule && enableRedisExporter) {
+      services.redisExporterCompose = {
+        enable = true;
+        listenPort = 9121;
+        redis = {
+          host = "redis.${config.lab.domain}";
+          port = 6379;
+          passwordFile = config.sops.secrets.redis-password.path;
+        };
+      };
+
+      services.prometheusCompose.scrape.redisExporterTargets = monitoringTargets.redisExporter;
+    })
+    (lib.optionalAttrs (hasMysqlExporterModule && enableMysqlExporter) {
+      services.mysqlExporterCompose = {
+        enable = true;
+        listenPort = 9104;
+        dataSourceNameFile = config.sops.secrets.mysql-exporter-dsn.path;
+      };
+
+      services.prometheusCompose.scrape.mysqlExporterTargets = monitoringTargets.mysqlExporter;
+    })))
