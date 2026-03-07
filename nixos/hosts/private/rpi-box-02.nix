@@ -208,6 +208,8 @@ let
   };
   mkNamedHttpMonitors = names: urls:
     lib.zipListsWith (name: url: mkHttpMonitor name url) names urls;
+  mkNamedPortMonitors = names: targets:
+    lib.zipListsWith (name: target: mkPortMonitor name target.host target.port) names targets;
   metricsHost = host: "${host}-metrics.${config.lab.domain}";
   monitoringTargets = {
     node = map (host: "${metricsHost host}:9100") [
