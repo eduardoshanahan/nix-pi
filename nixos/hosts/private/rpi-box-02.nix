@@ -318,6 +318,14 @@ let
       "Promtail pi-node-c"
       "Promtail nas-host"
     ] availabilityTargets.direct.promtailReady)
+    ++ (mkNamedPortMonitors [
+      "Docker Socket Proxy pi-node-a"
+    ] [
+      {
+        host = "pi-node-a.${config.lab.domain}";
+        port = 2375;
+      }
+    ])
     ++ (mkNamedHttpMonitors [
       "SNMP Exporter pi-node-b"
     ] availabilityTargets.direct.snmpExporterMetrics)
@@ -1186,6 +1194,21 @@ in lib.recursiveUpdate ({
                 description = "Pi-hole exporter metrics";
                 server = "pi-node-a";
                 container = "pihole-exporter";
+              };
+            }
+            {
+              "Node Exporter (box 1)" = {
+                href = "http://${metricsHost "pi-node-a"}:9100/metrics";
+                description = "Host metrics endpoint";
+                server = "pi-node-a";
+              };
+            }
+            {
+              "Docker Socket Proxy (box 1)" = {
+                href = "http://pi-node-a.${config.lab.domain}:2375/_ping";
+                description = "Read-only Docker API proxy";
+                server = "pi-node-a";
+                container = "docker-socket-proxy";
               };
             }
           ];
