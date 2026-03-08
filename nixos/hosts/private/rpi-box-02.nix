@@ -1342,6 +1342,7 @@ in lib.recursiveUpdate ({
                 href = "http://redis.${config.lab.domain}:6379";
                 description = "Shared cache endpoint (TCP check in Kuma)";
                 server = "nas-host";
+                container = "nas-host-redis";
               };
             }
             {
