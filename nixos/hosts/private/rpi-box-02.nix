@@ -318,6 +318,7 @@ let
       (mkPortMonitor "SMTP Relay" "smtp-relay.${config.lab.domain}" 2525)
       (mkPortMonitor "nas-host Postgres" "postgres.${config.lab.domain}" 5433)
       (mkPortMonitor "nas-host Redis" "redis.${config.lab.domain}" 6379)
+      (mkPortMonitor "nas-host Mongo" "mongo.${config.lab.domain}" 27017)
       (mkPortMonitor "nas-host ghost-mysql" "nas-host.${config.lab.domain}" 3306)
       (mkPortMonitor "nas-host Docker Socket Proxy" "nas-host.${config.lab.domain}" 2375)
       (mkKeywordMonitor "Loki Ready" availabilityTargets.direct.lokiReady "ready")
@@ -1343,6 +1344,14 @@ in lib.recursiveUpdate ({
                 description = "Shared cache endpoint (TCP check in Kuma)";
                 server = "nas-host";
                 container = "nas-host-redis";
+              };
+            }
+            {
+              "Mongo (shared)" = {
+                href = "http://mongo.${config.lab.domain}:27017";
+                description = "Shared document DB endpoint (TCP check in Kuma)";
+                server = "nas-host";
+                container = "nas-host-mongo";
               };
             }
             {
