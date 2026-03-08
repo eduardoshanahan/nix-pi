@@ -283,6 +283,7 @@ let
       authentik = "https://authentik.${config.lab.domain}/";
       timeTagger = "https://timetagger.${config.lab.domain}/";
       traggo = "https://traggo.${config.lab.domain}/";
+      karakeep = "https://karakeep.${config.lab.domain}/";
       dozzle = "https://dozzle.${config.lab.domain}/";
     };
     direct = {
@@ -320,6 +321,7 @@ let
       (mkHttpMonitor "Authentik" availabilityTargets.routed.authentik)
       (mkHttpMonitor "TimeTagger" availabilityTargets.routed.timeTagger)
       (mkHttpMonitor "Traggo" availabilityTargets.routed.traggo)
+      (mkHttpMonitor "KaraKeep" availabilityTargets.routed.karakeep)
       (mkHttpMonitor "Dozzle" availabilityTargets.routed.dozzle)
       (mkPortMonitor "SMTP Relay" "smtp-relay.${config.lab.domain}" 2525)
       (mkPortMonitor "nas-host Postgres" "postgres.${config.lab.domain}" 5433)
@@ -1350,6 +1352,14 @@ in lib.recursiveUpdate ({
         }
         {
           "nas-host" = [
+            {
+              "KaraKeep" = {
+                href = availabilityTargets.routed.karakeep;
+                description = "Read-it-later and bookmarks";
+                server = "nas-host";
+                container = "karakeep";
+              };
+            }
             {
               "Gitea" = {
                 href = availabilityTargets.routed.gitea;
