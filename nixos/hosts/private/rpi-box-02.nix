@@ -283,6 +283,7 @@ let
       authentik = "https://authentik.${config.lab.domain}/";
       timeTagger = "https://timetagger.${config.lab.domain}/";
       traggo = "https://traggo.${config.lab.domain}/";
+      dozzle = "https://dozzle.${config.lab.domain}/";
     };
     direct = {
       lokiReady = "http://loki.${config.lab.domain}:3100/ready";
@@ -319,6 +320,7 @@ let
       (mkHttpMonitor "Authentik" availabilityTargets.routed.authentik)
       (mkHttpMonitor "TimeTagger" availabilityTargets.routed.timeTagger)
       (mkHttpMonitor "Traggo" availabilityTargets.routed.traggo)
+      (mkHttpMonitor "Dozzle" availabilityTargets.routed.dozzle)
       (mkPortMonitor "SMTP Relay" "smtp-relay.${config.lab.domain}" 2525)
       (mkPortMonitor "nas-host Postgres" "postgres.${config.lab.domain}" 5433)
       (mkPortMonitor "nas-host Redis" "redis.${config.lab.domain}" 6379)
@@ -628,6 +630,7 @@ PY
   hasRedisExporterModule = inputs.nix-services.services ? redisExporterCompose;
   hasMysqlExporterModule = inputs.nix-services.services ? mysqlExporterCompose;
   hasMongoExporterModule = inputs.nix-services.services ? mongodbExporterCompose;
+  hasDozzleModule = inputs.nix-services.services ? dozzleCompose;
   enableRedisExporter = true;
   enableMysqlExporter = true;
 in lib.recursiveUpdate ({
@@ -659,7 +662,8 @@ in lib.recursiveUpdate ({
   ++ lib.optional hasPostgresExporterModule inputs.nix-services.services.postgresExporterCompose
   ++ lib.optional hasRedisExporterModule inputs.nix-services.services.redisExporterCompose
   ++ lib.optional hasMysqlExporterModule inputs.nix-services.services.mysqlExporterCompose
-  ++ lib.optional hasMongoExporterModule inputs.nix-services.services.mongodbExporterCompose;
+  ++ lib.optional hasMongoExporterModule inputs.nix-services.services.mongodbExporterCompose
+  ++ lib.optional hasDozzleModule inputs.nix-services.services.dozzleCompose;
 
   networking.hostName = "pi-node-b";
   lab.nix.signingKeyFile = "/etc/nix/pi-node-b-priv.pem";
@@ -1036,6 +1040,13 @@ in lib.recursiveUpdate ({
     };
   };
 
+  services.dozzleCompose = {
+    enable = true;
+    hostname = "dozzle.${config.lab.domain}";
+    tls = true;
+    dataDir = "/srv/prometheus/dozzle";
+  };
+
   services.uptimeKuma = {
     enable = true;
     hostname = "kuma.${config.lab.domain}";
@@ -1262,6 +1273,14 @@ in lib.recursiveUpdate ({
                 description = "Task and time management";
                 server = "local";
                 container = "traggo";
+              };
+            }
+            {
+              "Dozzle" = {
+                href = availabilityTargets.routed.dozzle;
+                description = "Docker logs viewer";
+                server = "local";
+                container = "dozzle";
               };
             }
           ];
