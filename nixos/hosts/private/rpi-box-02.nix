@@ -1352,6 +1352,14 @@ in lib.recursiveUpdate ({
               };
             }
             {
+              "MySQL (shared)" = {
+                href = "http://nas-host.${config.lab.domain}:3306";
+                description = "Shared MySQL endpoint (TCP check in Kuma)";
+                server = "nas-host";
+                container = "ghost-mysql";
+              };
+            }
+            {
               "Postgres (shared)" = {
                 href = "http://postgres.${config.lab.domain}:5433";
                 description = "Shared DB endpoint (TCP check in Kuma)";
