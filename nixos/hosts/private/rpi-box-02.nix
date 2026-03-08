@@ -642,7 +642,7 @@ if password_path.is_file():
         except Exception as exc:
             print(f"uptime-kuma-monitor-sync: mariadb sync skipped: {exc}", file=sys.stderr)
 
-sqlite_path = Path("/var/lib/uptime-kuma/kuma.db")
+sqlite_path = Path("/srv/uptime-kuma/kuma.db")
 if sqlite_path.is_file():
     sqlite_conn = sqlite3.connect(sqlite_path)
     try:
@@ -702,10 +702,17 @@ in lib.recursiveUpdate ({
     "192.0.2.10"
   ];
 
-  fileSystems."/srv/prometheus" = {
+  fileSystems."/srv" = {
     device = "/dev/disk/by-uuid/3597e412-53d3-47a4-896e-0694c8e9bc0e";
     fsType = "ext4";
     options = [ "nofail" ];
+  };
+
+  fileSystems."/var/lib/diagrams-net" = {
+    device = "/srv/diagrams-net";
+    fsType = "none";
+    options = [ "bind" ];
+    depends = [ "/srv" ];
   };
 
   sops.secrets.traefik-tls-crt = {
@@ -1016,7 +1023,7 @@ in lib.recursiveUpdate ({
   services.homeAssistant = {
     enable = true;
     hostname = "homeassistant.${config.lab.domain}";
-    dataDir = "/srv/prometheus/home-assistant";
+    dataDir = "/srv/home-assistant";
     tls = true;
     image.tag = "2026.3.0";
     reverseProxy.trustedProxies = [ "172.18.0.0/16" ];
@@ -1027,7 +1034,7 @@ in lib.recursiveUpdate ({
     enable = true;
     hostname = "authentik.${config.lab.domain}";
     tls = true;
-    dataDir = "/srv/prometheus/authentik";
+    dataDir = "/srv/authentik";
     metrics = {
       enable = true;
       listenAddress = "0.0.0.0:9300";
@@ -1051,7 +1058,7 @@ in lib.recursiveUpdate ({
     enable = true;
     hostname = "timetagger.${config.lab.domain}";
     tls = true;
-    dataDir = "/srv/prometheus/timetagger";
+    dataDir = "/srv/timetagger";
     credentials = "eduardo:$2b$12$VjK7w0lS.IfPf8GpnhfzPOUaCLBZRnXb/D0z9NYjnvUvBffv2Zobe";
     image = {
       tag = "latest";
@@ -1063,7 +1070,7 @@ in lib.recursiveUpdate ({
     enable = true;
     hostname = "traggo.${config.lab.domain}";
     tls = true;
-    dataDir = "/srv/prometheus/traggo";
+    dataDir = "/srv/traggo";
     admin = {
       username = "eduardo";
       passwordFile = config.sops.secrets.traggo-admin-password.path;
@@ -1074,7 +1081,7 @@ in lib.recursiveUpdate ({
     enable = true;
     hostname = "dozzle.${config.lab.domain}";
     tls = true;
-    dataDir = "/srv/prometheus/dozzle";
+    dataDir = "/srv/dozzle";
     remoteHosts = [
       "tcp://pi-node-c.${config.lab.domain}:2375|pi-node-c"
       "tcp://nas-host.${config.lab.domain}:2375|nas-host"
@@ -1085,6 +1092,7 @@ in lib.recursiveUpdate ({
     enable = true;
     hostname = "kuma.${config.lab.domain}";
     tls = true;
+    dataDir = "/srv/uptime-kuma";
     database = {
       type = "sqlite";
       mariadb = {
@@ -1101,6 +1109,7 @@ in lib.recursiveUpdate ({
     enable = true;
     hostname = "vikunja.${config.lab.domain}";
     tls = true;
+    dataDir = "/srv/vikunja";
     metrics.enable = true;
     auth = {
       local.enable = true;
@@ -1477,7 +1486,7 @@ in lib.recursiveUpdate ({
   services.owntracksRecorder = {
     enable = true;
     hostname = "owntracks.${config.lab.domain}";
-    dataDir = "/srv/prometheus/owntracks";
+    dataDir = "/srv/owntracks";
     tls = false;
     entryPoint = "webplain";
   };
@@ -1501,7 +1510,7 @@ in lib.recursiveUpdate ({
     blog = {
       hostname = "blog.${config.lab.domain}";
       tls = true;
-      dataDir = "/var/lib/ghost";
+      dataDir = "/srv/ghost";
 
       database = {
         host = "nas-host.${config.lab.domain}";
@@ -1548,6 +1557,7 @@ in lib.recursiveUpdate ({
   services.grafanaCompose = {
     enable = true;
     hostname = "grafana.${config.lab.domain}";
+    dataDir = "/srv/grafana";
     adminPasswordFile = config.sops.secrets.grafana-admin-password.path;
     database = {
       type = "postgres";
@@ -1575,7 +1585,7 @@ in lib.recursiveUpdate ({
     provisioning.datasources.loki.url = "http://loki.${config.lab.domain}:3100";
     backup = {
       enable = true;
-      targetDir = "/srv/prometheus/grafana-backups";
+      targetDir = "/srv/grafana-backups";
       schedule = "daily";
       keepDays = 14;
     };
@@ -1585,6 +1595,7 @@ in lib.recursiveUpdate ({
     enable = true;
     hostname = "alertmanager.${config.lab.domain}";
     tls = true;
+    dataDir = "/srv/alertmanager";
 
     notifications = {
       email = {
@@ -1607,7 +1618,7 @@ in lib.recursiveUpdate ({
   services.prometheusCompose = {
     enable = true;
     hostname = "prometheus.${config.lab.domain}";
-    dataDir = "/srv/prometheus/data";
+    dataDir = "/srv/prometheus";
     retentionTime = "30d";
 
     scrape = {
@@ -1669,6 +1680,7 @@ in lib.recursiveUpdate ({
 
   services.promtailCompose = {
     enable = true;
+    dataDir = "/srv/promtail";
     lokiPushUrl = "http://loki.internal.example:3100/loki/api/v1/push";
   };
 
