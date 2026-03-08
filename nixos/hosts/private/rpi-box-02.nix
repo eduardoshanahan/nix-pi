@@ -1129,8 +1129,6 @@ in lib.recursiveUpdate ({
               "Loki" = {
                 href = availabilityTargets.direct.lokiReady;
                 description = "Log storage readiness";
-                server = "pi-node-c";
-                container = "loki";
               };
             }
             {
