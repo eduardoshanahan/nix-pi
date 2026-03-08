@@ -393,238 +393,266 @@ let
     set -euo pipefail
 
     desired_json="/etc/uptime-kuma/desired-monitors.json"
-    db_password_file="${config.sops.secrets.kuma-db-password.path}"
-
     if [ ! -s "$desired_json" ]; then
-      exit 0
-    fi
-
-    if [ ! -s "$db_password_file" ]; then
       exit 0
     fi
 
     ${pkgs.python3.withPackages (ps: [ ps.pymysql ])}/bin/python3 - <<'PY'
 import json
+import sqlite3
+import sys
 from pathlib import Path
 import pymysql
 
 desired = json.loads(Path("/etc/uptime-kuma/desired-monitors.json").read_text())
-password = Path("${config.sops.secrets.kuma-db-password.path}").read_text().strip()
-if not password:
-    raise SystemExit(0)
-
-conn = pymysql.connect(
-    host="${config.services.uptimeKuma.database.mariadb.host}",
-    port=${toString config.services.uptimeKuma.database.mariadb.port},
-    user="${config.services.uptimeKuma.database.mariadb.user}",
-    password=password,
-    database="${config.services.uptimeKuma.database.mariadb.name}",
-    charset="utf8mb4",
-    autocommit=False,
-)
-
 managed_marker = "[managed-by-nix-pi]"
-desired_names = set()
 
-with conn.cursor() as cur:
-    cur.execute("SELECT id FROM user ORDER BY id LIMIT 1")
-    user_row = cur.fetchone()
-    if not user_row:
-        conn.close()
-        raise SystemExit(0)
-    user_id = user_row[0]
 
-    for monitor in desired.get("monitors", []):
-        name = monitor["name"]
-        kind = monitor.get("kind")
-        desired_names.add(name)
+def build_values(monitor):
+    kind = monitor.get("kind")
+    common = {
+        "active": 1,
+        "interval": 60,
+        "retry_interval": 60,
+        "maxretries": 0,
+    }
 
-        cur.execute("SELECT id FROM monitor WHERE name = %s", (name,))
-        row = cur.fetchone()
-
-        common = {
-            "active": 1,
-            "interval": 60,
-            "retry_interval": 60,
-            "maxretries": 0,
+    if kind == "http":
+        url = monitor["url"]
+        return kind, {
+            **common,
+            "type": "http",
+            "url": url,
+            "ignore_tls": 1 if url.startswith("https://") else 0,
+            "accepted_statuscodes_json": '["200-299"]',
+            "dns_resolve_type": "A",
+            "method": "GET",
+            "conditions": "[]",
+            "timeout": 0,
         }
+    if kind == "keyword":
+        return kind, {
+            **common,
+            "type": "keyword",
+            "url": monitor["url"],
+            "keyword": monitor["keyword"],
+            "ignore_tls": 0,
+            "accepted_statuscodes_json": '["200-299"]',
+            "dns_resolve_type": "A",
+            "method": "GET",
+            "conditions": "[]",
+            "timeout": 0,
+        }
+    if kind == "dns":
+        return kind, {
+            **common,
+            "type": "dns",
+            "url": "https://",
+            "hostname": monitor["hostname"],
+            "port": None,
+            "dns_resolve_server": monitor["dnsResolveServer"],
+            "dns_resolve_type": "A",
+            "ignore_tls": 0,
+            "accepted_statuscodes_json": '["200-299"]',
+            "method": "GET",
+            "conditions": "[]",
+            "timeout": 0,
+        }
+    if kind == "port":
+        return kind, {
+            **common,
+            "type": "port",
+            "url": "https://",
+            "hostname": monitor["hostname"],
+            "port": monitor["port"],
+            "dns_resolve_server": None,
+            "dns_resolve_type": "A",
+            "ignore_tls": 0,
+            "accepted_statuscodes_json": '["200-299"]',
+            "method": "GET",
+            "conditions": "[]",
+            "timeout": 0,
+        }
+    return None, None
 
-        if kind == "http":
-            url = monitor["url"]
-            values = {
-                **common,
-                "type": "http",
-                "url": url,
-                "ignore_tls": 1 if url.startswith("https://") else 0,
-                "accepted_statuscodes_json": '["200-299"]',
-                "dns_resolve_type": "A",
-                "method": "GET",
-                "conditions": "[]",
-                "timeout": 0,
-            }
-        elif kind == "keyword":
-            values = {
-                **common,
-                "type": "keyword",
-                "url": monitor["url"],
-                "keyword": monitor["keyword"],
-                "ignore_tls": 0,
-                "accepted_statuscodes_json": '["200-299"]',
-                "dns_resolve_type": "A",
-                "method": "GET",
-                "conditions": "[]",
-                "timeout": 0,
-            }
-        elif kind == "dns":
-            values = {
-                **common,
-                "type": "dns",
-                "url": "https://",
-                "hostname": monitor["hostname"],
-                "port": None,
-                "dns_resolve_server": monitor["dnsResolveServer"],
-                "dns_resolve_type": "A",
-                "ignore_tls": 0,
-                "accepted_statuscodes_json": '["200-299"]',
-                "method": "GET",
-                "conditions": "[]",
-                "timeout": 0,
-            }
-        elif kind == "port":
-            values = {
-                **common,
-                "type": "port",
-                "url": "https://",
-                "hostname": monitor["hostname"],
-                "port": monitor["port"],
-                "dns_resolve_server": None,
-                "dns_resolve_type": "A",
-                "ignore_tls": 0,
-                "accepted_statuscodes_json": '["200-299"]',
-                "method": "GET",
-                "conditions": "[]",
-                "timeout": 0,
-            }
-        else:
-            continue
 
-        if row is None:
-            if kind == "dns" or kind == "port":
-                cur.execute(
-                    """
-                    INSERT INTO monitor (
-                        name, active, user_id, `interval`, url, type, weight,
-                        hostname, port, maxretries, ignore_tls, upside_down,
-                        maxredirects, accepted_statuscodes_json,
-                        dns_resolve_server, dns_resolve_type, retry_interval, description,
-                        method, conditions, timeout
-                    ) VALUES (%s, %s, %s, %s, %s, %s, 2000, %s, %s, %s, %s, 0, 10,
-                              %s, %s, %s, %s, %s, %s, %s, %s)
-                    """,
-                    (
-                        name,
-                        values["active"],
-                        user_id,
-                        values["interval"],
-                        values["url"],
-                        values["type"],
-                        values["hostname"],
-                        values["port"],
-                        values["maxretries"],
-                        values["ignore_tls"],
-                        values["accepted_statuscodes_json"],
-                        values["dns_resolve_server"],
-                        values["dns_resolve_type"],
-                        values["retry_interval"],
-                        managed_marker,
-                        values["method"],
-                        values["conditions"],
-                        values["timeout"],
-                    ),
-                )
+def sync_connection(conn, placeholder):
+    desired_names = set()
+    cur = conn.cursor()
+    try:
+        cur.execute("SELECT id FROM user ORDER BY id LIMIT 1")
+        user_row = cur.fetchone()
+        if not user_row:
+            return 0
+        user_id = user_row[0]
+        managed_count = 0
+
+        for monitor in desired.get("monitors", []):
+            name = monitor["name"]
+            kind, values = build_values(monitor)
+            if kind is None:
+                continue
+
+            desired_names.add(name)
+            cur.execute(f"SELECT id FROM monitor WHERE name = {placeholder}", (name,))
+            row = cur.fetchone()
+
+            if row is None:
+                if kind in ("dns", "port"):
+                    cur.execute(
+                        f"""
+                        INSERT INTO monitor (
+                            name, active, user_id, `interval`, url, type, weight,
+                            hostname, port, maxretries, ignore_tls, upside_down,
+                            maxredirects, accepted_statuscodes_json,
+                            dns_resolve_server, dns_resolve_type, retry_interval, description,
+                            method, conditions, timeout
+                        ) VALUES ({placeholder}, {placeholder}, {placeholder}, {placeholder}, {placeholder}, {placeholder}, 2000,
+                                  {placeholder}, {placeholder}, {placeholder}, {placeholder}, 0, 10,
+                                  {placeholder}, {placeholder}, {placeholder}, {placeholder}, {placeholder}, {placeholder}, {placeholder}, {placeholder})
+                        """,
+                        (
+                            name,
+                            values["active"],
+                            user_id,
+                            values["interval"],
+                            values["url"],
+                            values["type"],
+                            values["hostname"],
+                            values["port"],
+                            values["maxretries"],
+                            values["ignore_tls"],
+                            values["accepted_statuscodes_json"],
+                            values["dns_resolve_server"],
+                            values["dns_resolve_type"],
+                            values["retry_interval"],
+                            managed_marker,
+                            values["method"],
+                            values["conditions"],
+                            values["timeout"],
+                        ),
+                    )
+                else:
+                    cur.execute(
+                        f"""
+                        INSERT INTO monitor (
+                            name, active, user_id, `interval`, url, type, weight,
+                            keyword, maxretries, ignore_tls, upside_down,
+                            maxredirects, accepted_statuscodes_json, description,
+                            dns_resolve_type, retry_interval, method, conditions, timeout
+                        ) VALUES ({placeholder}, {placeholder}, {placeholder}, {placeholder}, {placeholder}, {placeholder}, 2000,
+                                  {placeholder}, {placeholder}, {placeholder}, 0, 10,
+                                  {placeholder}, {placeholder}, {placeholder}, {placeholder}, {placeholder}, {placeholder}, {placeholder})
+                        """,
+                        (
+                            name,
+                            values["active"],
+                            user_id,
+                            values["interval"],
+                            values["url"],
+                            values["type"],
+                            values.get("keyword"),
+                            values["maxretries"],
+                            values["ignore_tls"],
+                            values["accepted_statuscodes_json"],
+                            managed_marker,
+                            values["dns_resolve_type"],
+                            values["retry_interval"],
+                            values["method"],
+                            values["conditions"],
+                            values["timeout"],
+                        ),
+                    )
+                managed_count += 1
             else:
                 cur.execute(
-                    """
-                    INSERT INTO monitor (
-                        name, active, user_id, `interval`, url, type, weight,
-                        keyword, maxretries, ignore_tls, upside_down,
-                        maxredirects, accepted_statuscodes_json, description,
-                        dns_resolve_type, retry_interval, method, conditions, timeout
-                    ) VALUES (%s, %s, %s, %s, %s, %s, 2000, %s, %s, %s, 0, 10,
-                              %s, %s, %s, %s, %s, %s, %s)
+                    f"""
+                    UPDATE monitor
+                    SET url = {placeholder},
+                        type = {placeholder},
+                        hostname = {placeholder},
+                        port = {placeholder},
+                        keyword = {placeholder},
+                        dns_resolve_server = {placeholder},
+                        active = {placeholder},
+                        `interval` = {placeholder},
+                        retry_interval = {placeholder},
+                        maxretries = {placeholder},
+                        ignore_tls = {placeholder},
+                        maxredirects = 10,
+                        accepted_statuscodes_json = {placeholder},
+                        description = {placeholder},
+                        dns_resolve_type = {placeholder},
+                        method = {placeholder},
+                        conditions = {placeholder},
+                        timeout = {placeholder}
+                    WHERE id = {placeholder}
                     """,
                     (
-                        name,
-                        values["active"],
-                        user_id,
-                        values["interval"],
                         values["url"],
                         values["type"],
+                        values.get("hostname"),
+                        values.get("port"),
                         values.get("keyword"),
+                        values.get("dns_resolve_server"),
+                        values["active"],
+                        values["interval"],
+                        values["retry_interval"],
                         values["maxretries"],
                         values["ignore_tls"],
                         values["accepted_statuscodes_json"],
                         managed_marker,
                         values["dns_resolve_type"],
-                        values["retry_interval"],
                         values["method"],
                         values["conditions"],
                         values["timeout"],
+                        row[0],
                     ),
                 )
-        else:
-            cur.execute(
-                """
-                UPDATE monitor
-                SET url = %s,
-                    type = %s,
-                    hostname = %s,
-                    port = %s,
-                    keyword = %s,
-                    dns_resolve_server = %s,
-                    active = %s,
-                    `interval` = %s,
-                    retry_interval = %s,
-                    maxretries = %s,
-                    ignore_tls = %s,
-                    maxredirects = 10,
-                    accepted_statuscodes_json = %s,
-                    description = %s,
-                    dns_resolve_type = %s,
-                    method = %s,
-                    conditions = %s,
-                    timeout = %s
-                WHERE id = %s
-                """,
-                (
-                    values["url"],
-                    values["type"],
-                    values.get("hostname"),
-                    values.get("port"),
-                    values.get("keyword"),
-                    values.get("dns_resolve_server"),
-                    values["active"],
-                    values["interval"],
-                    values["retry_interval"],
-                    values["maxretries"],
-                    values["ignore_tls"],
-                    values["accepted_statuscodes_json"],
-                    managed_marker,
-                    values["dns_resolve_type"],
-                    values["method"],
-                    values["conditions"],
-                    values["timeout"],
-                    row[0],
-                ),
+                managed_count += 1
+
+        cur.execute(f"SELECT id, name FROM monitor WHERE description = {placeholder}", (managed_marker,))
+        for monitor_id, name in cur.fetchall():
+            if name not in desired_names:
+                cur.execute(f"DELETE FROM monitor WHERE id = {placeholder}", (monitor_id,))
+    finally:
+        cur.close()
+    conn.commit()
+    return managed_count
+
+
+updated_any = False
+password_path = Path("${config.sops.secrets.kuma-db-password.path}")
+if password_path.is_file():
+    password = password_path.read_text().strip()
+    if password:
+        try:
+            mariadb_conn = pymysql.connect(
+                host="${config.services.uptimeKuma.database.mariadb.host}",
+                port=${toString config.services.uptimeKuma.database.mariadb.port},
+                user="${config.services.uptimeKuma.database.mariadb.user}",
+                password=password,
+                database="${config.services.uptimeKuma.database.mariadb.name}",
+                charset="utf8mb4",
+                autocommit=False,
             )
+            sync_connection(mariadb_conn, "%s")
+            mariadb_conn.close()
+            updated_any = True
+        except Exception as exc:
+            print(f"uptime-kuma-monitor-sync: mariadb sync skipped: {exc}", file=sys.stderr)
 
-    cur.execute("SELECT id, name FROM monitor WHERE description = %s", (managed_marker,))
-    for monitor_id, name in cur.fetchall():
-        if name not in desired_names:
-            cur.execute("DELETE FROM monitor WHERE id = %s", (monitor_id,))
+sqlite_path = Path("/var/lib/uptime-kuma/kuma.db")
+if sqlite_path.is_file():
+    sqlite_conn = sqlite3.connect(sqlite_path)
+    try:
+        sync_connection(sqlite_conn, "?")
+        updated_any = True
+    finally:
+        sqlite_conn.close()
 
-conn.commit()
-conn.close()
+if not updated_any:
+    raise SystemExit(0)
 PY
   '';
   hasSmtpRelayModule = inputs.nix-services.services ? smtpRelay;
