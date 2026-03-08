@@ -279,6 +279,7 @@ let
       homeAssistant = "https://homeassistant.${config.lab.domain}/";
       authentik = "https://authentik.${config.lab.domain}/";
       timeTagger = "https://timetagger.${config.lab.domain}/";
+      traggo = "https://traggo.${config.lab.domain}/";
     };
     direct = {
       lokiReady = "http://loki.${config.lab.domain}:3100/ready";
@@ -313,6 +314,7 @@ let
       (mkHttpMonitor "Home Assistant" availabilityTargets.routed.homeAssistant)
       (mkHttpMonitor "Authentik" availabilityTargets.routed.authentik)
       (mkHttpMonitor "TimeTagger" availabilityTargets.routed.timeTagger)
+      (mkHttpMonitor "Traggo" availabilityTargets.routed.traggo)
       (mkPortMonitor "SMTP Relay" "smtp-relay.${config.lab.domain}" 2525)
       (mkPortMonitor "nas-host Postgres" "postgres.${config.lab.domain}" 5433)
       (mkPortMonitor "nas-host Redis" "redis.${config.lab.domain}" 6379)
@@ -632,6 +634,7 @@ in lib.recursiveUpdate ({
     inputs.nix-services.services.homeAssistant
     inputs.nix-services.services.authentikCompose
     inputs.nix-services.services.timeTaggerCompose
+    inputs.nix-services.services.traggoCompose
     inputs.nix-services.services.promtail
     inputs.nix-services.services.snmpExporter
     inputs.nix-services.services.unpoller
@@ -874,6 +877,16 @@ in lib.recursiveUpdate ({
     mode = "0400";
   };
 
+  sops.secrets.traggo-admin-password = {
+    sopsFile = ../../../secrets/secrets.yaml;
+    format = "yaml";
+    key = "traggo-admin-password";
+    path = "/run/secrets/traggo-admin-password";
+    owner = "root";
+    group = "root";
+    mode = "0400";
+  };
+
   services.traefik.tls = {
     enable = true;
     certFile = config.sops.secrets.traefik-tls-crt.path;
@@ -982,6 +995,17 @@ in lib.recursiveUpdate ({
     image = {
       tag = "latest";
       allowMutableTag = true;
+    };
+  };
+
+  services.traggoCompose = {
+    enable = true;
+    hostname = "traggo.${config.lab.domain}";
+    tls = true;
+    dataDir = "/srv/prometheus/traggo";
+    admin = {
+      username = "eduardo";
+      passwordFile = config.sops.secrets.traggo-admin-password.path;
     };
   };
 
@@ -1203,6 +1227,14 @@ in lib.recursiveUpdate ({
                 description = "Time tracking";
                 server = "local";
                 container = "timetagger";
+              };
+            }
+            {
+              "Traggo" = {
+                href = availabilityTargets.routed.traggo;
+                description = "Task and time management";
+                server = "local";
+                container = "traggo";
               };
             }
           ];
