@@ -327,7 +327,7 @@ let
       (mkPortMonitor "nas-host Postgres" "postgres.${config.lab.domain}" 5433)
       (mkPortMonitor "nas-host Redis" "redis.${config.lab.domain}" 6379)
       (mkPortMonitor "nas-host Mongo" "mongo.${config.lab.domain}" 27017)
-      (mkPortMonitor "nas-host ghost-mysql" "nas-host.${config.lab.domain}" 3306)
+      (mkPortMonitor "nas-host MySQL" "nas-host.${config.lab.domain}" 3306)
       (mkPortMonitor "nas-host Docker Socket Proxy" "nas-host.${config.lab.domain}" 2375)
       (mkKeywordMonitor "Loki Ready" availabilityTargets.direct.lokiReady "ready")
       (mkDnsMonitor "DNS Pi-hole" "google.com" "192.0.2.10")
@@ -1086,7 +1086,7 @@ in lib.recursiveUpdate ({
     hostname = "kuma.${config.lab.domain}";
     tls = true;
     database = {
-      type = "mariadb";
+      type = "sqlite";
       mariadb = {
         host = "nas-host.${config.lab.domain}";
         port = 3306;
@@ -1417,7 +1417,7 @@ in lib.recursiveUpdate ({
                 href = "http://nas-host.${config.lab.domain}:3306";
                 description = "Shared MySQL endpoint (TCP check in Kuma)";
                 server = "nas-host";
-                container = "ghost-mysql";
+                container = "nas-host-mysql";
               };
             }
             {
