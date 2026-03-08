@@ -1045,6 +1045,10 @@ in lib.recursiveUpdate ({
     hostname = "dozzle.${config.lab.domain}";
     tls = true;
     dataDir = "/srv/prometheus/dozzle";
+    remoteHosts = [
+      "tcp://pi-node-c.${config.lab.domain}:2375|pi-node-c"
+      "tcp://nas-host.${config.lab.domain}:2375|nas-host"
+    ];
   };
 
   services.uptimeKuma = {
