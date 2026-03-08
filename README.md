@@ -86,44 +86,24 @@ scripts/export-sd-image result-rpi3 sd-image rpi3 --decompress
 Deploy (host-local for `pi-node-a` / `pi-node-b`, remote builder for `pi-node-c`)
 
 ```bash
-
-Yes, a few good “next central services” are still missing and could help:
-
-Central object storage (MinIO/S3-compatible)
-Useful for app uploads/backups/log archives.
-Many apps can move file blobs there later.
-
-
-Central message bus
-NATS (lightweight) or RabbitMQ for event-driven integrations/automation.
-
-
-cd /home/eduardo/Programming/gitea.internal.example/hhlab-insfrastructure/nix-services
-git add .
-git commit -m "rebuild"
-git push
-
 cd /home/eduardo/Programming/gitea.internal.example/hhlab-insfrastructure/nix-pi
 nix flake update nix-services
-git add .
-git commit -m "rebuild"
+git add flake.lock
+git commit -m "flake: bump nix-services"
 git push
 
-cd /home/eduardo/Programming/gitea.internal.example/hhlab-insfrastructure/nix-pi
 nixos-rebuild switch \
   --flake path:.#pi-node-a \
   --target-host eduardo@pi-node-a \
   --build-host eduardo@pi-node-a \
   --sudo
 
-cd /home/eduardo/Programming/gitea.internal.example/hhlab-insfrastructure/nix-pi
 nixos-rebuild switch \
   --flake path:.#pi-node-b \
   --target-host eduardo@pi-node-b \
   --build-host eduardo@pi-node-b \
   --sudo
 
-cd /home/eduardo/Programming/gitea.internal.example/hhlab-insfrastructure/nix-pi
 nixos-rebuild switch \
   --flake path:.#pi-node-c \
   --target-host eduardo@pi-node-c \
@@ -131,8 +111,15 @@ nixos-rebuild switch \
   --sudo
 
 ssh-copy-id -i ~/.ssh/id_ed25519_homelab.pub eduardo@<nas-fqdn>
-
 ```
+
+### Grafana Freeze Window (Post-Compaction 2026-03-08)
+
+- Keep Grafana dashboards and Prometheus alert rules unchanged for the next few
+  weeks unless there is an operational incident.
+- During freeze, only collect alert noise observations and panel usability
+  notes.
+- Re-open config changes after the freeze with one batched tuning pass.
 
 Remote build note:
 
