@@ -1334,6 +1334,7 @@ in lib.recursiveUpdate ({
                 href = "http://postgres.${config.lab.domain}:5433";
                 description = "Shared DB endpoint (TCP check in Kuma)";
                 server = "nas-host";
+                container = "nas-host-postgres";
               };
             }
             {
