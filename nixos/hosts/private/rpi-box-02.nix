@@ -1652,6 +1652,8 @@ in lib.recursiveUpdate ({
     9121
   ] ++ lib.optionals enableMysqlExporter [
     9104
+  ] ++ lib.optionals hasMongoExporterModule [
+    9216
   ];
   networking.firewall.allowedUDPPorts = [
     53
