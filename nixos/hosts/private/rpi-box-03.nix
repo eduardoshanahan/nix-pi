@@ -5,6 +5,7 @@
     inputs.nix-services.services.loki
     inputs.nix-services.services.cadvisor
     inputs.nix-services.services.promtail
+    inputs.nix-services.services.dockerSocketProxyCompose
   ];
 
   networking.hostName = "pi-node-c";
@@ -81,6 +82,17 @@
     listenPort = 8081;
   };
 
+  services.dockerSocketProxyCompose = {
+    enable = true;
+    listenAddress = "192.0.2.10";
+    listenPort = 2375;
+    socketPath = "/var/run/docker.sock";
+    image = {
+      tag = "latest";
+      allowMutableTag = true;
+    };
+  };
+
   services.prometheus.exporters.node = {
     enable = true;
     port = 9100;
@@ -96,4 +108,9 @@
     9080
     9100
   ];
+
+  # Allow Docker socket proxy only from pi-node-b.
+  networking.firewall.extraInputRules = ''
+    ip saddr 192.0.2.10 tcp dport 2375 accept
+  '';
 }

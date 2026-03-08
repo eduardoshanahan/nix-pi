@@ -336,9 +336,14 @@ let
     ] availabilityTargets.direct.promtailReady)
     ++ (mkNamedPortMonitors [
       "Docker Socket Proxy pi-node-a"
+      "Docker Socket Proxy pi-node-c"
     ] [
       {
         host = "pi-node-a.${config.lab.domain}";
+        port = 2375;
+      }
+      {
+        host = "pi-node-c.${config.lab.domain}";
         port = 2375;
       }
     ])
@@ -1129,6 +1134,8 @@ in lib.recursiveUpdate ({
               "Loki" = {
                 href = availabilityTargets.direct.lokiReady;
                 description = "Log storage readiness";
+                server = "pi-node-c";
+                container = "loki";
               };
             }
             {
@@ -1357,6 +1364,9 @@ in lib.recursiveUpdate ({
       socket: /var/run/docker.sock
     pi-node-a:
       host: pi-node-a.${config.lab.domain}
+      port: 2375
+    pi-node-c:
+      host: pi-node-c.${config.lab.domain}
       port: 2375
     nas-host:
       host: nas-host.${config.lab.domain}
