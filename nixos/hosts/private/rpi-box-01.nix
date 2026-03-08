@@ -93,7 +93,7 @@
 
   services.promtailCompose = {
     enable = true;
-    lokiPushUrl = "http://192.0.2.10:3100/loki/api/v1/push";
+    lokiPushUrl = "http://loki.${config.lab.domain}:3100/loki/api/v1/push";
   };
 
   services.piholeExporter = {
