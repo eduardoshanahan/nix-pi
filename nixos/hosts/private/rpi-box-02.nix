@@ -258,6 +258,9 @@ let
     mysqlExporter = [
       "${metricsHost "pi-node-b"}:9104"
     ];
+    mongodbExporter = [
+      "${metricsHost "pi-node-b"}:9216"
+    ];
   };
   availabilityTargets = {
     routed = {
@@ -292,6 +295,7 @@ let
       postgresExporterMetrics = map (target: "http://${target}/metrics") monitoringTargets.postgresExporter;
       redisExporterMetrics = map (target: "http://${target}/metrics") monitoringTargets.redisExporter;
       mysqlExporterMetrics = map (target: "http://${target}/metrics") monitoringTargets.mysqlExporter;
+      mongodbExporterMetrics = map (target: "http://${target}/metrics") monitoringTargets.mongodbExporter;
     };
   };
   kumaDesiredMonitors =
@@ -375,6 +379,11 @@ let
       mkNamedHttpMonitors [
         "MySQL Exporter pi-node-b"
       ] availabilityTargets.direct.mysqlExporterMetrics
+    )
+    ++ lib.optionals hasMongoExporterModule (
+      mkNamedHttpMonitors [
+        "MongoDB Exporter pi-node-b"
+      ] availabilityTargets.direct.mongodbExporterMetrics
     );
   uptimeKumaMonitorSync = pkgs.writeShellScript "uptime-kuma-monitor-sync" ''
     set -euo pipefail
@@ -618,6 +627,7 @@ PY
   hasPostgresExporterModule = inputs.nix-services.services ? postgresExporterCompose;
   hasRedisExporterModule = inputs.nix-services.services ? redisExporterCompose;
   hasMysqlExporterModule = inputs.nix-services.services ? mysqlExporterCompose;
+  hasMongoExporterModule = inputs.nix-services.services ? mongodbExporterCompose;
   enableRedisExporter = true;
   enableMysqlExporter = true;
 in lib.recursiveUpdate ({
@@ -648,7 +658,8 @@ in lib.recursiveUpdate ({
   ++ lib.optional hasSmtpRelayModule inputs.nix-services.services.smtpRelay
   ++ lib.optional hasPostgresExporterModule inputs.nix-services.services.postgresExporterCompose
   ++ lib.optional hasRedisExporterModule inputs.nix-services.services.redisExporterCompose
-  ++ lib.optional hasMysqlExporterModule inputs.nix-services.services.mysqlExporterCompose;
+  ++ lib.optional hasMysqlExporterModule inputs.nix-services.services.mysqlExporterCompose
+  ++ lib.optional hasMongoExporterModule inputs.nix-services.services.mongodbExporterCompose;
 
   networking.hostName = "pi-node-b";
   lab.nix.signingKeyFile = "/etc/nix/pi-node-b-priv.pem";
@@ -808,6 +819,16 @@ in lib.recursiveUpdate ({
     format = "yaml";
     key = "redis-password";
     path = "/run/secrets/redis-password";
+    owner = "root";
+    group = "root";
+    mode = "0400";
+  };
+
+  sops.secrets.mongodb-exporter-uri = {
+    sopsFile = ../../../secrets/secrets.yaml;
+    format = "yaml";
+    key = "mongodb-exporter-uri";
+    path = "/run/secrets/mongodb-exporter-uri";
     owner = "root";
     group = "root";
     mode = "0400";
@@ -1738,31 +1759,41 @@ in lib.recursiveUpdate ({
       services.prometheusCompose.scrape.postgresExporterTargets = monitoringTargets.postgresExporter;
     }))
   (lib.recursiveUpdate
-    (lib.optionalAttrs (hasRedisExporterModule && enableRedisExporter) {
-      services.redisExporterCompose = {
-        enable = true;
-        listenPort = 9121;
-      redis = {
-          username = "redis-admin";
-          host = "redis.${config.lab.domain}";
-          port = 6379;
-          passwordFile = config.sops.secrets.redis-password.path;
-      };
-      };
-
-      services.prometheusCompose.scrape.redisExporterTargets = monitoringTargets.redisExporter;
-    })
-    (lib.optionalAttrs (hasMysqlExporterModule && enableMysqlExporter) {
-      services.mysqlExporterCompose = {
-        enable = true;
-        listenPort = 9104;
-        mysql = {
-          host = "nas-host.${config.lab.domain}";
-          port = 3306;
-          username = "ghost";
-          passwordFile = config.sops.secrets.ghost-db-password.path;
+    (lib.recursiveUpdate
+      (lib.optionalAttrs (hasRedisExporterModule && enableRedisExporter) {
+        services.redisExporterCompose = {
+          enable = true;
+          listenPort = 9121;
+          redis = {
+            username = "redis-admin";
+            host = "redis.${config.lab.domain}";
+            port = 6379;
+            passwordFile = config.sops.secrets.redis-password.path;
+          };
         };
+
+        services.prometheusCompose.scrape.redisExporterTargets = monitoringTargets.redisExporter;
+      })
+      (lib.optionalAttrs (hasMysqlExporterModule && enableMysqlExporter) {
+        services.mysqlExporterCompose = {
+          enable = true;
+          listenPort = 9104;
+          mysql = {
+            host = "nas-host.${config.lab.domain}";
+            port = 3306;
+            username = "ghost";
+            passwordFile = config.sops.secrets.ghost-db-password.path;
+          };
+        };
+
+        services.prometheusCompose.scrape.mysqlExporterTargets = monitoringTargets.mysqlExporter;
+      }))
+    (lib.optionalAttrs hasMongoExporterModule {
+      services.mongodbExporterCompose = {
+        enable = true;
+        listenPort = 9216;
+        mongoUriFile = config.sops.secrets.mongodb-exporter-uri.path;
       };
 
-      services.prometheusCompose.scrape.mysqlExporterTargets = monitoringTargets.mysqlExporter;
+      services.prometheusCompose.scrape.mongodbExporterTargets = monitoringTargets.mongodbExporter;
     })))
