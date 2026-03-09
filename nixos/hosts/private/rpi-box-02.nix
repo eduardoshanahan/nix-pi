@@ -287,6 +287,7 @@ let
       traggo = "https://traggo.${config.lab.domain}/";
       karakeep = "https://karakeep.${config.lab.domain}/";
       dozzle = "https://dozzle.${config.lab.domain}/";
+      d2 = "https://d2.${config.lab.domain}/";
     };
     direct = {
       lokiReady = "http://loki.${config.lab.domain}:3100/ready";
@@ -327,6 +328,7 @@ let
       (mkHttpMonitor "Traggo" availabilityTargets.routed.traggo)
       (mkHttpMonitor "KaraKeep" availabilityTargets.routed.karakeep)
       (mkHttpMonitor "Dozzle" availabilityTargets.routed.dozzle)
+      (mkHttpMonitor "D2" availabilityTargets.routed.d2)
       (mkPortMonitor "SMTP Relay" "smtp-relay.${config.lab.domain}" 2525)
       (mkPortMonitor "nas-host Postgres" "postgres.${config.lab.domain}" 5433)
       (mkPortMonitor "nas-host Redis" "redis.${config.lab.domain}" 6379)
@@ -665,6 +667,7 @@ PY
   hasMysqlExporterModule = inputs.nix-services.services ? mysqlExporterCompose;
   hasMongoExporterModule = inputs.nix-services.services ? mongodbExporterCompose;
   hasDozzleModule = inputs.nix-services.services ? dozzleCompose;
+  hasD2Module = inputs.nix-services.services ? d2Compose;
   enableRedisExporter = true;
   enableMysqlExporter = true;
 in lib.recursiveUpdate ({
@@ -699,7 +702,8 @@ in lib.recursiveUpdate ({
   ++ lib.optional hasRedisExporterModule inputs.nix-services.services.redisExporterCompose
   ++ lib.optional hasMysqlExporterModule inputs.nix-services.services.mysqlExporterCompose
   ++ lib.optional hasMongoExporterModule inputs.nix-services.services.mongodbExporterCompose
-  ++ lib.optional hasDozzleModule inputs.nix-services.services.dozzleCompose;
+  ++ lib.optional hasDozzleModule inputs.nix-services.services.dozzleCompose
+  ++ lib.optional hasD2Module inputs.nix-services.services.d2Compose;
 
   networking.hostName = "pi-node-b";
   lab.nix.signingKeyFile = "/etc/nix/pi-node-b-priv.pem";
@@ -1294,6 +1298,14 @@ in lib.recursiveUpdate ({
                 description = "Tasks";
                 server = "local";
                 container = "vikunja";
+              };
+            }
+            {
+              "D2" = {
+                href = availabilityTargets.routed.d2;
+                description = "Diagram-as-code workspace";
+                server = "local";
+                container = "d2";
               };
             }
           ];
@@ -1972,7 +1984,8 @@ in lib.recursiveUpdate ({
   };
 }) (lib.recursiveUpdate
   (lib.recursiveUpdate
-    (lib.optionalAttrs hasSmtpRelayModule {
+    (lib.recursiveUpdate
+      (lib.optionalAttrs hasSmtpRelayModule {
       services.smtpRelayCompose = {
         enable = true;
         hostname = "smtp-relay.${config.lab.domain}";
@@ -2053,7 +2066,16 @@ in lib.recursiveUpdate ({
           Persistent = true;
         };
       };
-    })
+      })
+      (lib.optionalAttrs hasD2Module {
+        services.d2Compose = {
+          enable = true;
+          hostname = "d2.${config.lab.domain}";
+          tls = true;
+          dataDir = "/srv/d2";
+          auth.username = "eduardo";
+        };
+      }))
     (lib.optionalAttrs hasPostgresExporterModule {
       services.postgresExporterCompose = {
         enable = true;
