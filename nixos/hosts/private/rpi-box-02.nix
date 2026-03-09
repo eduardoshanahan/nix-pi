@@ -1104,6 +1104,7 @@ in lib.recursiveUpdate ({
     tls = true;
     dataDir = "/srv/dozzle";
     remoteHosts = [
+      "tcp://pi-node-a.${config.lab.domain}:2375|pi-node-a"
       "tcp://pi-node-c.${config.lab.domain}:2375|pi-node-c"
       "tcp://nas-host.${config.lab.domain}:2375|nas-host"
     ];
