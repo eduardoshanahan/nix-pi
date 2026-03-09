@@ -269,6 +269,7 @@ let
       diagramsNet = "https://diagramsnet.${config.lab.domain}/";
       excalidraw = "https://excalidraw.${config.lab.domain}/";
       fossflow = "https://fossflow.${config.lab.domain}/";
+      searxng = "https://searxng.${config.lab.domain}/";
       owntracks = "http://owntracks.${config.lab.domain}:8084/";
       kuma = "https://kuma.${config.lab.domain}/";
       grafana = "https://grafana.${config.lab.domain}/";
@@ -308,6 +309,7 @@ let
       (mkHttpMonitor "diagrams.net" availabilityTargets.routed.diagramsNet)
       (mkHttpMonitor "Excalidraw" availabilityTargets.routed.excalidraw)
       (mkHttpMonitor "FossFLOW" availabilityTargets.routed.fossflow)
+      (mkHttpMonitor "SearXNG" availabilityTargets.routed.searxng)
       (mkHttpMonitor "OwnTracks" availabilityTargets.routed.owntracks)
       (mkHttpMonitor "Kuma Self" availabilityTargets.routed.kuma)
       (mkHttpMonitor "Grafana" availabilityTargets.routed.grafana)
@@ -678,6 +680,7 @@ in lib.recursiveUpdate ({
     inputs.nix-services.services.diagramsNet
     inputs.nix-services.services.excalidraw
     inputs.nix-services.services.fossflowCompose
+    inputs.nix-services.services.searxngCompose
     inputs.nix-services.services.uptimeKuma
     inputs.nix-services.services.vikunjaCompose
     inputs.nix-services.services.homepageDashboard
@@ -1030,6 +1033,14 @@ in lib.recursiveUpdate ({
     dataDir = "/srv/fossflow";
   };
 
+  services.searxngCompose = {
+    enable = true;
+    hostname = "searxng.${config.lab.domain}";
+    tls = true;
+    configDir = "/srv/searxng/config";
+    dataDir = "/srv/searxng/data";
+  };
+
   services.homeAssistant = {
     enable = true;
     hostname = "homeassistant.${config.lab.domain}";
@@ -1266,6 +1277,14 @@ in lib.recursiveUpdate ({
                 description = "Isometric diagram editor";
                 server = "local";
                 container = "fossflow";
+              };
+            }
+            {
+              "SearXNG" = {
+                href = availabilityTargets.routed.searxng;
+                description = "Private metasearch";
+                server = "local";
+                container = "searxng";
               };
             }
             {
