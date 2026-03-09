@@ -268,6 +268,7 @@ let
       piholeSecondary = "https://pihole02.${config.lab.domain}/admin/";
       diagramsNet = "https://diagramsnet.${config.lab.domain}/";
       excalidraw = "https://excalidraw.${config.lab.domain}/";
+      fossflow = "https://fossflow.${config.lab.domain}/";
       owntracks = "http://owntracks.${config.lab.domain}:8084/";
       kuma = "https://kuma.${config.lab.domain}/";
       grafana = "https://grafana.${config.lab.domain}/";
@@ -306,6 +307,7 @@ let
       (mkHttpMonitor "Pi-hole Admin Secondary" availabilityTargets.routed.piholeSecondary)
       (mkHttpMonitor "diagrams.net" availabilityTargets.routed.diagramsNet)
       (mkHttpMonitor "Excalidraw" availabilityTargets.routed.excalidraw)
+      (mkHttpMonitor "FossFLOW" availabilityTargets.routed.fossflow)
       (mkHttpMonitor "OwnTracks" availabilityTargets.routed.owntracks)
       (mkHttpMonitor "Kuma Self" availabilityTargets.routed.kuma)
       (mkHttpMonitor "Grafana" availabilityTargets.routed.grafana)
@@ -1256,6 +1258,14 @@ in lib.recursiveUpdate ({
                 description = "Whiteboard";
                 server = "local";
                 container = "excalidraw";
+              };
+            }
+            {
+              "FossFLOW" = {
+                href = availabilityTargets.routed.fossflow;
+                description = "Isometric diagram editor";
+                server = "local";
+                container = "fossflow";
               };
             }
             {
