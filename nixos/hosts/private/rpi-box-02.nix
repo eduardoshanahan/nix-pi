@@ -288,9 +288,12 @@ let
       karakeep = "https://karakeep.${config.lab.domain}/";
       dozzle = "https://dozzle.${config.lab.domain}/";
       d2 = "https://d2.${config.lab.domain}/";
+      paperless = "https://paperless.${config.lab.domain}/";
     };
     direct = {
       lokiReady = "http://loki.${config.lab.domain}:3100/ready";
+      tikaVersion = "http://tika.${config.lab.domain}:9998/version";
+      gotenbergHealth = "http://gotenberg.${config.lab.domain}:3001/health";
       nodeMetrics = map (target: "http://${target}/metrics") monitoringTargets.node;
       promtailReady = map (target: "http://${target}/ready") monitoringTargets.promtail;
       snmpExporterMetrics = map (target: "http://${target}/metrics") monitoringTargets.snmpExporter;
@@ -329,6 +332,7 @@ let
       (mkHttpMonitor "KaraKeep" availabilityTargets.routed.karakeep)
       (mkHttpMonitor "Dozzle" availabilityTargets.routed.dozzle)
       (mkHttpMonitor "D2" availabilityTargets.routed.d2)
+      (mkHttpMonitor "Paperless" availabilityTargets.routed.paperless)
       (mkPortMonitor "SMTP Relay" "smtp-relay.${config.lab.domain}" 2525)
       (mkPortMonitor "nas-host Postgres" "postgres.${config.lab.domain}" 5433)
       (mkPortMonitor "nas-host Redis" "redis.${config.lab.domain}" 6379)
@@ -336,6 +340,8 @@ let
       (mkPortMonitor "nas-host MySQL" "nas-host.${config.lab.domain}" 3306)
       (mkPortMonitor "nas-host Docker Socket Proxy" "nas-host.${config.lab.domain}" 2375)
       (mkKeywordMonitor "Loki Ready" availabilityTargets.direct.lokiReady "ready")
+      (mkKeywordMonitor "Tika Version" availabilityTargets.direct.tikaVersion "Apache Tika")
+      (mkKeywordMonitor "Gotenberg Health" availabilityTargets.direct.gotenbergHealth "\"status\":\"up\"")
       (mkDnsMonitor "DNS Pi-hole" "google.com" "192.0.2.10")
     ]
     ++ (mkNamedHttpMonitors [
@@ -1308,6 +1314,14 @@ in lib.recursiveUpdate ({
                 container = "d2";
               };
             }
+            {
+              "Paperless" = {
+                href = availabilityTargets.routed.paperless;
+                description = "Document management and OCR";
+                server = "nas-host";
+                container = "nas-host-paperless";
+              };
+            }
           ];
         }
         {
@@ -1509,6 +1523,30 @@ in lib.recursiveUpdate ({
                 description = "Read-only Docker API proxy";
                 server = "nas-host";
                 container = "docker-socket-proxy";
+              };
+            }
+            {
+              "Paperless" = {
+                href = availabilityTargets.routed.paperless;
+                description = "Document inbox and archive";
+                server = "nas-host";
+                container = "nas-host-paperless";
+              };
+            }
+            {
+              "Tika" = {
+                href = availabilityTargets.direct.tikaVersion;
+                description = "Text extraction backend";
+                server = "nas-host";
+                container = "nas-host-tika";
+              };
+            }
+            {
+              "Gotenberg" = {
+                href = availabilityTargets.direct.gotenbergHealth;
+                description = "Document conversion backend";
+                server = "nas-host";
+                container = "nas-host-gotenberg";
               };
             }
           ];
