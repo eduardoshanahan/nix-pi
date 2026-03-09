@@ -675,6 +675,7 @@ in lib.recursiveUpdate ({
     inputs.nix-services.services.grafana
     inputs.nix-services.services.diagramsNet
     inputs.nix-services.services.excalidraw
+    inputs.nix-services.services.fossflowCompose
     inputs.nix-services.services.uptimeKuma
     inputs.nix-services.services.vikunjaCompose
     inputs.nix-services.services.homepageDashboard
@@ -1018,6 +1019,13 @@ in lib.recursiveUpdate ({
       repository = "excalidraw/excalidraw";
       digest = "sha256:3c2513e830bb6e195147c05b34ecf8393d0ba2b1cc86e93b407a5777d6135c6c";
     };
+  };
+
+  services.fossflowCompose = {
+    enable = true;
+    hostname = "fossflow.${config.lab.domain}";
+    tls = true;
+    dataDir = "/srv/fossflow";
   };
 
   services.homeAssistant = {
