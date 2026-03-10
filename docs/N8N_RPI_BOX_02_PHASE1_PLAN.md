@@ -1,6 +1,6 @@
 # n8n Phase 1 Plan (`pi-node-b` + Postgres on `nas-host`)
 
-Status: planned for a future session
+Status: completed on 2026-03-10
 
 ## Goal
 
@@ -82,6 +82,37 @@ Current preference: `/srv/n8n`
 
 - Shared Postgres on `nas-host` is already documented and was confirmed healthy.
 - `pi-node-b` is already an application host in this homelab model.
+
+## Final deployed state
+
+- Host: `pi-node-b`
+- URL: `https://n8n.internal.example`
+- Image: `docker.n8n.io/n8nio/n8n:2.7.4`
+- Database host: `postgres.internal.example`
+- Database port: `5433`
+- Database name: `n8n`
+- Database user: `n8n`
+- Data directory: `/srv/n8n`
+- Secrets:
+  - `n8n-db-password`
+  - `n8n-encryption-key`
+
+## Implemented integrations
+
+- Traefik routing on `pi-node-b`
+- Homepage card on `homepage.internal.example`
+- Uptime Kuma HTTP monitor for `https://n8n.internal.example/`
+- Grafana / Prometheus app reliability coverage for `n8n@docker`
+
+## Notes from implementation
+
+- The initial image pull on the Raspberry Pi required a longer systemd startup
+  timeout than the first draft module used.
+- The deployment moved from the original `1.x` pin to `2.7.4` because the UI
+  immediately reported the original image as outdated.
+- Current upstream runtime warnings about the internal Python task runner and
+  the future `binaryData -> storage` rename are non-blocking and were left for
+  a later cleanup pass.
 
 ## Follow-up after phase 1
 

@@ -370,6 +370,7 @@ monitors in the SQLite database during startup before the container is started.
 - `Excalidraw`
 - `Kuma Self`
 - `Homepage`
+- `n8n`
 - `SMTP Relay`
 - `Jellyfin`
 - `Loki Ready`
@@ -401,6 +402,8 @@ ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "curl -skI https://<kuma-fqdn
   - `Prometheus` (`http://prometheus:9090`)
   - `Loki` (`http://loki.internal.example:3100`)
 - Starter dashboard is provisioned as `Homelab Overview` in folder `Homelab`.
+- Application reliability coverage includes `n8n@docker` in both Grafana
+  dashboards and Prometheus alert rules.
 
 ### Grafana quick checks
 
@@ -443,6 +446,7 @@ ssh -o BatchMode=yes -o ConnectTimeout=6 nas-host "sudo -n /usr/local/bin/docker
 - Config files are generated declaratively under `/etc/homepage/config`.
 - The service mounts the local Docker socket read-only so Homepage can show
   container-backed status for local cards.
+- The generated service list includes a local `n8n` card.
 
 ### Homepage quick checks
 
@@ -454,6 +458,33 @@ ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "docker ps --filter name=home
 ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "curl -sSI -H 'Host: <homepage-fqdn>' http://127.0.0.1/ | sed -n '1,8p'"
 
 ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "curl -skI https://<homepage-fqdn>/ | sed -n '1,12p'"
+```
+
+## n8n (`pi-node-b`)
+
+- URL: `https://n8n.<lab-domain>/`
+- Runtime owner: `nix-services/services/n8n`
+- Runtime path on host: `/srv/n8n`
+- Database backend:
+  - Host: `postgres.<lab-domain>:5433`
+  - Database: `n8n`
+  - User: `n8n`
+- Current visibility:
+  - Homepage card: `n8n`
+  - Uptime Kuma monitor: `n8n`
+  - Grafana / Prometheus app reliability coverage: `n8n@docker`
+  - Dozzle: local container `n8n`
+
+### n8n quick checks
+
+```bash
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "systemctl is-active n8n; sudo systemctl --no-pager --lines=40 status n8n"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "docker ps --filter name=n8n --format 'table {{.Names}}\t{{.Status}}\t{{.Image}}'"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "curl -skI -H 'Accept: text/html' https://n8n.<lab-domain>/ | sed -n '1,12p'"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "sudo docker logs --tail 60 n8n"
 ```
 
 ### Admin password note
