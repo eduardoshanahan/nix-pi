@@ -113,14 +113,6 @@ nixos-rebuild switch \
 ssh-copy-id -i ~/.ssh/id_ed25519_homelab.pub eduardo@<nas-fqdn>
 ```
 
-### Grafana Freeze Window (Post-Compaction 2026-03-08)
-
-- Keep Grafana dashboards and Prometheus alert rules unchanged for the next few
-  weeks unless there is an operational incident.
-- During freeze, only collect alert noise observations and panel usability
-  notes.
-- Re-open config changes after the freeze with one batched tuning pass.
-
 Remote build note:
 
 - `pi-node-c` builds on `pi-node-b` because `pi-node-c` does not have enough local build capacity.
@@ -258,6 +250,27 @@ ssh -o BatchMode=yes -o ConnectTimeout=6 nas-host "cd /volume1/docker/homelab/na
 ssh -o BatchMode=yes -o ConnectTimeout=6 nas-host "cd /volume1/docker/homelab/nas-host/redis && sudo -n /usr/local/bin/docker compose logs --tail 60"
 
 ssh -o BatchMode=yes -o ConnectTimeout=6 nas-host "cd /volume1/docker/homelab/nas-host/outline && sudo -n /usr/local/bin/docker inspect -f '{{range .Config.Env}}{{println .}}{{end}}' outline | grep '^REDIS_URL='"
+```
+
+## Dolt (`nas-host`)
+
+- Endpoint: `dolt.internal.example:3307`
+- Metrics: `http://dolt.internal.example:11228/metrics`
+- Runtime owner: `synology-services/nas-host/dolt` (not a `nix-pi` host module)
+- Current visibility:
+  - Prometheus job: `dolt`
+  - Grafana dashboard: `Shared Infra`
+  - Homepage card: `Dolt (shared)`
+  - Uptime Kuma monitors: `nas-host Dolt SQL`, `Dolt Metrics`
+
+### Dolt quick checks
+
+```bash
+ssh -o BatchMode=yes -o ConnectTimeout=6 nas-host "cd /volume1/docker/homelab/nas-host/dolt && sudo -n /usr/local/bin/docker compose ps"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 nas-host "curl -sS http://127.0.0.1:11228/metrics | sed -n '1,20p'"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "sudo docker exec prometheus wget -qO- 'http://127.0.0.1:9090/api/v1/query?query=up%7Bjob%3D%22dolt%22%7D'"
 ```
 
 ## Home Assistant (`pi-node-b`)
