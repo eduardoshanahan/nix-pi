@@ -261,6 +261,9 @@ let
     mongodbExporter = [
       "${metricsHost "pi-node-b"}:9216"
     ];
+    dolt = [
+      "dolt.${config.lab.domain}:11228"
+    ];
   };
   availabilityTargets = {
     routed = {
@@ -294,6 +297,7 @@ let
       lokiReady = "http://loki.${config.lab.domain}:3100/ready";
       tikaVersion = "http://tika.${config.lab.domain}:9998/version";
       gotenbergHealth = "http://gotenberg.${config.lab.domain}:3001/health";
+      doltMetrics = "http://dolt.${config.lab.domain}:11228/metrics";
       nodeMetrics = map (target: "http://${target}/metrics") monitoringTargets.node;
       promtailReady = map (target: "http://${target}/ready") monitoringTargets.promtail;
       snmpExporterMetrics = map (target: "http://${target}/metrics") monitoringTargets.snmpExporter;
@@ -337,11 +341,13 @@ let
       (mkPortMonitor "nas-host Postgres" "postgres.${config.lab.domain}" 5433)
       (mkPortMonitor "nas-host Redis" "redis.${config.lab.domain}" 6379)
       (mkPortMonitor "nas-host Mongo" "mongo.${config.lab.domain}" 27017)
+      (mkPortMonitor "nas-host Dolt SQL" "dolt.${config.lab.domain}" 3307)
       (mkPortMonitor "nas-host MySQL" "nas-host.${config.lab.domain}" 3306)
       (mkPortMonitor "nas-host Docker Socket Proxy" "nas-host.${config.lab.domain}" 2375)
       (mkKeywordMonitor "Loki Ready" availabilityTargets.direct.lokiReady "ready")
       (mkKeywordMonitor "Tika Version" availabilityTargets.direct.tikaVersion "Apache Tika")
       (mkKeywordMonitor "Gotenberg Health" availabilityTargets.direct.gotenbergHealth "\"status\":\"up\"")
+      (mkKeywordMonitor "Dolt Metrics" availabilityTargets.direct.doltMetrics "dss_concurrent_connections")
       (mkDnsMonitor "DNS Pi-hole" "google.com" "192.0.2.10")
     ]
     ++ (mkNamedHttpMonitors [
@@ -1518,6 +1524,14 @@ in lib.recursiveUpdate ({
               };
             }
             {
+              "Dolt (shared)" = {
+                href = availabilityTargets.direct.doltMetrics;
+                description = "Versioned SQL endpoint with Prometheus metrics";
+                server = "nas-host";
+                container = "nas-host-dolt";
+              };
+            }
+            {
               "Docker Socket Proxy" = {
                 href = "http://nas-host.${config.lab.domain}:2375/_ping";
                 description = "Read-only Docker API proxy";
@@ -1945,6 +1959,7 @@ in lib.recursiveUpdate ({
         "vikunja:3456"
       ];
       unpollerTargets = monitoringTargets.unpoller;
+      doltTargets = monitoringTargets.dolt;
     };
 
     tls = true;
