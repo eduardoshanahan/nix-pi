@@ -442,7 +442,7 @@ def build_values(monitor):
             "type": "http",
             "url": url,
             "ignore_tls": 1 if url.startswith("https://") else 0,
-            "accepted_statuscodes_json": '["200-299"]',
+            "accepted_statuscodes_json": '["200-299","401"]' if monitor["name"] == "D2" else '["200-299"]',
             "dns_resolve_type": "A",
             "method": "GET",
             "conditions": "[]",
