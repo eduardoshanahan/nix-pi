@@ -283,6 +283,7 @@ let
       ghost = "https://blog.${config.lab.domain}/";
       gitea = "https://gitea.${config.lab.domain}/";
       homepage = "https://homepage.${config.lab.domain}/";
+      n8n = "https://n8n.${config.lab.domain}/";
       archivebox = "https://archivebox.${config.lab.domain}/";
       jellyfin = "https://jellyfin.${config.lab.domain}/";
       outline = "https://outline.${config.lab.domain}/";
@@ -329,6 +330,7 @@ let
       (mkHttpMonitor "Ghost" availabilityTargets.routed.ghost)
       (mkHttpMonitor "Gitea" availabilityTargets.routed.gitea)
       (mkHttpMonitor "Homepage" availabilityTargets.routed.homepage)
+      (mkHttpMonitor "n8n" availabilityTargets.routed.n8n)
       (mkHttpMonitor "ArchiveBox" availabilityTargets.routed.archivebox)
       (mkHttpMonitor "Jellyfin" availabilityTargets.routed.jellyfin)
       (mkHttpMonitor "Outline" availabilityTargets.routed.outline)
@@ -1381,6 +1383,14 @@ in lib.recursiveUpdate ({
                 description = "Availability checks";
                 server = "local";
                 container = "uptime-kuma";
+              };
+            }
+            {
+              "n8n" = {
+                href = availabilityTargets.routed.n8n;
+                description = "Workflow automation";
+                server = "local";
+                container = "n8n";
               };
             }
             {
