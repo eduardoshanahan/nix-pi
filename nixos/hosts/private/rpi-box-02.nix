@@ -284,6 +284,7 @@ let
       gitea = "https://gitea.${config.lab.domain}/";
       homepage = "https://homepage.${config.lab.domain}/";
       archivebox = "https://archivebox.${config.lab.domain}/";
+      jellyfin = "https://jellyfin.${config.lab.domain}/";
       outline = "https://outline.${config.lab.domain}/";
       homeAssistant = "https://homeassistant.${config.lab.domain}/";
       authentik = "https://authentik.${config.lab.domain}/";
@@ -329,6 +330,7 @@ let
       (mkHttpMonitor "Gitea" availabilityTargets.routed.gitea)
       (mkHttpMonitor "Homepage" availabilityTargets.routed.homepage)
       (mkHttpMonitor "ArchiveBox" availabilityTargets.routed.archivebox)
+      (mkHttpMonitor "Jellyfin" availabilityTargets.routed.jellyfin)
       (mkHttpMonitor "Outline" availabilityTargets.routed.outline)
       (mkHttpMonitor "Home Assistant" availabilityTargets.routed.homeAssistant)
       (mkHttpMonitor "Authentik" availabilityTargets.routed.authentik)
@@ -1485,6 +1487,14 @@ in lib.recursiveUpdate ({
                 description = "Web archive (health in Uptime Kuma)";
                 server = "nas-host";
                 container = "archivebox";
+              };
+            }
+            {
+              "Jellyfin" = {
+                href = availabilityTargets.routed.jellyfin;
+                description = "Media server";
+                server = "nas-host";
+                container = "nas-host-jellyfin";
               };
             }
             {

@@ -371,6 +371,7 @@ monitors in the SQLite database during startup before the container is started.
 - `Kuma Self`
 - `Homepage`
 - `SMTP Relay`
+- `Jellyfin`
 - `Loki Ready`
 - `Node Exporter pi-node-a`
 - `Node Exporter pi-node-b`
@@ -411,6 +412,29 @@ ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "docker inspect --format '{{i
 ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "curl -sSI -H 'Host: <grafana-fqdn>' http://127.0.0.1/ | sed -n '1,8p'"
 
 ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "curl -skI https://<grafana-fqdn>/ | sed -n '1,12p'"
+```
+
+## Jellyfin (`nas-host`)
+
+- URL: `https://jellyfin.<lab-domain>/`
+- Runtime owner: `synology-services/nas-host/jellyfin` (not a `nix-pi` host module)
+- Runtime path on NAS: `/volume1/docker/homelab/nas-host/jellyfin`
+- Current visibility:
+  - Homepage card: `Jellyfin`
+  - Uptime Kuma monitor: `Jellyfin`
+  - Dozzle: auto-discovered through the existing `nas-host` Docker socket proxy
+  - Loki logs: `{job="synology-jellyfin"}`
+
+### Jellyfin quick checks
+
+```bash
+ssh -o BatchMode=yes -o ConnectTimeout=6 nas-host "cd /volume1/docker/homelab/nas-host/jellyfin && sudo -n /usr/local/bin/docker compose ps"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 nas-host "curl -sS -m 6 -I http://127.0.0.1:8096/ | sed -n '1,8p'"
+
+curl -skI https://jellyfin.<lab-domain>/ | sed -n '1,12p'
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 nas-host "sudo -n /usr/local/bin/docker logs --tail 60 nas-host-jellyfin"
 ```
 
 ## Homepage (`pi-node-b`)
@@ -479,6 +503,7 @@ In DSM on NAS-B:
   - port: `1514`
 - In Grafana Explore (Loki), use:
   - `{job="synology-file-activity"}`
+  - `{job="synology-jellyfin"}`
 
 ### NAS observability dashboards
 
