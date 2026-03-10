@@ -2083,7 +2083,7 @@ in lib.recursiveUpdate ({
         script = ''
           set -euo pipefail
 
-          backup_root="/srv/prometheus/backups/smtp-relay"
+          backup_root="/srv/backups/smtp-relay"
           ts="$(date -u +%Y%m%dT%H%M%SZ)"
           out_dir="''${backup_root}/''${ts}"
 

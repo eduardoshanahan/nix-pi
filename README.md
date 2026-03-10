@@ -192,12 +192,12 @@ ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "curl -skI https://<d2-fqdn>/
 
 - URL (cleartext, internal-only): `http://owntracks.<lab-domain>:8084/`
 - Mobile app publish endpoint: `http://owntracks.<lab-domain>:8084/pub`
-- Persistent data path on `pi-node-b`: `/srv/prometheus/owntracks`
-- Storage is on the USB-backed `/srv/prometheus` filesystem, not the SD card.
+- Persistent data path on `pi-node-b`: `/srv/owntracks`
+- Storage is on USB-backed `/srv` storage, not the SD card.
 
 ### Backup note
 
-- Include `/srv/prometheus/owntracks` in the same host-level backup flow as the
+- Include `/srv/owntracks` in the same host-level backup flow as the
   other USB-backed application data on `pi-node-b`.
 - The important subpaths are:
   - `last/` for current per-device state
@@ -218,7 +218,7 @@ ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "curl -skI https://<d2-fqdn>/
 - Automated backup timer:
   - unit: `smtp-relay-backup.service`
   - schedule: daily (`smtp-relay-backup.timer`)
-  - output: `/srv/prometheus/backups/smtp-relay/<timestamp>/`
+  - output: `/srv/backups/smtp-relay/<timestamp>/`
 - Current status: deployed and verified (`status=sent` in Postfix logs)
 
 ### SMTP relay quick checks
@@ -232,7 +232,7 @@ ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "sudo docker logs --tail 80 s
 
 ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "systemctl is-enabled smtp-relay-backup.timer; systemctl --no-pager --lines=20 status smtp-relay-backup.timer"
 
-ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "sudo ls -la /srv/prometheus/backups/smtp-relay | tail -n 20"
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "sudo ls -la /srv/backups/smtp-relay | tail -n 20"
 ```
 
 ## Shared Redis (`nas-host`)
@@ -277,7 +277,7 @@ ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "sudo docker exec prometheus 
 
 - URL: `https://homeassistant.<lab-domain>/`
 - Service module: `services.homeAssistant` (from `nix-services`)
-- Persistent data path: `/srv/prometheus/home-assistant` (mounted to `/config`)
+- Persistent data path: `/srv/home-assistant` (mounted to `/config`)
 - Image tag: `ghcr.io/home-assistant/home-assistant:2026.3.0`
 
 ### Recorder on Postgres
@@ -296,7 +296,7 @@ Migration note:
 
 - Existing SQLite history is not auto-imported.
 - Pre-migration SQLite backups are stored on `pi-node-b` under:
-  - `/srv/prometheus/home-assistant/sqlite-backups/`
+  - `/srv/home-assistant/sqlite-backups/`
 
 ### Reverse proxy behavior (Traefik)
 

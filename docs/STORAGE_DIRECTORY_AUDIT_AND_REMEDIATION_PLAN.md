@@ -1,12 +1,17 @@
 # Storage Directory Audit And Remediation Plan
 
-Status: planned for a future session
+Status: repo audit, host validation, and SMTP backup cleanup completed on March 10, 2026
 
 ## Problem statement
 
-The current repository documentation suggests that `/srv/prometheus` is being
-used as a shared USB-backed application storage root, not just as Prometheus
-storage.
+The repository had drifted into a mixed state:
+
+- top-level documentation still described `/srv/prometheus` as a shared
+  USB-backed application storage root
+- current `pi-node-b` Nix configuration already uses dedicated `/srv/...`
+  paths for several non-Prometheus services
+- one remaining non-Prometheus implementation detail still wrote SMTP relay
+  backups under `/srv/prometheus/backups/...`
 
 That is undesirable because:
 
@@ -16,48 +21,59 @@ That is undesirable because:
 - future service placement decisions become harder when storage boundaries are
   unclear
 
-## Why this audit is needed
+## Why this audit was needed
 
-Before introducing new services with persistent storage, we need to verify:
+Before introducing new services with persistent storage, we needed to verify:
 
 1. what the documentation says
 1. what is actually implemented on hosts
 1. which uses are intentional
 1. which uses should be migrated to dedicated paths
 
-## Documented uses currently found
+## Repo audit findings
 
-The following documentation references were identified:
+The repo audit found the following state.
 
-- Prometheus data:
-  - `nix-services/services/prometheus/README.md`
-  - documented path: `/srv/prometheus/data`
+### Current implementation in `nixos/hosts/private/pi-node-b.nix`
+
+- Prometheus:
+  - `dataDir = "/srv/prometheus"`
 - OwnTracks Recorder:
-  - `nix-services/services/owntracks-recorder/README.md`
-  - documented path: `/srv/prometheus/owntracks`
+  - `dataDir = "/srv/owntracks"`
 - TimeTagger:
-  - `nix-services/services/timetagger/README.md`
-  - documented path: `/srv/prometheus/timetagger`
+  - `dataDir = "/srv/timetagger"`
 - Home Assistant:
-  - `nix-services/services/home-assistant/README.md`
-  - documented path: `/srv/prometheus/home-assistant`
-- SMTP relay backups on `pi-node-b`:
-  - `nix-pi/README.md`
-  - documented path: `/srv/prometheus/backups/smtp-relay/...`
+  - `dataDir = "/srv/home-assistant"`
+- SMTP relay backups:
+  - previously `backup_root="/srv/prometheus/backups/smtp-relay"`
+  - remediated in this session to `backup_root="/srv/backups/smtp-relay"`
 
-## Audit goals
+### Stale documentation found before remediation
 
-- Build a complete inventory of all `/srv/prometheus` usage in docs and code.
-- Verify the real directories on `pi-node-b`.
-- Identify which services are using the same underlying USB-backed filesystem.
-- Decide whether `/srv/prometheus` should:
-  - remain Prometheus-only
-  - become a generic storage root under a better name
-  - be split into per-service dedicated top-level paths under `/srv`
+- `README.md` documented:
+  - OwnTracks at `/srv/prometheus/owntracks`
+  - Home Assistant at `/srv/prometheus/home-assistant`
+  - SMTP relay backups at `/srv/prometheus/backups/smtp-relay/...`
+- `docs/N8N_RPI_BOX_02_PHASE1_PLAN.md` already correctly treated
+  `/srv/prometheus` as Prometheus-only and required n8n to use a dedicated
+  path outside it
 
-## Working assumption
+### Scope note
 
-Preferred end state:
+- The service README paths originally listed in the draft plan are not present
+  in this repository checkout, so this audit could only verify the `nix-pi`
+  repo content directly available here.
+
+## Audit outcome
+
+- `/srv/prometheus` should remain Prometheus-only.
+- Non-Prometheus service state should use dedicated `/srv/...` paths.
+- SMTP relay backups should live under `/srv/backups/...`, not under
+  `/srv/prometheus/...`.
+
+## Directory layout after repo remediation
+
+Current intended layout:
 
 - `/srv/prometheus` is reserved for Prometheus data only
 - unrelated services move to dedicated paths such as:
@@ -67,35 +83,38 @@ Preferred end state:
   - `/srv/backups/smtp-relay`
   - `/srv/n8n`
 
-This assumption must be validated against actual implementation and operational
-constraints before changing anything.
+This now matches both the repository intent and the validated live host state
+on `pi-node-b`.
 
-## Required investigation in the next session
+## Host validation completed
 
-1. Search repo configuration, not just Markdown docs:
-   - `nix-services/services/**`
-   - `nix-pi/nixos/**`
-   - private host config for `pi-node-b`
-1. Inspect the real host:
-   - mounted filesystems
-   - actual directories under `/srv`
-   - bind mounts used by active services
-   - backup paths
-1. Compare documented paths with real paths.
-1. Classify each mismatch:
-   - docs stale, implementation correct
-   - implementation drifted, docs stale
-   - both wrong or confusing
+Validated on `pi-node-b` on March 10, 2026:
 
-## Remediation plan structure
+1. OwnTracks data is mounted from `/srv/owntracks`.
+1. Home Assistant data is mounted from `/srv/home-assistant`.
+1. `smtp-relay-backup.service` now writes to `/srv/backups/smtp-relay`.
+1. Legacy SMTP backup directories from `/srv/prometheus/backups/smtp-relay`
+   were migrated into `/srv/backups/smtp-relay`.
+1. The empty legacy `/srv/prometheus/backups` tree was removed.
 
-After the audit, perform remediation in this order:
+## Classification of mismatches found in repo
 
-1. decide final directory layout
-1. update docs to match intended layout
-1. migrate one service at a time
-1. validate data integrity and service health after each migration
-1. only then remove obsolete paths or references
+- `README.md`: docs stale, implementation already correct for OwnTracks and
+  Home Assistant
+- `README.md` plus SMTP relay backup script: both reflected a confusing shared
+  storage layout and were remediated in this session
+- `docs/N8N_RPI_BOX_02_PHASE1_PLAN.md`: already aligned with the desired
+  boundary
+
+## Remediation sequence completed
+
+Completed in this order:
+
+1. validated the live host paths and mounts
+1. deployed the updated SMTP backup root to `pi-node-b`
+1. ran a manual SMTP backup successfully to the new location
+1. migrated the remaining legacy backup directories into `/srv/backups/smtp-relay`
+1. removed the empty obsolete directory tree under `/srv/prometheus/backups`
 
 ## Change safety rules
 
@@ -106,7 +125,7 @@ After the audit, perform remediation in this order:
 
 ## Immediate rule for new work
 
-Until this audit is completed:
+For future work:
 
 - do not add new non-Prometheus services under `/srv/prometheus`
 
