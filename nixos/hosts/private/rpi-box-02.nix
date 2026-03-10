@@ -686,6 +686,7 @@ PY
   hasMongoExporterModule = inputs.nix-services.services ? mongodbExporterCompose;
   hasDozzleModule = inputs.nix-services.services ? dozzleCompose;
   hasD2Module = inputs.nix-services.services ? d2Compose;
+  hasN8nModule = inputs.nix-services.services ? n8nCompose;
   enableRedisExporter = true;
   enableMysqlExporter = true;
 in lib.recursiveUpdate ({
@@ -721,7 +722,8 @@ in lib.recursiveUpdate ({
   ++ lib.optional hasMysqlExporterModule inputs.nix-services.services.mysqlExporterCompose
   ++ lib.optional hasMongoExporterModule inputs.nix-services.services.mongodbExporterCompose
   ++ lib.optional hasDozzleModule inputs.nix-services.services.dozzleCompose
-  ++ lib.optional hasD2Module inputs.nix-services.services.d2Compose;
+  ++ lib.optional hasD2Module inputs.nix-services.services.d2Compose
+  ++ lib.optional hasN8nModule inputs.nix-services.services.n8nCompose;
 
   networking.hostName = "pi-node-b";
   lab.nix.signingKeyFile = "/etc/nix/pi-node-b-priv.pem";
@@ -848,6 +850,26 @@ in lib.recursiveUpdate ({
     format = "yaml";
     key = "vikunja-db-password";
     path = "/run/secrets/vikunja-db-password";
+    owner = "root";
+    group = "root";
+    mode = "0400";
+  };
+
+  sops.secrets.n8n-db-password = {
+    sopsFile = ../../../secrets/secrets.yaml;
+    format = "yaml";
+    key = "n8n-db-password";
+    path = "/run/secrets/n8n-db-password";
+    owner = "root";
+    group = "root";
+    mode = "0400";
+  };
+
+  sops.secrets.n8n-encryption-key = {
+    sopsFile = ../../../secrets/secrets.yaml;
+    format = "yaml";
+    key = "n8n-encryption-key";
+    path = "/run/secrets/n8n-encryption-key";
     owner = "root";
     group = "root";
     mode = "0400";
@@ -1180,6 +1202,21 @@ in lib.recursiveUpdate ({
         sslMode = "disable";
       };
     };
+  };
+
+  services.n8nCompose = lib.mkIf hasN8nModule {
+    enable = true;
+    hostname = "n8n.${config.lab.domain}";
+    tls = true;
+    dataDir = "/srv/n8n";
+    database.postgres = {
+      host = "postgres.${config.lab.domain}";
+      port = 5433;
+      name = "n8n";
+      user = "n8n";
+      passwordFile = config.sops.secrets.n8n-db-password.path;
+    };
+    encryptionKeyFile = config.sops.secrets.n8n-encryption-key.path;
   };
 
   services.homepageDashboard = {
