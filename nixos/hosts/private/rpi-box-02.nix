@@ -275,6 +275,7 @@ let
       searxng = "https://searxng.${config.lab.domain}/";
       owntracks = "http://owntracks.${config.lab.domain}:8084/";
       kuma = "https://kuma.${config.lab.domain}/";
+      kumaDashboard = "https://kuma.${config.lab.domain}/dashboard";
       grafana = "https://grafana.${config.lab.domain}/";
       prometheus = "https://prometheus.${config.lab.domain}/";
       alertmanager = "https://alertmanager.${config.lab.domain}/";
@@ -319,7 +320,7 @@ let
       (mkHttpMonitor "FossFLOW" availabilityTargets.routed.fossflow)
       (mkHttpMonitor "SearXNG" availabilityTargets.routed.searxng)
       (mkHttpMonitor "OwnTracks" availabilityTargets.routed.owntracks)
-      (mkHttpMonitor "Kuma Self" availabilityTargets.routed.kuma)
+      (mkHttpMonitor "Kuma Self" availabilityTargets.routed.kumaDashboard)
       (mkHttpMonitor "Grafana" availabilityTargets.routed.grafana)
       (mkHttpMonitor "Prometheus" availabilityTargets.routed.prometheus)
       (mkHttpMonitor "Alertmanager" availabilityTargets.routed.alertmanager)
@@ -442,7 +443,10 @@ def build_values(monitor):
             "type": "http",
             "url": url,
             "ignore_tls": 1 if url.startswith("https://") else 0,
-            "accepted_statuscodes_json": '["200-299","401"]' if monitor["name"] == "D2" else '["200-299"]',
+            "accepted_statuscodes_json": (
+                '["200-299","401"]' if monitor["name"] == "D2"
+                else '["200-299"]'
+            ),
             "dns_resolve_type": "A",
             "method": "GET",
             "conditions": "[]",
