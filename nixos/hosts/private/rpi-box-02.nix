@@ -689,6 +689,7 @@ PY
   hasDozzleModule = inputs.nix-services.services ? dozzleCompose;
   hasD2Module = inputs.nix-services.services ? d2Compose;
   hasN8nModule = inputs.nix-services.services ? n8nCompose;
+  hasWoodpeckerModule = inputs.nix-services.services ? woodpeckerCompose;
   enableRedisExporter = true;
   enableMysqlExporter = true;
 in lib.recursiveUpdate ({
@@ -725,7 +726,8 @@ in lib.recursiveUpdate ({
   ++ lib.optional hasMongoExporterModule inputs.nix-services.services.mongodbExporterCompose
   ++ lib.optional hasDozzleModule inputs.nix-services.services.dozzleCompose
   ++ lib.optional hasD2Module inputs.nix-services.services.d2Compose
-  ++ lib.optional hasN8nModule inputs.nix-services.services.n8nCompose;
+  ++ lib.optional hasN8nModule inputs.nix-services.services.n8nCompose
+  ++ lib.optional hasWoodpeckerModule inputs.nix-services.services.woodpeckerCompose;
 
   networking.hostName = "pi-node-b";
   lab.nix.signingKeyFile = "/etc/nix/pi-node-b-priv.pem";
@@ -1007,6 +1009,46 @@ in lib.recursiveUpdate ({
     mode = "0400";
   };
 
+  sops.secrets.woodpecker-agent-secret = {
+    sopsFile = ../../../secrets/secrets.yaml;
+    format = "yaml";
+    key = "woodpecker-agent-secret";
+    path = "/run/secrets/woodpecker-agent-secret";
+    owner = "root";
+    group = "root";
+    mode = "0400";
+  };
+
+  sops.secrets.woodpecker-gitea-client = {
+    sopsFile = ../../../secrets/secrets.yaml;
+    format = "yaml";
+    key = "woodpecker-gitea-client";
+    path = "/run/secrets/woodpecker-gitea-client";
+    owner = "root";
+    group = "root";
+    mode = "0400";
+  };
+
+  sops.secrets.woodpecker-gitea-secret = {
+    sopsFile = ../../../secrets/secrets.yaml;
+    format = "yaml";
+    key = "woodpecker-gitea-secret";
+    path = "/run/secrets/woodpecker-gitea-secret";
+    owner = "root";
+    group = "root";
+    mode = "0400";
+  };
+
+  sops.secrets.woodpecker-postgres-password = {
+    sopsFile = ../../../secrets/secrets.yaml;
+    format = "yaml";
+    key = "woodpecker-postgres-password";
+    path = "/run/secrets/woodpecker-postgres-password";
+    owner = "root";
+    group = "root";
+    mode = "0400";
+  };
+
   services.traefik.tls = {
     enable = true;
     certFile = config.sops.secrets.traefik-tls-crt.path;
@@ -1141,6 +1183,35 @@ in lib.recursiveUpdate ({
     admin = {
       username = "eduardo";
       passwordFile = config.sops.secrets.traggo-admin-password.path;
+    };
+  };
+
+  services.woodpeckerCompose = {
+    enable = true;
+    hostname = "woodpecker.${config.lab.domain}";
+    tls = true;
+    dataDir = "/srv/woodpecker";
+    openRegistration = false;
+    adminUsers = [ "eduardo" ];
+    gitea = {
+      url = "https://gitea.${config.lab.domain}";
+      clientIdFile = config.sops.secrets.woodpecker-gitea-client.path;
+      clientSecretFile = config.sops.secrets.woodpecker-gitea-secret.path;
+    };
+    database.postgres = {
+      host = "postgres.${config.lab.domain}";
+      port = 5433;
+      name = "woodpecker";
+      user = "woodpecker";
+      passwordFile = config.sops.secrets.woodpecker-postgres-password.path;
+      sslMode = "disable";
+    };
+    agent = {
+      hostname = "pi-node-b";
+      secretFile = config.sops.secrets.woodpecker-agent-secret.path;
+      maxWorkflows = 1;
+      server = "woodpecker-server:9000";
+      backendDockerVolumes = [ "/etc/ssl/certs:/etc/ssl/certs:ro" ];
     };
   };
 
