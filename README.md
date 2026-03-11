@@ -446,7 +446,7 @@ ssh -o BatchMode=yes -o ConnectTimeout=6 nas-host "sudo -n /usr/local/bin/docker
 - Config files are generated declaratively under `/etc/homepage/config`.
 - The service mounts the local Docker socket read-only so Homepage can show
   container-backed status for local cards.
-- The generated service list includes a local `n8n` card.
+- The generated service list includes local `n8n` and `Seerr` cards.
 
 ### Homepage quick checks
 
@@ -458,6 +458,36 @@ ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "docker ps --filter name=home
 ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "curl -sSI -H 'Host: <homepage-fqdn>' http://127.0.0.1/ | sed -n '1,8p'"
 
 ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "curl -skI https://<homepage-fqdn>/ | sed -n '1,12p'"
+```
+
+## Seerr (`pi-node-b`)
+
+- URL: `https://seerr.<lab-domain>/`
+- Runtime owner: `nix-services/services/seerr`
+- Runtime path on host: `/srv/seerr`
+- Database backend:
+  - Host: `postgres.<lab-domain>:5433`
+  - Database: `seerr`
+  - User: `seerr`
+- Media-server integration:
+  - Jellyfin URL: `https://jellyfin.<lab-domain>/`
+- Current visibility:
+  - Homepage card: `Seerr`
+  - Uptime Kuma monitor: `Seerr`
+  - Dozzle: local container `seerr`
+
+### Seerr quick checks
+
+```bash
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "systemctl is-active seerr; sudo systemctl --no-pager --lines=40 status seerr"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "docker ps --filter name=seerr --format 'table {{.Names}}\t{{.Status}}\t{{.Image}}'"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "curl -skI https://seerr.<lab-domain>/ | sed -n '1,12p'"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "sudo docker logs --tail 80 seerr"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "sudo docker exec seerr sh -lc 'getent hosts postgres.<lab-domain>; nc -zv postgres.<lab-domain> 5433; getent hosts jellyfin.<lab-domain>'"
 ```
 
 ## n8n (`pi-node-b`)
