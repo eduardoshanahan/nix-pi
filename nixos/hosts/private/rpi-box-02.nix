@@ -285,6 +285,7 @@ let
       woodpecker = "https://woodpecker.${config.lab.domain}/";
       homepage = "https://homepage.${config.lab.domain}/";
       n8n = "https://n8n.${config.lab.domain}/";
+      seerr = "https://seerr.${config.lab.domain}/";
       archivebox = "https://archivebox.${config.lab.domain}/";
       jellyfin = "https://jellyfin.${config.lab.domain}/";
       outline = "https://outline.${config.lab.domain}/";
@@ -333,6 +334,7 @@ let
       (mkHttpMonitor "Woodpecker" availabilityTargets.routed.woodpecker)
       (mkHttpMonitor "Homepage" availabilityTargets.routed.homepage)
       (mkHttpMonitor "n8n" availabilityTargets.routed.n8n)
+      (mkHttpMonitor "Seerr" availabilityTargets.routed.seerr)
       (mkHttpMonitor "ArchiveBox" availabilityTargets.routed.archivebox)
       (mkHttpMonitor "Jellyfin" availabilityTargets.routed.jellyfin)
       (mkHttpMonitor "Outline" availabilityTargets.routed.outline)
@@ -691,6 +693,7 @@ PY
   hasDozzleModule = inputs.nix-services.services ? dozzleCompose;
   hasD2Module = inputs.nix-services.services ? d2Compose;
   hasN8nModule = inputs.nix-services.services ? n8nCompose;
+  hasSeerrModule = inputs.nix-services.services ? seerr;
   hasWoodpeckerModule = inputs.nix-services.services ? woodpeckerCompose;
   enableRedisExporter = true;
   enableMysqlExporter = true;
@@ -729,6 +732,7 @@ in lib.recursiveUpdate ({
   ++ lib.optional hasDozzleModule inputs.nix-services.services.dozzleCompose
   ++ lib.optional hasD2Module inputs.nix-services.services.d2Compose
   ++ lib.optional hasN8nModule inputs.nix-services.services.n8nCompose
+  ++ lib.optional hasSeerrModule inputs.nix-services.services.seerr
   ++ lib.optional hasWoodpeckerModule inputs.nix-services.services.woodpeckerCompose;
 
   networking.hostName = "pi-node-b";
@@ -876,6 +880,16 @@ in lib.recursiveUpdate ({
     format = "yaml";
     key = "n8n-encryption-key";
     path = "/run/secrets/n8n-encryption-key";
+    owner = "root";
+    group = "root";
+    mode = "0400";
+  };
+
+  sops.secrets.seerr-db-password = {
+    sopsFile = ../../../secrets/secrets.yaml;
+    format = "yaml";
+    key = "seerr-db-password";
+    path = "/run/secrets/seerr-db-password";
     owner = "root";
     group = "root";
     mode = "0400";
@@ -1294,6 +1308,20 @@ in lib.recursiveUpdate ({
     encryptionKeyFile = config.sops.secrets.n8n-encryption-key.path;
   };
 
+  services.seerr = lib.mkIf hasSeerrModule {
+    enable = true;
+    hostname = "seerr.${config.lab.domain}";
+    tls = true;
+    dataDir = "/srv/seerr";
+    database.postgres = {
+      host = "postgres.${config.lab.domain}";
+      port = 5433;
+      name = "seerr";
+      user = "seerr";
+      passwordFile = config.sops.secrets.seerr-db-password.path;
+    };
+  };
+
   services.homepageDashboard = {
     enable = true;
     hostname = "homepage.${config.lab.domain}";
@@ -1464,6 +1492,14 @@ in lib.recursiveUpdate ({
                 description = "Workflow automation";
                 server = "local";
                 container = "n8n";
+              };
+            }
+            {
+              "Seerr" = {
+                href = availabilityTargets.routed.seerr;
+                description = "Media requests for Jellyfin";
+                server = "local";
+                container = "seerr";
               };
             }
             {
