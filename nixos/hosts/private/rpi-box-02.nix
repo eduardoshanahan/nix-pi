@@ -282,6 +282,7 @@ let
       vikunja = "https://vikunja.${config.lab.domain}/";
       ghost = "https://blog.${config.lab.domain}/";
       gitea = "https://gitea.${config.lab.domain}/";
+      woodpecker = "https://woodpecker.${config.lab.domain}/";
       homepage = "https://homepage.${config.lab.domain}/";
       n8n = "https://n8n.${config.lab.domain}/";
       archivebox = "https://archivebox.${config.lab.domain}/";
@@ -329,6 +330,7 @@ let
       (mkHttpMonitor "Vikunja" availabilityTargets.routed.vikunja)
       (mkHttpMonitor "Ghost" availabilityTargets.routed.ghost)
       (mkHttpMonitor "Gitea" availabilityTargets.routed.gitea)
+      (mkHttpMonitor "Woodpecker" availabilityTargets.routed.woodpecker)
       (mkHttpMonitor "Homepage" availabilityTargets.routed.homepage)
       (mkHttpMonitor "n8n" availabilityTargets.routed.n8n)
       (mkHttpMonitor "ArchiveBox" availabilityTargets.routed.archivebox)
@@ -1518,6 +1520,14 @@ in lib.recursiveUpdate ({
                 description = "Docker logs viewer";
                 server = "local";
                 container = "dozzle";
+              };
+            }
+            {
+              "Woodpecker" = {
+                href = availabilityTargets.routed.woodpecker;
+                description = "CI server and runner control plane";
+                server = "local";
+                container = "woodpecker-server";
               };
             }
           ];
