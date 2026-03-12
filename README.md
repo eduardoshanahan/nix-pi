@@ -490,6 +490,42 @@ ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "sudo docker logs --tail 80 s
 ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "sudo docker exec seerr sh -lc 'getent hosts postgres.<lab-domain>; nc -zv postgres.<lab-domain> 5433; getent hosts jellyfin.<lab-domain>'"
 ```
 
+## Radarr (`pi-node-b`)
+
+- URL: `https://radarr.<lab-domain>/`
+- Runtime owner: `nix-services/services/radarr`
+- Runtime path on host: `/srv/radarr`
+- NAS media mount on host: `/mnt/media` from `nas-host:/volume1/Media`
+- Container media mount: `/movies`
+- Container downloads mount: `/downloads`
+- Database backend:
+  - Local SQLite under `/srv/radarr`
+  - No shared SQL dependency on `nas-host` in the current first pass
+- Media-path status:
+  - NAS media export is mounted on `pi-node-b` at `/mnt/media`
+  - Use `/movies` inside Radarr for the movie library root
+  - Use `/downloads` inside Radarr for completed-download remote path mapping
+- Current visibility:
+  - Homepage card: `Radarr`
+  - Uptime Kuma monitor: `Radarr`
+  - Dozzle: local container `radarr`
+
+### Radarr quick checks
+
+```bash
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "systemctl is-active radarr; sudo systemctl --no-pager --lines=40 status radarr"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "docker ps --filter name=radarr --format 'table {{.Names}}\t{{.Status}}\t{{.Image}}'"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "curl -skI https://radarr.<lab-domain>/ | sed -n '1,12p'"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "sudo docker logs --tail 80 radarr"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "systemctl status mnt-media.automount mnt-media.mount --no-pager"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "sudo ls -la /mnt/media /mnt/media/Movies"
+```
+
 ## n8n (`pi-node-b`)
 
 - URL: `https://n8n.<lab-domain>/`
