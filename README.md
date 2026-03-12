@@ -399,7 +399,7 @@ trust in the container).
 ### Kuma quick checks
 
 ```bash
-ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "systemctl is-active uptime-kuma; sudo systemctl --no-pager --lines=40 status uptime-kuma"
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "systemctl is-active uptime-kuma-compose; sudo systemctl --no-pager --lines=40 status uptime-kuma-compose"
 
 ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "docker ps --filter name=uptime-kuma --format 'table {{.Names}}\t{{.Status}}\t{{.Image}}'"
 

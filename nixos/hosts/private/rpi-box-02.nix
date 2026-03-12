@@ -2035,9 +2035,9 @@ in
 
     systemd.services.uptime-kuma-monitor-sync = {
       description = "Sync declarative Uptime Kuma monitors";
-      wantedBy = ["uptime-kuma.service"];
-      after = ["uptime-kuma.service"];
-      partOf = ["uptime-kuma.service"];
+      wantedBy = ["uptime-kuma-compose.service"];
+      after = ["uptime-kuma-compose.service"];
+      partOf = ["uptime-kuma-compose.service"];
 
       serviceConfig = {
         Type = "oneshot";
@@ -2055,7 +2055,7 @@ in
       monitors = kumaDesiredMonitors;
     };
 
-    systemd.services.uptime-kuma.restartTriggers = lib.mkAfter [
+    systemd.services.uptime-kuma-compose.restartTriggers = lib.mkAfter [
       config.environment.etc."uptime-kuma/desired-monitors.json".source
     ];
 
