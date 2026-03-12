@@ -292,6 +292,7 @@
       n8n = "https://n8n.${config.lab.domain}/";
       seerr = "https://seerr.${config.lab.domain}/";
       radarr = "https://radarr.${config.lab.domain}/";
+      prowlarr = "https://prowlarr.${config.lab.domain}/";
       archivebox = "https://archivebox.${config.lab.domain}/";
       jellyfin = "https://jellyfin.${config.lab.domain}/";
       outline = "https://outline.${config.lab.domain}/";
@@ -342,6 +343,7 @@
       (mkHttpMonitor "n8n" availabilityTargets.routed.n8n)
       (mkHttpMonitor "Seerr" availabilityTargets.routed.seerr)
       (mkHttpMonitor "Radarr" availabilityTargets.routed.radarr)
+      (mkHttpMonitor "Prowlarr" availabilityTargets.routed.prowlarr)
       (mkHttpMonitor "ArchiveBox" availabilityTargets.routed.archivebox)
       (mkHttpMonitor "Jellyfin" availabilityTargets.routed.jellyfin)
       (mkHttpMonitor "Outline" availabilityTargets.routed.outline)
@@ -712,11 +714,12 @@
   hasN8nModule = inputs.nix-services.services ? n8nCompose;
   hasSeerrModule = inputs.nix-services.services ? seerr;
   hasRadarrModule = inputs.nix-services.services ? radarrCompose;
+  hasProwlarrModule = inputs.nix-services.services ? prowlarrCompose;
   hasWoodpeckerModule = inputs.nix-services.services ? woodpeckerCompose;
   enableRedisExporter = true;
   enableMysqlExporter = true;
 in
-  lib.recursiveUpdate {
+  lib.recursiveUpdate ({
     imports =
       [
         inputs.nix-services.services.traefik
@@ -754,6 +757,7 @@ in
       ++ lib.optional hasN8nModule inputs.nix-services.services.n8nCompose
       ++ lib.optional hasSeerrModule inputs.nix-services.services.seerr
       ++ lib.optional hasRadarrModule inputs.nix-services.services.radarrCompose
+      ++ lib.optional hasProwlarrModule inputs.nix-services.services.prowlarrCompose
       ++ lib.optional hasWoodpeckerModule inputs.nix-services.services.woodpeckerCompose;
 
     networking.hostName = "pi-node-b";
@@ -1557,6 +1561,14 @@ in
                 };
               }
               {
+                "Prowlarr" = {
+                  href = availabilityTargets.routed.prowlarr;
+                  description = "Indexer manager for the arr stack";
+                  server = "local";
+                  container = "prowlarr";
+                };
+              }
+              {
                 "OwnTracks" = {
                   href = availabilityTargets.routed.owntracks;
                   description = "Location recorder";
@@ -2294,7 +2306,14 @@ in
       listenAddress = "0.0.0.0";
       listenPort = 9130;
     };
-  } (lib.recursiveUpdate
+  } // lib.optionalAttrs hasProwlarrModule {
+    services.prowlarrCompose = {
+      enable = true;
+      hostname = "prowlarr.${config.lab.domain}";
+      tls = true;
+      dataDir = "/srv/prowlarr";
+    };
+  }) (lib.recursiveUpdate
     (lib.recursiveUpdate
       (lib.recursiveUpdate
         (lib.optionalAttrs hasSmtpRelayModule {

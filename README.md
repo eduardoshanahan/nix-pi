@@ -537,6 +537,36 @@ ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "systemctl status mnt-media.a
 ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "sudo ls -la /mnt/media /mnt/media/Movies"
 ```
 
+## Prowlarr (`pi-node-b`)
+
+- URL: `https://prowlarr.<lab-domain>/`
+- Runtime owner: `nix-services/services/prowlarr`
+- Runtime path on host: `/srv/prowlarr`
+- Database backend:
+  - Local SQLite under `/srv/prowlarr`
+  - No shared SQL dependency on `nas-host` in the current first pass
+- Integration intent:
+  - Add indexers once in Prowlarr
+  - Sync those indexers into Radarr on `pi-node-b`
+- Current visibility:
+  - Homepage card: `Prowlarr`
+  - Uptime Kuma monitor: `Prowlarr`
+  - Dozzle: local container `prowlarr`
+
+### Prowlarr quick checks
+
+```bash
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "systemctl is-active prowlarr; sudo systemctl --no-pager --lines=40 status prowlarr"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "docker ps --filter name=prowlarr --format 'table {{.Names}}\t{{.Status}}\t{{.Image}}'"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "curl -skI https://prowlarr.<lab-domain>/ | sed -n '1,12p'"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "sudo docker logs --tail 80 prowlarr"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "sudo docker exec prowlarr sh -lc 'getent hosts radarr.<lab-domain>; nc -zv radarr.<lab-domain> 443 || nc -zv radarr.<lab-domain> 80'"
+```
+
 ## n8n (`pi-node-b`)
 
 - URL: `https://n8n.<lab-domain>/`
