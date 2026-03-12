@@ -2033,9 +2033,9 @@ in
       entryPoint = "webplain";
     };
 
-    systemd.services.uptime-kuma.serviceConfig.ExecStartPre = lib.mkAfter [
-      uptimeKumaMonitorSync
-    ];
+    systemd.services.uptime-kuma.preStart = lib.mkBefore ''
+      ${uptimeKumaMonitorSync}
+    '';
 
     environment.etc."uptime-kuma/desired-monitors.json".text = builtins.toJSON {
       version = 1;
