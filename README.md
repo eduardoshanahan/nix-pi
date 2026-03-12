@@ -122,6 +122,17 @@ Remote build note:
 
 For bootstrap, expansion, and key rotation details, see `docs/REMOTE_BUILDS.md`.
 
+## `pi-node-b` Storage Policy
+
+- `pi-node-b` has two different storage classes:
+  - SD card root filesystem at `/`
+  - USB flash storage mounted at `/srv`
+- Persistent service state on `pi-node-b` should be placed on the USB-backed `/srv` storage, not on the SD card.
+- For new services, prefer dedicated paths such as `/srv/<service>` for application data and `/srv/backups/<service>` for backups.
+- Do not place new long-lived application state under `/var/lib/...` on `pi-node-b` unless there is a specific reason it must stay on root.
+- Docker on `pi-node-b` is configured to use `/srv/docker` as its data root, so image/layer storage also lives on the USB flash drive.
+- Existing service docs in this README that reference `/srv/...` should be treated as following this policy, not as one-off exceptions.
+
 ## Monitoring Documentation Boundary
 
 - This README owns host-specific runtime checks and operator quick commands for the currently deployed environment.
