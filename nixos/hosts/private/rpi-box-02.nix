@@ -2033,9 +2033,20 @@ in
       entryPoint = "webplain";
     };
 
-    systemd.services.uptime-kuma.preStart = lib.mkBefore ''
-      ${uptimeKumaMonitorSync}
-    '';
+    systemd.services.uptime-kuma-monitor-sync = {
+      description = "Sync declarative Uptime Kuma monitors";
+      wantedBy = ["uptime-kuma.service"];
+      after = ["uptime-kuma.service"];
+      partOf = ["uptime-kuma.service"];
+
+      serviceConfig = {
+        Type = "oneshot";
+      };
+
+      script = ''
+        ${uptimeKumaMonitorSync}
+      '';
+    };
 
     environment.etc."uptime-kuma/desired-monitors.json".text = builtins.toJSON {
       version = 1;
