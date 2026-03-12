@@ -1830,44 +1830,46 @@ in
     '';
 
     # Keep unpoller in Prometheus-only mode; disable legacy InfluxDB writes.
-    environment.etc."unpoller/docker-compose.yml".text = lib.mkForce ''
-      services:
-        unpoller:
-          image: ${config.services.unpollerCompose.image.repository}:${config.services.unpollerCompose.image.tag}
-          container_name: ${config.services.unpollerCompose.containerName}
-          restart: unless-stopped
+    environment.etc."unpoller/docker-compose.yml" = lib.mkIf config.services.unpollerCompose.enable {
+      text = lib.mkForce ''
+        services:
+          unpoller:
+            image: ${config.services.unpollerCompose.image.repository}:${config.services.unpollerCompose.image.tag}
+            container_name: ${config.services.unpollerCompose.containerName}
+            restart: unless-stopped
 
-          env_file:
-            - ${config.services.unpollerCompose.secretFile}
+            env_file:
+              - ${config.sops.secrets.unpoller-env.path}
 
-          environment:
-            - UP_LISTEN=0.0.0.0:9130
-            - UP_UNIFI_CONTROLLER_0_URL=${config.services.unpollerCompose.controller.url}
-            - UP_UNIFI_CONTROLLER_0_VERIFY_SSL=${
-        if config.services.unpollerCompose.controller.verifySsl
-        then "true"
-        else "false"
-      }
-            - UP_INFLUXDB_DISABLE=true
-            - TZ
+            environment:
+              - UP_LISTEN=0.0.0.0:9130
+              - UP_UNIFI_CONTROLLER_0_URL=${config.services.unpollerCompose.controller.url}
+              - UP_UNIFI_CONTROLLER_0_VERIFY_SSL=${
+          if config.services.unpollerCompose.controller.verifySsl
+          then "true"
+          else "false"
+        }
+              - UP_INFLUXDB_DISABLE=true
+              - TZ
 
-          ports:
-            - "${config.services.unpollerCompose.listenAddress}:${toString config.services.unpollerCompose.listenPort}:9130"
+            ports:
+              - "${config.services.unpollerCompose.listenAddress}:${toString config.services.unpollerCompose.listenPort}:9130"
 
-          logging:
-            driver: "json-file"
-            options:
-              max-size: "10m"
-              max-file: "5"
+            logging:
+              driver: "json-file"
+              options:
+                max-size: "10m"
+                max-file: "5"
 
-          networks:
-            - traefik
+            networks:
+              - traefik
 
-      networks:
-        traefik:
-          external: true
-          name: ${config.services.unpollerCompose.network}
-    '';
+        networks:
+          traefik:
+            external: true
+            name: ${config.services.unpollerCompose.network}
+      '';
+    };
 
     # Pin mysql-exporter compose args so slave_status scraper stays disabled.
     environment.etc."mysql-exporter/docker-compose.yml".text = lib.mkForce ''
