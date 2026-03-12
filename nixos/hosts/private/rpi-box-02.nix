@@ -1945,81 +1945,83 @@ in
     # Ghost auth-code emails use STARTTLS against the internal smtp-relay.
     # The relay presents a cert chain Ghost can't verify reliably, so allow it
     # for this internal hop to avoid login email failures (ESOCKET).
-    environment.etc."ghost-blog/docker-compose.yml".text = lib.mkForce ''
-      services:
-        ghost:
-          image: ${config.services.ghost.instances.blog.image.repository}:${config.services.ghost.instances.blog.image.tag}
-          container_name: ${config.services.ghost.instances.blog.containerName}
-          restart: unless-stopped
-          init: true
+    environment.etc."ghost-blog/docker-compose.yml" = lib.mkIf (config.services.ghost.instances ? blog) {
+      text = lib.mkForce ''
+        services:
+          ghost:
+            image: ${config.services.ghost.instances.blog.image.repository}:${config.services.ghost.instances.blog.image.tag}
+            container_name: ${config.services.ghost.instances.blog.containerName}
+            restart: unless-stopped
+            init: true
 
-          expose:
-            - "2368"
+            expose:
+              - "2368"
 
-          env_file:
-            - /run/secrets/ghost-blog.env
+            env_file:
+              - /run/secrets/ghost-blog.env
 
-          environment:
-            - TZ=${config.services.ghost.instances.blog.timezone}
-            - url=https://blog.${config.lab.domain}
-            - NODE_ENV=production
-            - NODE_EXTRA_CA_CERTS=/etc/ghost/homelab-root-ca.crt
-            - database__client=mysql
-            - database__connection__host=${config.services.ghost.instances.blog.database.host}
-            - database__connection__port=${toString config.services.ghost.instances.blog.database.port}
-            - database__connection__user=${config.services.ghost.instances.blog.database.user}
-            - database__connection__database=${config.services.ghost.instances.blog.database.name}
-            - mail__transport=SMTP
-            - mail__from=${config.services.ghost.instances.blog.mail.from}
-            - mail__options__host=${config.services.ghost.instances.blog.mail.host}
-            - mail__options__port=${toString config.services.ghost.instances.blog.mail.port}
-            - mail__options__secure=${
-        if config.services.ghost.instances.blog.mail.secure
-        then "true"
-        else "false"
-      }
-            - mail__options__auth__user=${config.services.ghost.instances.blog.mail.user}
-            - mail__options__tls__rejectUnauthorized=false
+            environment:
+              - TZ=${config.services.ghost.instances.blog.timezone}
+              - url=https://blog.${config.lab.domain}
+              - NODE_ENV=production
+              - NODE_EXTRA_CA_CERTS=/etc/ghost/homelab-root-ca.crt
+              - database__client=mysql
+              - database__connection__host=${config.services.ghost.instances.blog.database.host}
+              - database__connection__port=${toString config.services.ghost.instances.blog.database.port}
+              - database__connection__user=${config.services.ghost.instances.blog.database.user}
+              - database__connection__database=${config.services.ghost.instances.blog.database.name}
+              - mail__transport=SMTP
+              - mail__from=${config.services.ghost.instances.blog.mail.from}
+              - mail__options__host=${config.services.ghost.instances.blog.mail.host}
+              - mail__options__port=${toString config.services.ghost.instances.blog.mail.port}
+              - mail__options__secure=${
+          if config.services.ghost.instances.blog.mail.secure
+          then "true"
+          else "false"
+        }
+              - mail__options__auth__user=${config.services.ghost.instances.blog.mail.user}
+              - mail__options__tls__rejectUnauthorized=false
 
-          volumes:
-            - "${config.services.ghost.instances.blog.dataDir}:/var/lib/ghost/content"
-            - "/etc/ssl/certs/homelab-root-ca.crt:/etc/ghost/homelab-root-ca.crt:ro"
+            volumes:
+              - "${config.services.ghost.instances.blog.dataDir}:/var/lib/ghost/content"
+              - "/etc/ssl/certs/homelab-root-ca.crt:/etc/ghost/homelab-root-ca.crt:ro"
 
-          healthcheck:
-            test:
-              [
-                "CMD",
-                "node",
-                "-e",
-                "require('http').get('http://127.0.0.1:2368/', (r) => process.exit(r.statusCode < 500 ? 0 : 1)).on('error', () => process.exit(1));",
-              ]
-            interval: 15s
-            timeout: 5s
-            retries: 12
-            start_period: 30s
+            healthcheck:
+              test:
+                [
+                  "CMD",
+                  "node",
+                  "-e",
+                  "require('http').get('http://127.0.0.1:2368/', (r) => process.exit(r.statusCode < 500 ? 0 : 1)).on('error', () => process.exit(1));",
+                ]
+              interval: 15s
+              timeout: 5s
+              retries: 12
+              start_period: 30s
 
-          logging:
-            driver: "json-file"
-            options:
-              max-size: "10m"
-              max-file: "5"
+            logging:
+              driver: "json-file"
+              options:
+                max-size: "10m"
+                max-file: "5"
 
-          labels:
-            - "traefik.enable=true"
-            - "traefik.docker.network=${config.services.ghost.instances.blog.network}"
-            - "traefik.http.routers.ghost-blog.rule=Host(`blog.${config.lab.domain}`)"
-            - "traefik.http.services.ghost-blog.loadbalancer.server.port=2368"
-            - "traefik.http.routers.ghost-blog.entrypoints=websecure"
-            - "traefik.http.routers.ghost-blog.tls=true"
+            labels:
+              - "traefik.enable=true"
+              - "traefik.docker.network=${config.services.ghost.instances.blog.network}"
+              - "traefik.http.routers.ghost-blog.rule=Host(`blog.${config.lab.domain}`)"
+              - "traefik.http.services.ghost-blog.loadbalancer.server.port=2368"
+              - "traefik.http.routers.ghost-blog.entrypoints=websecure"
+              - "traefik.http.routers.ghost-blog.tls=true"
 
-          networks:
-            - traefik
+            networks:
+              - traefik
 
-      networks:
-        traefik:
-          external: true
-          name: ${config.services.ghost.instances.blog.network}
-    '';
+        networks:
+          traefik:
+            external: true
+            name: ${config.services.ghost.instances.blog.network}
+      '';
+    };
 
     services.owntracksRecorder = {
       enable = true;
