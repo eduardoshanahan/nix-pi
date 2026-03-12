@@ -719,7 +719,7 @@
   enableRedisExporter = true;
   enableMysqlExporter = true;
 in
-  lib.recursiveUpdate ({
+  lib.recursiveUpdate {
     imports =
       [
         inputs.nix-services.services.traefik
@@ -2321,14 +2321,7 @@ in
       listenAddress = "0.0.0.0";
       listenPort = 9130;
     };
-  } // lib.optionalAttrs hasProwlarrModule {
-    services.prowlarrCompose = {
-      enable = true;
-      hostname = "prowlarr.${config.lab.domain}";
-      tls = true;
-      dataDir = "/srv/prowlarr";
-    };
-  }) (lib.recursiveUpdate
+  } (lib.recursiveUpdate
     (lib.recursiveUpdate
       (lib.recursiveUpdate
         (lib.optionalAttrs hasSmtpRelayModule {
@@ -2413,15 +2406,24 @@ in
             };
           };
         })
-        (lib.optionalAttrs hasD2Module {
-          services.d2Compose = {
-            enable = true;
-            hostname = "d2.${config.lab.domain}";
-            tls = true;
-            dataDir = "/srv/d2";
-            auth.username = "eduardo";
-          };
-        }))
+        (lib.recursiveUpdate
+          (lib.optionalAttrs hasD2Module {
+            services.d2Compose = {
+              enable = true;
+              hostname = "d2.${config.lab.domain}";
+              tls = true;
+              dataDir = "/srv/d2";
+              auth.username = "eduardo";
+            };
+          })
+          (lib.optionalAttrs hasProwlarrModule {
+            services.prowlarrCompose = {
+              enable = true;
+              hostname = "prowlarr.${config.lab.domain}";
+              tls = true;
+              dataDir = "/srv/prowlarr";
+            };
+          })))
       (lib.optionalAttrs hasPostgresExporterModule {
         services.postgresExporterCompose = {
           enable = true;
