@@ -567,6 +567,46 @@ ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "sudo docker logs --tail 80 p
 ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "sudo docker exec prowlarr sh -lc 'getent hosts radarr.<lab-domain>; nc -zv radarr.<lab-domain> 443 || nc -zv radarr.<lab-domain> 80'"
 ```
 
+## Sonarr (`pi-node-b`)
+
+- URL: `https://sonarr.<lab-domain>/`
+- Runtime owner: `nix-services/services/sonarr`
+- Runtime path on host: `/srv/sonarr`
+- NAS media mount on host: `/mnt/media` from `nas-host:/volume1/Media`
+- Container TV mount: `/tv`
+- Container downloads mount: `/downloads`
+- Database backend:
+  - Local SQLite under `/srv/sonarr`
+  - No shared SQL dependency on `nas-host` in the current first pass
+- Media-path status:
+  - NAS media export is mounted on `pi-node-b` at `/mnt/media`
+  - Use `/tv` inside Sonarr for the TV library root backed by `/mnt/media/TV Shows`
+  - Use `/downloads` inside Sonarr for qBittorrent completed-download imports
+- Integration intent:
+  - qBittorrent downloader endpoint: `http://192.0.2.12:8080`
+  - Prowlarr remains the indexer source of truth
+  - Seerr should use Sonarr as the series-management backend
+- Current visibility:
+  - Homepage card: `Sonarr`
+  - Uptime Kuma monitor: `Sonarr`
+  - Dozzle: local container `sonarr`
+
+### Sonarr quick checks
+
+```bash
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "systemctl is-active sonarr; sudo systemctl --no-pager --lines=40 status sonarr"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "docker ps --filter name=sonarr --format 'table {{.Names}}\t{{.Status}}\t{{.Image}}'"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "curl -skI https://sonarr.<lab-domain>/ | sed -n '1,12p'"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "sudo docker logs --tail 80 sonarr"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "sudo ls -la /mnt/media '/mnt/media/TV Shows' /mnt/media/Downloads/qbittorrent"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "sudo docker exec sonarr sh -lc 'getent hosts prowlarr.<lab-domain> qbittorrent.<lab-domain>; nc -zv 192.0.2.12 8080'"
+```
+
 ## n8n (`pi-node-b`)
 
 - URL: `https://n8n.<lab-domain>/`

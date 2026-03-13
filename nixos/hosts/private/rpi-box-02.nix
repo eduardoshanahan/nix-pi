@@ -293,6 +293,7 @@
       seerr = "https://seerr.${config.lab.domain}/";
       radarr = "https://radarr.${config.lab.domain}/";
       prowlarr = "https://prowlarr.${config.lab.domain}/";
+      sonarr = "https://sonarr.${config.lab.domain}/";
       archivebox = "https://archivebox.${config.lab.domain}/";
       jellyfin = "https://jellyfin.${config.lab.domain}/";
       outline = "https://outline.${config.lab.domain}/";
@@ -344,6 +345,7 @@
       (mkHttpMonitor "Seerr" availabilityTargets.routed.seerr)
       (mkHttpMonitor "Radarr" availabilityTargets.routed.radarr)
       (mkHttpMonitor "Prowlarr" availabilityTargets.routed.prowlarr)
+      (mkHttpMonitor "Sonarr" availabilityTargets.routed.sonarr)
       (mkHttpMonitor "ArchiveBox" availabilityTargets.routed.archivebox)
       (mkHttpMonitor "Jellyfin" availabilityTargets.routed.jellyfin)
       (mkHttpMonitor "Outline" availabilityTargets.routed.outline)
@@ -715,6 +717,7 @@
   hasSeerrModule = inputs.nix-services.services ? seerr;
   hasRadarrModule = inputs.nix-services.services ? radarrCompose;
   hasProwlarrModule = inputs.nix-services.services ? prowlarrCompose;
+  hasSonarrModule = inputs.nix-services.services ? sonarrCompose;
   hasWoodpeckerModule = inputs.nix-services.services ? woodpeckerCompose;
   enableRedisExporter = true;
   enableMysqlExporter = true;
@@ -758,6 +761,7 @@ in
       ++ lib.optional hasSeerrModule inputs.nix-services.services.seerr
       ++ lib.optional hasRadarrModule inputs.nix-services.services.radarrCompose
       ++ lib.optional hasProwlarrModule inputs.nix-services.services.prowlarrCompose
+      ++ lib.optional hasSonarrModule inputs.nix-services.services.sonarrCompose
       ++ lib.optional hasWoodpeckerModule inputs.nix-services.services.woodpeckerCompose;
 
     networking.hostName = "pi-node-b";
@@ -1372,6 +1376,17 @@ in
       downloadsMountPath = "/downloads";
     };
 
+    services.sonarrCompose = lib.mkIf hasSonarrModule {
+      enable = true;
+      hostname = "sonarr.${config.lab.domain}";
+      tls = true;
+      dataDir = "/srv/sonarr";
+      mediaDir = "/mnt/media/TV Shows";
+      mediaMountPath = "/tv";
+      downloadsDir = "/mnt/media/Downloads/qbittorrent";
+      downloadsMountPath = "/downloads";
+    };
+
     services.homepageDashboard = {
       enable = true;
       hostname = "homepage.${config.lab.domain}";
@@ -1566,6 +1581,14 @@ in
                   description = "Indexer manager for the arr stack";
                   server = "local";
                   container = "prowlarr";
+                };
+              }
+              {
+                "Sonarr" = {
+                  href = availabilityTargets.routed.sonarr;
+                  description = "TV library manager";
+                  server = "local";
+                  container = "sonarr";
                 };
               }
               {
