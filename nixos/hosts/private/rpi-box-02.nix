@@ -291,9 +291,13 @@
       homepage = "https://homepage.${config.lab.domain}/";
       n8n = "https://n8n.${config.lab.domain}/";
       seerr = "https://seerr.${config.lab.domain}/";
+      calibre = "https://calibre.${config.lab.domain}/";
+      lazylibrarian = "https://lazylibrarian.${config.lab.domain}/";
+      lidarr = "https://lidarr.${config.lab.domain}/";
       radarr = "https://radarr.${config.lab.domain}/";
       prowlarr = "https://prowlarr.${config.lab.domain}/";
       sonarr = "https://sonarr.${config.lab.domain}/";
+      qbittorrent = "https://qbittorrent.${config.lab.domain}/";
       archivebox = "https://archivebox.${config.lab.domain}/";
       jellyfin = "https://jellyfin.${config.lab.domain}/";
       outline = "https://outline.${config.lab.domain}/";
@@ -343,6 +347,9 @@
       (mkHttpMonitor "Homepage" availabilityTargets.routed.homepage)
       (mkHttpMonitor "n8n" availabilityTargets.routed.n8n)
       (mkHttpMonitor "Seerr" availabilityTargets.routed.seerr)
+      (mkHttpMonitor "Calibre Web Automated" availabilityTargets.routed.calibre)
+      (mkHttpMonitor "LazyLibrarian" availabilityTargets.routed.lazylibrarian)
+      (mkHttpMonitor "Lidarr" availabilityTargets.routed.lidarr)
       (mkHttpMonitor "Radarr" availabilityTargets.routed.radarr)
       (mkHttpMonitor "Prowlarr" availabilityTargets.routed.prowlarr)
       (mkHttpMonitor "Sonarr" "${availabilityTargets.routed.sonarr}ping")
@@ -715,6 +722,9 @@
   hasD2Module = inputs.nix-services.services ? d2Compose;
   hasN8nModule = inputs.nix-services.services ? n8nCompose;
   hasSeerrModule = inputs.nix-services.services ? seerr;
+  hasCalibreWebAutomatedModule = inputs.nix-services.services ? calibreWebAutomatedCompose;
+  hasLazyLibrarianModule = inputs.nix-services.services ? lazylibrarianCompose;
+  hasLidarrModule = inputs.nix-services.services ? lidarrCompose;
   hasRadarrModule = inputs.nix-services.services ? radarrCompose;
   hasProwlarrModule = inputs.nix-services.services ? prowlarrCompose;
   hasSonarrModule = inputs.nix-services.services ? sonarrCompose;
@@ -759,6 +769,9 @@ in
       ++ lib.optional hasD2Module inputs.nix-services.services.d2Compose
       ++ lib.optional hasN8nModule inputs.nix-services.services.n8nCompose
       ++ lib.optional hasSeerrModule inputs.nix-services.services.seerr
+      ++ lib.optional hasCalibreWebAutomatedModule inputs.nix-services.services.calibreWebAutomatedCompose
+      ++ lib.optional hasLazyLibrarianModule inputs.nix-services.services.lazylibrarianCompose
+      ++ lib.optional hasLidarrModule inputs.nix-services.services.lidarrCompose
       ++ lib.optional hasRadarrModule inputs.nix-services.services.radarrCompose
       ++ lib.optional hasProwlarrModule inputs.nix-services.services.prowlarrCompose
       ++ lib.optional hasSonarrModule inputs.nix-services.services.sonarrCompose
@@ -1365,6 +1378,45 @@ in
       };
     };
 
+    services.calibreWebAutomatedCompose = lib.mkIf hasCalibreWebAutomatedModule {
+      enable = true;
+      hostname = "calibre.${config.lab.domain}";
+      tls = true;
+      dataDir = "/srv/calibre-web-automated";
+      libraryDir = "/mnt/media/Books/CalibreWebAutomated/library";
+      ingestDir = "/mnt/media/Books/CalibreWebAutomated/ingest";
+      networkShareMode = true;
+      image = {
+        tag = "v4.0.6";
+        allowMutableTag = false;
+      };
+    };
+
+    services.lazylibrarianCompose = lib.mkIf hasLazyLibrarianModule {
+      enable = true;
+      hostname = "lazylibrarian.${config.lab.domain}";
+      tls = true;
+      dataDir = "/srv/lazylibrarian";
+      downloadsDir = "/mnt/media/Downloads/qbittorrent";
+      booksDir = "/mnt/media/Books/LazyLibrarian/library";
+      cwaIngestDir = "/mnt/media/Books/CalibreWebAutomated/ingest";
+    };
+
+    services.lidarrCompose = lib.mkIf hasLidarrModule {
+      enable = true;
+      hostname = "lidarr.${config.lab.domain}";
+      tls = true;
+      dataDir = "/srv/lidarr";
+      mediaDir = "/mnt/media/Music";
+      mediaMountPath = "/music";
+      downloadsDir = "/mnt/media/Downloads/qbittorrent";
+      downloadsMountPath = "/downloads";
+      image = {
+        tag = "3.0.1.4866-ls10";
+        allowMutableTag = false;
+      };
+    };
+
     services.radarrCompose = lib.mkIf hasRadarrModule {
       enable = true;
       hostname = "radarr.${config.lab.domain}";
@@ -1568,6 +1620,30 @@ in
                 };
               }
               {
+                "Calibre Web Automated" = {
+                  href = availabilityTargets.routed.calibre;
+                  description = "Ebook library and ingest workflow";
+                  server = "local";
+                  container = "calibre-web-automated";
+                };
+              }
+              {
+                "LazyLibrarian" = {
+                  href = availabilityTargets.routed.lazylibrarian;
+                  description = "Book acquisition and post-processing";
+                  server = "local";
+                  container = "lazylibrarian";
+                };
+              }
+              {
+                "Lidarr" = {
+                  href = availabilityTargets.routed.lidarr;
+                  description = "Music library manager";
+                  server = "local";
+                  container = "lidarr";
+                };
+              }
+              {
                 "Radarr" = {
                   href = availabilityTargets.routed.radarr;
                   description = "Movie library manager";
@@ -1748,6 +1824,14 @@ in
                   description = "Media server";
                   server = "nas-host";
                   container = "nas-host-jellyfin";
+                };
+              }
+              {
+                "qBittorrent" = {
+                  href = availabilityTargets.routed.qbittorrent;
+                  description = "Torrent downloader";
+                  server = "nas-host";
+                  container = "qbittorrent";
                 };
               }
               {

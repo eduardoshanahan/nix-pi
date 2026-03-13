@@ -501,6 +501,120 @@ ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "sudo docker logs --tail 80 s
 ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "sudo docker exec seerr sh -lc 'getent hosts postgres.<lab-domain>; nc -zv postgres.<lab-domain> 5433; getent hosts jellyfin.<lab-domain>'"
 ```
 
+## Calibre-Web-Automated (`pi-node-b`)
+
+- URL: `https://calibre.<lab-domain>/`
+- Runtime owner: `nix-services/services/calibre-web-automated`
+- Runtime path on host: `/srv/calibre-web-automated`
+- NAS media mount on host: `/mnt/media` from `nas-host:/volume1/Media`
+- Container library mount: `/calibre-library`
+- Container ingest mount: `/cwa-book-ingest`
+- Database backend:
+  - Local application state under `/srv/calibre-web-automated`
+  - Fresh Calibre library at `/mnt/media/Books/CalibreWebAutomated/library`
+- Library-path status:
+  - The initial deployment intentionally avoids the existing
+    `CalibreLibrarySynchronized` library
+  - Use `/calibre-library` inside the container for the fresh NAS-backed
+    library
+  - Use `/cwa-book-ingest` inside the container for new-book ingest
+  - `NETWORK_SHARE_MODE=true` is required because `/mnt/media` is NFS-mounted
+- Current visibility:
+  - Homepage card: `Calibre Web Automated`
+  - Uptime Kuma monitor: `Calibre Web Automated`
+  - Dozzle: local container `calibre-web-automated`
+
+### Calibre-Web-Automated quick checks
+
+```bash
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "systemctl is-active calibre-web-automated; sudo systemctl --no-pager --lines=40 status calibre-web-automated"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "docker ps --filter name=calibre-web-automated --format 'table {{.Names}}\t{{.Status}}\t{{.Image}}'"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "curl -skI https://calibre.<lab-domain>/ | sed -n '1,12p'"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "sudo docker logs --tail 80 calibre-web-automated"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "sudo ls -la /mnt/media/Books /mnt/media/Books/CalibreWebAutomated /mnt/media/Books/CalibreWebAutomated/library /mnt/media/Books/CalibreWebAutomated/ingest"
+```
+
+## LazyLibrarian (`pi-node-b`)
+
+- URL: `https://lazylibrarian.<lab-domain>/`
+- Runtime owner: `nix-services/services/lazylibrarian`
+- Runtime path on host: `/srv/lazylibrarian`
+- NAS media mount on host: `/mnt/media` from `nas-host:/volume1/Media`
+- Container downloads mount: `/downloads`
+- Container books mount: `/books`
+- Container CWA ingest mount: `/cwa-book-ingest`
+- Database backend:
+  - Local application state under `/srv/lazylibrarian`
+- Path intent:
+  - Use `/downloads` inside LazyLibrarian for qBittorrent completed downloads
+  - Use `/books` inside LazyLibrarian for its own staging/library area backed by
+    `/mnt/media/Books/LazyLibrarian/library`
+  - Use `/cwa-book-ingest` inside LazyLibrarian as the CWA handoff backed by
+    `/mnt/media/Books/CalibreWebAutomated/ingest`
+  - Do not point LazyLibrarian directly at the Calibre library
+- Current visibility:
+  - Homepage card: `LazyLibrarian`
+  - Uptime Kuma monitor: `LazyLibrarian`
+  - Dozzle: local container `lazylibrarian`
+
+### LazyLibrarian quick checks
+
+```bash
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "systemctl is-active lazylibrarian; sudo systemctl --no-pager --lines=40 status lazylibrarian"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "docker ps --filter name=lazylibrarian --format 'table {{.Names}}\t{{.Status}}\t{{.Image}}'"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "curl -skI https://lazylibrarian.<lab-domain>/ | sed -n '1,12p'"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "sudo docker logs --tail 80 lazylibrarian"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "sudo ls -la /mnt/media/Books/LazyLibrarian /mnt/media/Books/LazyLibrarian/library /mnt/media/Books/CalibreWebAutomated/ingest /mnt/media/Downloads/qbittorrent"
+```
+
+## Lidarr (`pi-node-b`)
+
+- URL: `https://lidarr.<lab-domain>/`
+- Runtime owner: `nix-services/services/lidarr`
+- Runtime path on host: `/srv/lidarr`
+- NAS media mount on host: `/mnt/media` from `nas-host:/volume1/Media`
+- Container music mount: `/music`
+- Container downloads mount: `/downloads`
+- Database backend:
+  - Local SQLite under `/srv/lidarr`
+  - No shared SQL dependency on `nas-host` in the current first pass
+- Media-path status:
+  - NAS media export is mounted on `pi-node-b` at `/mnt/media`
+  - Use `/music` inside Lidarr for the library root backed by `/mnt/media/Music`
+  - Use `/downloads` inside Lidarr for qBittorrent completed-download imports
+- Integration intent:
+  - qBittorrent downloader endpoint: `http://192.0.2.12:8080`
+  - Prowlarr remains the indexer source of truth
+  - Jellyfin serves imported music from the same NAS-backed media tree
+- Current visibility:
+  - Homepage card: `Lidarr`
+  - Uptime Kuma monitor: `Lidarr`
+  - Dozzle: local container `lidarr`
+
+### Lidarr quick checks
+
+```bash
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "systemctl is-active lidarr; sudo systemctl --no-pager --lines=40 status lidarr"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "docker ps --filter name=lidarr --format 'table {{.Names}}\t{{.Status}}\t{{.Image}}'"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "curl -skI https://lidarr.<lab-domain>/ | sed -n '1,12p'"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "sudo docker logs --tail 80 lidarr"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "sudo ls -la /mnt/media /mnt/media/Music /mnt/media/Downloads/qbittorrent"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "sudo docker exec lidarr sh -lc 'getent hosts prowlarr.<lab-domain> qbittorrent.<lab-domain> jellyfin.<lab-domain>; nc -zv 192.0.2.12 8080'"
+```
+
 ## Radarr (`pi-node-b`)
 
 - URL: `https://radarr.<lab-domain>/`
