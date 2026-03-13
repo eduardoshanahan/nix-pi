@@ -1381,8 +1381,8 @@ in
       hostname = "sonarr.${config.lab.domain}";
       tls = true;
       dataDir = "/srv/sonarr";
-      mediaDir = "/mnt/media/TV Shows";
-      mediaMountPath = "/tv";
+      mediaDir = "/mnt/media";
+      mediaMountPath = "/media";
       downloadsDir = "/mnt/media/Downloads/qbittorrent";
       downloadsMountPath = "/downloads";
     };

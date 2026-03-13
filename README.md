@@ -573,14 +573,14 @@ ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "sudo docker exec prowlarr sh
 - Runtime owner: `nix-services/services/sonarr`
 - Runtime path on host: `/srv/sonarr`
 - NAS media mount on host: `/mnt/media` from `nas-host:/volume1/Media`
-- Container TV mount: `/tv`
+- Container media mount: `/media`
 - Container downloads mount: `/downloads`
 - Database backend:
   - Local SQLite under `/srv/sonarr`
   - No shared SQL dependency on `nas-host` in the current first pass
 - Media-path status:
   - NAS media export is mounted on `pi-node-b` at `/mnt/media`
-  - Use `/tv` inside Sonarr for the TV library root backed by `/mnt/media/TV Shows`
+  - Use `/media/TV Shows` inside Sonarr for the TV library root backed by `/mnt/media/TV Shows`
   - Use `/downloads` inside Sonarr for qBittorrent completed-download imports
 - Integration intent:
   - qBittorrent downloader endpoint: `http://192.0.2.12:8080`
