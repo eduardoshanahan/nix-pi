@@ -345,7 +345,7 @@
       (mkHttpMonitor "Seerr" availabilityTargets.routed.seerr)
       (mkHttpMonitor "Radarr" availabilityTargets.routed.radarr)
       (mkHttpMonitor "Prowlarr" availabilityTargets.routed.prowlarr)
-      (mkHttpMonitor "Sonarr" availabilityTargets.routed.sonarr)
+      (mkHttpMonitor "Sonarr" "${availabilityTargets.routed.sonarr}ping")
       (mkHttpMonitor "ArchiveBox" availabilityTargets.routed.archivebox)
       (mkHttpMonitor "Jellyfin" availabilityTargets.routed.jellyfin)
       (mkHttpMonitor "Outline" availabilityTargets.routed.outline)
