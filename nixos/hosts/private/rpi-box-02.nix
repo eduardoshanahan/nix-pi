@@ -1376,6 +1376,23 @@ in
         user = "seerr";
         passwordFile = config.sops.secrets.seerr-db-password.path;
       };
+      integrations = {
+        radarr = {
+          enable = true;
+          hostname = "radarr.${config.lab.domain}";
+          port = 443;
+          useSsl = true;
+          externalUrl = "https://radarr.${config.lab.domain}";
+          configXmlPath = "/srv/radarr/config.xml";
+        };
+        sonarr = {
+          enable = true;
+          hostname = "sonarr.${config.lab.domain}";
+          port = 443;
+          useSsl = true;
+          configXmlPath = "/srv/sonarr/config.xml";
+        };
+      };
     };
 
     services.calibreWebAutomatedCompose = lib.mkIf hasCalibreWebAutomatedModule {
