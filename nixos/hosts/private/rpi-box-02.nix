@@ -1392,6 +1392,12 @@ in
           useSsl = true;
           configXmlPath = "/srv/sonarr/config.xml";
         };
+        jellyfin = {
+          enable = true;
+          hostname = "jellyfin.${config.lab.domain}";
+          port = 443;
+          useSsl = true;
+        };
       };
     };
 
