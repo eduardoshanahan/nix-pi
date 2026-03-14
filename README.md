@@ -556,6 +556,11 @@ ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "sudo ls -la /mnt/media/Books
   - Use `/cwa-book-ingest` inside LazyLibrarian as the CWA handoff backed by
     `/mnt/media/Books/CalibreWebAutomated/ingest`
   - Do not point LazyLibrarian directly at the Calibre library
+- Integration intent:
+  - qBittorrent downloader endpoint: `https://qbittorrent.<lab-domain>/`
+  - LazyLibrarian stores downloader settings in its own app config and can
+    rewrite `config.ini` during shutdown, so edit those settings with the
+    service stopped or through the UI
 - Current visibility:
   - Homepage card: `LazyLibrarian`
   - Uptime Kuma monitor: `LazyLibrarian`
@@ -591,7 +596,7 @@ ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "sudo ls -la /mnt/media/Books
   - Use `/music` inside Lidarr for the library root backed by `/mnt/media/Music`
   - Use `/downloads` inside Lidarr for qBittorrent completed-download imports
 - Integration intent:
-  - qBittorrent downloader endpoint: `http://192.0.2.12:8080`
+  - qBittorrent downloader endpoint: `https://qbittorrent.<lab-domain>/`
   - Prowlarr remains the indexer source of truth
   - Jellyfin serves imported music from the same NAS-backed media tree
 - Current visibility:
@@ -612,7 +617,7 @@ ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "sudo docker logs --tail 80 l
 
 ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "sudo ls -la /mnt/media /mnt/media/Music /mnt/media/Downloads/qbittorrent"
 
-ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "sudo docker exec lidarr sh -lc 'getent hosts prowlarr.<lab-domain> qbittorrent.<lab-domain> jellyfin.<lab-domain>; nc -zv 192.0.2.12 8080'"
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "sudo docker exec lidarr sh -lc 'getent hosts prowlarr.<lab-domain> qbittorrent.<lab-domain> jellyfin.<lab-domain>; nc -zv qbittorrent.<lab-domain> 443'"
 ```
 
 ## Radarr (`pi-node-b`)
@@ -697,7 +702,7 @@ ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "sudo docker exec prowlarr sh
   - Use `/media/TV Shows` inside Sonarr for the TV library root backed by `/mnt/media/TV Shows`
   - Use `/downloads` inside Sonarr for qBittorrent completed-download imports
 - Integration intent:
-  - qBittorrent downloader endpoint: `http://192.0.2.12:8080`
+  - qBittorrent downloader endpoint: `https://qbittorrent.<lab-domain>/`
   - Prowlarr remains the indexer source of truth
   - Seerr should use Sonarr as the series-management backend
 - Current visibility:
@@ -718,7 +723,7 @@ ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "sudo docker logs --tail 80 s
 
 ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "sudo ls -la /mnt/media '/mnt/media/TV Shows' /mnt/media/Downloads/qbittorrent"
 
-ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "sudo docker exec sonarr sh -lc 'getent hosts prowlarr.<lab-domain> qbittorrent.<lab-domain>; nc -zv 192.0.2.12 8080'"
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "sudo docker exec sonarr sh -lc 'getent hosts prowlarr.<lab-domain> qbittorrent.<lab-domain>; nc -zv qbittorrent.<lab-domain> 443'"
 ```
 
 ## n8n (`pi-node-b`)

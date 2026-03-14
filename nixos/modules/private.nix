@@ -1,6 +1,9 @@
-{ ... }:
+{ pkgs, ... }:
 let
   privateOverrides = ../hosts/private/overrides.nix;
+  homelabCaBundle = pkgs.runCommand "ca-certificates-with-homelab.pem" {} ''
+    cat ${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt ${../certs/homelab-root-ca.crt} > "$out"
+  '';
 in
 {
   imports =
@@ -17,4 +20,5 @@ in
   # Expose the internal root CA at a stable host path for containers that need
   # to trust lab-internal HTTPS endpoints.
   environment.etc."ssl/certs/homelab-root-ca.crt".source = ../certs/homelab-root-ca.crt;
+  environment.etc."ssl/certs/ca-certificates-with-homelab.pem".source = homelabCaBundle;
 }
