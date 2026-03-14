@@ -1417,6 +1417,13 @@ in
       downloadsDir = "/mnt/media/Downloads/qbittorrent";
       booksDir = "/mnt/media/Books/LazyLibrarian/library";
       cwaIngestDir = "/mnt/media/Books/CalibreWebAutomated/ingest";
+      integrations.qbittorrent = {
+        enable = true;
+        host = "qbittorrent.${config.lab.domain}";
+        port = 443;
+        useSsl = true;
+        label = "lazylibrarian";
+      };
     };
 
     services.lidarrCompose = lib.mkIf hasLidarrModule {
