@@ -1415,6 +1415,18 @@ in
         tag = "3.0.1.4866-ls10";
         allowMutableTag = false;
       };
+      integrations = {
+        qbittorrent = {
+          enable = true;
+          host = "qbittorrent.${config.lab.domain}";
+          port = 443;
+          useSsl = true;
+        };
+        prowlarr = {
+          enable = true;
+          url = "https://prowlarr.${config.lab.domain}";
+        };
+      };
     };
 
     services.radarrCompose = lib.mkIf hasRadarrModule {
@@ -1426,6 +1438,18 @@ in
       mediaMountPath = "/movies";
       downloadsDir = "/mnt/media/Downloads/qbittorrent";
       downloadsMountPath = "/downloads";
+      integrations = {
+        qbittorrent = {
+          enable = true;
+          host = "qbittorrent.${config.lab.domain}";
+          port = 443;
+          useSsl = true;
+        };
+        prowlarr = {
+          enable = true;
+          url = "https://prowlarr.${config.lab.domain}";
+        };
+      };
     };
 
     services.sonarrCompose = lib.mkIf hasSonarrModule {
@@ -1437,6 +1461,18 @@ in
       mediaMountPath = "/media";
       downloadsDir = "/mnt/media/Downloads/qbittorrent";
       downloadsMountPath = "/downloads";
+      integrations = {
+        qbittorrent = {
+          enable = true;
+          host = "qbittorrent.${config.lab.domain}";
+          port = 443;
+          useSsl = true;
+        };
+        prowlarr = {
+          enable = true;
+          url = "https://prowlarr.${config.lab.domain}";
+        };
+      };
     };
 
     services.homepageDashboard = {
@@ -1831,7 +1867,7 @@ in
                   href = availabilityTargets.routed.qbittorrent;
                   description = "Torrent downloader";
                   server = "nas-host";
-                  container = "qbittorrent";
+                  container = "nas-host-qbittorrent";
                 };
               }
               {
@@ -2529,6 +2565,26 @@ in
               hostname = "prowlarr.${config.lab.domain}";
               tls = true;
               dataDir = "/srv/prowlarr";
+              applications = [
+                {
+                  name = "Radarr";
+                  baseUrl = "https://radarr.${config.lab.domain}";
+                  prowlarrUrl = "https://prowlarr.${config.lab.domain}";
+                  configXmlPath = "/srv/radarr/config.xml";
+                }
+                {
+                  name = "Sonarr";
+                  baseUrl = "https://sonarr.${config.lab.domain}";
+                  prowlarrUrl = "https://prowlarr.${config.lab.domain}";
+                  configXmlPath = "/srv/sonarr/config.xml";
+                }
+                {
+                  name = "Lidarr";
+                  baseUrl = "https://lidarr.${config.lab.domain}";
+                  prowlarrUrl = "https://prowlarr.${config.lab.domain}";
+                  configXmlPath = "/srv/lidarr/config.xml";
+                }
+              ];
             };
           })))
       (lib.optionalAttrs hasPostgresExporterModule {
