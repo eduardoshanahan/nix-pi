@@ -951,6 +951,16 @@ in
       mode = "0400";
     };
 
+    sops.secrets.qbittorrent-webui-password = {
+      sopsFile = ../../../secrets/secrets.yaml;
+      format = "yaml";
+      key = "qbittorrent-webui-password";
+      path = "/run/secrets/qbittorrent-webui-password";
+      owner = "root";
+      group = "root";
+      mode = "0400";
+    };
+
     sops.secrets.kuma-db-password = {
       sopsFile = ../../../secrets/secrets.yaml;
       format = "yaml";
@@ -1451,6 +1461,10 @@ in
           host = "qbittorrent.${config.lab.domain}";
           port = 443;
           useSsl = true;
+          username = "eduardo";
+          passwordFile = config.sops.secrets.qbittorrent-webui-password.path;
+          categoryField = "musicCategory";
+          categoryValue = "lidarr";
         };
         prowlarr = {
           enable = true;
@@ -1474,6 +1488,10 @@ in
           host = "qbittorrent.${config.lab.domain}";
           port = 443;
           useSsl = true;
+          username = "eduardo";
+          passwordFile = config.sops.secrets.qbittorrent-webui-password.path;
+          categoryField = "movieCategory";
+          categoryValue = "radarr";
         };
         prowlarr = {
           enable = true;
@@ -1497,6 +1515,10 @@ in
           host = "qbittorrent.${config.lab.domain}";
           port = 443;
           useSsl = true;
+          username = "eduardo";
+          passwordFile = config.sops.secrets.qbittorrent-webui-password.path;
+          categoryField = "tvCategory";
+          categoryValue = "sonarr";
         };
         prowlarr = {
           enable = true;
