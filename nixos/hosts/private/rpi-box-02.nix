@@ -2078,7 +2078,7 @@ in
             - TZ
 
           volumes:
-            - /run/secrets/mysql-exporter.my.cnf:/etc/mysql-exporter.my.cnf:ro
+            - /run/mysql-exporter/mysql-exporter.my.cnf:/etc/mysql-exporter.my.cnf:ro
 
           command:
             - --config.my-cnf=/etc/mysql-exporter.my.cnf
