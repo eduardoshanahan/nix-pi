@@ -2008,8 +2008,12 @@ in
       };
     };
 
-    # Homepage supports multiple Docker servers via docker.yaml.
-    # Override the exact path read by the container mount.
+    # Host-specific Homepage card status inventory.
+    #
+    # The shared module generates docker.yaml from service-level config, but
+    # this host intentionally replaces the mounted file with a multi-host
+    # inventory so Homepage can query remote Docker APIs on pi-node-a,
+    # pi-node-c, and nas-host in addition to the local socket.
     environment.etc."homepage/config/docker.yaml".text = lib.mkForce ''
       local:
         socket: /var/run/docker.sock
@@ -2024,7 +2028,11 @@ in
         port: 2375
     '';
 
-    # Keep unpoller in Prometheus-only mode; disable legacy InfluxDB writes.
+    # Host-specific unpoller runtime override.
+    #
+    # This host only scrapes unpoller via Prometheus, so explicitly disable the
+    # legacy InfluxDB output path. This is currently documented as an
+    # intentional pi-node-b override rather than shared-module behavior.
     environment.etc."unpoller/docker-compose.yml" = lib.mkIf config.services.unpollerCompose.enable {
       text = lib.mkForce ''
         services:
@@ -2066,7 +2074,12 @@ in
       '';
     };
 
-    # Pin mysql-exporter compose args so slave_status scraper stays disabled.
+    # Host-specific mysql-exporter collector override.
+    #
+    # The shared module already mounts the stabilized /run/mysql-exporter path.
+    # This host additionally pins --no-collect.slave_status because the local
+    # MySQL role does not expose the privileges/replication state that collector
+    # expects.
     environment.etc."mysql-exporter/docker-compose.yml".text = lib.mkForce ''
       services:
         mysql-exporter:
@@ -2103,7 +2116,11 @@ in
           name: ${config.services.mysqlExporterCompose.network}
     '';
 
-    # Keep postgres-exporter collectors compatible with this Postgres role/version.
+    # Host-specific postgres-exporter collector override.
+    #
+    # Disable collectors that are noisy or incompatible for this host's current
+    # Postgres role/version combination. This remains a deliberate host policy
+    # until the shared module grows explicit collector controls.
     environment.etc."postgres-exporter/docker-compose.yml".text = lib.mkForce ''
       services:
         postgres-exporter:
@@ -2139,9 +2156,12 @@ in
           name: ${config.services.postgresExporterCompose.network}
     '';
 
-    # Ghost auth-code emails use STARTTLS against the internal smtp-relay.
-    # The relay presents a cert chain Ghost can't verify reliably, so allow it
-    # for this internal hop to avoid login email failures (ESOCKET).
+    # Host-specific Ghost blog mail TLS override.
+    #
+    # Ghost auth-code emails use STARTTLS against the internal smtp-relay. For
+    # the blog instance on this host, Node's SMTP path still fails certificate
+    # verification against that relay, so rejectUnauthorized=false is injected
+    # here to avoid login email failures (ESOCKET).
     environment.etc."ghost-blog/docker-compose.yml" = lib.mkIf (config.services.ghost.instances ? blog) {
       text = lib.mkForce ''
         services:
@@ -2228,6 +2248,11 @@ in
       entryPoint = "webplain";
     };
 
+    # Host-specific declarative Uptime Kuma monitor reconciliation.
+    #
+    # The shared module manages the container lifecycle; this host layers on a
+    # desired-monitors document plus a companion oneshot sync unit so monitor
+    # inventory is treated as host policy and re-applied after startup.
     systemd.services.uptime-kuma-monitor-sync = {
       description = "Sync declarative Uptime Kuma monitors";
       wantedBy = ["uptime-kuma-compose.service"];
