@@ -2028,134 +2028,6 @@ in
         port: 2375
     '';
 
-    # Host-specific unpoller runtime override.
-    #
-    # This host only scrapes unpoller via Prometheus, so explicitly disable the
-    # legacy InfluxDB output path. This is currently documented as an
-    # intentional pi-node-b override rather than shared-module behavior.
-    environment.etc."unpoller/docker-compose.yml" = lib.mkIf config.services.unpollerCompose.enable {
-      text = lib.mkForce ''
-        services:
-          unpoller:
-            image: ${config.services.unpollerCompose.image.repository}:${config.services.unpollerCompose.image.tag}
-            container_name: ${config.services.unpollerCompose.containerName}
-            restart: unless-stopped
-
-            env_file:
-              - ${config.sops.secrets.unpoller-env.path}
-
-            environment:
-              - UP_LISTEN=0.0.0.0:9130
-              - UP_UNIFI_CONTROLLER_0_URL=${config.services.unpollerCompose.controller.url}
-              - UP_UNIFI_CONTROLLER_0_VERIFY_SSL=${
-          if config.services.unpollerCompose.controller.verifySsl
-          then "true"
-          else "false"
-        }
-              - UP_INFLUXDB_DISABLE=true
-              - TZ
-
-            ports:
-              - "${config.services.unpollerCompose.listenAddress}:${toString config.services.unpollerCompose.listenPort}:9130"
-
-            logging:
-              driver: "json-file"
-              options:
-                max-size: "10m"
-                max-file: "5"
-
-            networks:
-              - traefik
-
-        networks:
-          traefik:
-            external: true
-            name: ${config.services.unpollerCompose.network}
-      '';
-    };
-
-    # Host-specific mysql-exporter collector override.
-    #
-    # The shared module already mounts the stabilized /run/mysql-exporter path.
-    # This host additionally pins --no-collect.slave_status because the local
-    # MySQL role does not expose the privileges/replication state that collector
-    # expects.
-    environment.etc."mysql-exporter/docker-compose.yml".text = lib.mkForce ''
-      services:
-        mysql-exporter:
-          image: ${config.services.mysqlExporterCompose.image.repository}:${config.services.mysqlExporterCompose.image.tag}
-          container_name: ${config.services.mysqlExporterCompose.containerName}
-          restart: unless-stopped
-
-          environment:
-            - TZ
-
-          volumes:
-            - /run/mysql-exporter/mysql-exporter.my.cnf:/etc/mysql-exporter.my.cnf:ro
-
-          command:
-            - --config.my-cnf=/etc/mysql-exporter.my.cnf
-            - --mysqld.address=${config.services.mysqlExporterCompose.mysql.host}:${toString config.services.mysqlExporterCompose.mysql.port}
-            - --no-collect.slave_status
-
-          ports:
-            - "${toString config.services.mysqlExporterCompose.listenPort}:9104"
-
-          logging:
-            driver: "json-file"
-            options:
-              max-size: "10m"
-              max-file: "5"
-
-          networks:
-            - traefik
-
-      networks:
-        traefik:
-          external: true
-          name: ${config.services.mysqlExporterCompose.network}
-    '';
-
-    # Host-specific postgres-exporter collector override.
-    #
-    # Disable collectors that are noisy or incompatible for this host's current
-    # Postgres role/version combination. This remains a deliberate host policy
-    # until the shared module grows explicit collector controls.
-    environment.etc."postgres-exporter/docker-compose.yml".text = lib.mkForce ''
-      services:
-        postgres-exporter:
-          image: ${config.services.postgresExporterCompose.image.repository}:${config.services.postgresExporterCompose.image.tag}
-          container_name: ${config.services.postgresExporterCompose.containerName}
-          restart: unless-stopped
-
-          environment:
-            - TZ
-
-          env_file:
-            - /run/secrets/postgres-exporter.env
-
-          command:
-            - --no-collector.wal
-            - --no-collector.stat_bgwriter
-
-          ports:
-            - "${toString config.services.postgresExporterCompose.listenPort}:9187"
-
-          logging:
-            driver: "json-file"
-            options:
-              max-size: "10m"
-              max-file: "5"
-
-          networks:
-            - traefik
-
-      networks:
-        traefik:
-          external: true
-          name: ${config.services.postgresExporterCompose.network}
-    '';
-
     # Host-specific Ghost blog mail TLS override.
     #
     # Ghost auth-code emails use STARTTLS against the internal smtp-relay. For
@@ -2337,6 +2209,17 @@ in
       #     passwordFile = config.sops.secrets.ghost-mail-password.path;
       #   };
       # };
+    };
+
+    # Prometheus-only deployment; shared module option replaces the old
+    # compose-file override.
+    services.unpollerCompose.influxdb.enable = false;
+
+    # Collector toggles now live in the shared module, so this host no longer
+    # needs to replace the exporter compose file to keep its compatibility set.
+    services.postgresExporterCompose.collectors = {
+      wal.enable = false;
+      statBgwriter.enable = false;
     };
 
     services.grafanaCompose = {
