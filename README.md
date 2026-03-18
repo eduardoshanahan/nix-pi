@@ -67,6 +67,7 @@ Current host-owned Uptime Kuma monitor policy:
 
 ## Table of Contents
 
+- Docs index: `docs/README.md`
 - Getting started: `docs/SETUP.md`
 - Provisioning (build, flash, first boot): `docs/PROVISIONING.md`
 - Secrets (sops-nix): `docs/SECRETS.md`
@@ -155,6 +156,8 @@ For bootstrap, expansion, and key rotation details, see `docs/REMOTE_BUILDS.md`.
 - Host-managed monitor inventory and exceptions for `pi-node-b` are canonical in:
   - `docs/UPTIME_KUMA_MONITOR_POLICY.md`
   - `docs/HOST_RUNTIME_DIVERGENCES.md`
+- Local docs index for this repo:
+  - `docs/README.md`
 
 ## Known Good Checks (Loki + Promtail + Node Exporter)
 
