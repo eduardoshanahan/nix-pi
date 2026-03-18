@@ -276,6 +276,9 @@
     dolt = [
       "dolt.${config.lab.domain}:11228"
     ];
+    kubeStateMetrics = [
+      "cluster-node-01.${config.lab.domain}:30080"
+    ];
   };
   availabilityTargets = {
     routed = {
@@ -332,6 +335,7 @@
       unpollerMetrics = map (target: "http://${target}/metrics") monitoringTargets.unpoller;
       postgresExporterMetrics = map (target: "http://${target}/metrics") monitoringTargets.postgresExporter;
       redisExporterMetrics = map (target: "http://${target}/metrics") monitoringTargets.redisExporter;
+      kubeStateMetrics = map (target: "http://${target}/metrics") monitoringTargets.kubeStateMetrics;
       mysqlExporterMetrics = map (target: "http://${target}/metrics") monitoringTargets.mysqlExporter;
       mongodbExporterMetrics = map (target: "http://${target}/metrics") monitoringTargets.mongodbExporter;
     };
@@ -457,6 +461,10 @@
         "SNMP Exporter pi-node-b"
       ]
       availabilityTargets.direct.snmpExporterMetrics)
+    ++ (mkNamedHttpMonitors [
+        "kube-state-metrics"
+      ]
+      availabilityTargets.direct.kubeStateMetrics)
     ++ (mkNamedHttpMonitors [
         "Pi-hole Exporter pi-node-a"
         "Pi-hole Exporter pi-node-b"
@@ -2386,6 +2394,7 @@ in
         giteaTargets = [
           "gitea.${config.lab.domain}:3000"
         ];
+        kubeStateMetricsTargets = monitoringTargets.kubeStateMetrics;
         githubProfileTargets = monitoringTargets.githubProfile;
         authentikTargets = [
           "authentik-server:9300"
