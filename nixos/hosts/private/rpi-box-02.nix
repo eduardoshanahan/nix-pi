@@ -336,7 +336,7 @@
       (mkHttpMonitor "FossFLOW" availabilityTargets.routed.fossflow)
       (mkHttpMonitor "SearXNG" availabilityTargets.routed.searxng)
       (mkHttpMonitor "OwnTracks" availabilityTargets.routed.owntracks)
-      (mkHttpMonitor "Kuma Self" availabilityTargets.routed.kumaDashboard)
+      (mkHttpMonitor "Kuma Self" availabilityTargets.routed.kuma)
       (mkHttpMonitor "Grafana" availabilityTargets.routed.grafana)
       (mkHttpMonitor "Prometheus" availabilityTargets.routed.prometheus)
       (mkHttpMonitor "Alertmanager" "${availabilityTargets.routed.alertmanager}-/healthy")
