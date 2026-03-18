@@ -53,6 +53,10 @@ For the ownership baseline and contradiction register, see:
 
 - `nix-services/documentation_unification_block_1.md`
 
+Documentation sync gate for future changes:
+
+- `../nix-services/DOC_SYNC_CHECKLIST.md`
+
 Current host-runtime divergence register:
 
 - `docs/HOST_RUNTIME_DIVERGENCES.md`
@@ -69,6 +73,7 @@ Current host-owned Uptime Kuma monitor policy:
 - Remote builds and signing: `docs/REMOTE_BUILDS.md`
 - Host runtime divergences: `docs/HOST_RUNTIME_DIVERGENCES.md`
 - Uptime Kuma monitor policy: `docs/UPTIME_KUMA_MONITOR_POLICY.md`
+- Documentation sync checklist: `../nix-services/DOC_SYNC_CHECKLIST.md`
 - Private overrides (gitignored): `nixos/hosts/private/README.md`
 - Local runbook (gitignored): `private/PROVISIONING_LOCAL.md`
 - NixOS config layout:
