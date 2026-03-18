@@ -11,6 +11,7 @@
   ];
 
   networking.hostName = "pi-node-a";
+  lab.nix.signingKeyFile = "/etc/nix/pi-node-a-priv.pem";
 
   networking.useDHCP = lib.mkForce false;
 
