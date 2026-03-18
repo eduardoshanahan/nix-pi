@@ -339,7 +339,7 @@
       (mkHttpMonitor "Kuma Self" availabilityTargets.routed.kumaDashboard)
       (mkHttpMonitor "Grafana" availabilityTargets.routed.grafana)
       (mkHttpMonitor "Prometheus" availabilityTargets.routed.prometheus)
-      (mkHttpMonitor "Alertmanager" availabilityTargets.routed.alertmanager)
+      (mkHttpMonitor "Alertmanager" "${availabilityTargets.routed.alertmanager}-/healthy")
       (mkHttpMonitor "Vikunja" availabilityTargets.routed.vikunja)
       (mkHttpMonitor "Ghost" availabilityTargets.routed.ghost)
       (mkHttpMonitor "Gitea" availabilityTargets.routed.gitea)
