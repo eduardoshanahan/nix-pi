@@ -25,8 +25,9 @@ The host adds:
 - `/etc/uptime-kuma/desired-monitors.json`
 - a `restartTriggers` extension on `uptime-kuma-compose.service`
 
-On restart, the host syncs the declarative monitor set into the SQLite database
-used by the deployed Uptime Kuma instance.
+Before Uptime Kuma starts, the host syncs the declarative monitor set into the
+SQLite database used by the deployed instance. This ensures newly added
+host-managed monitors are already present when Kuma loads its scheduler state.
 
 ## Cluster Observability Phase 1 Coverage
 

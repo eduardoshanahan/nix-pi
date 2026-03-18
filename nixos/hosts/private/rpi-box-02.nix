@@ -2178,7 +2178,7 @@ in
     systemd.services.uptime-kuma-monitor-sync = {
       description = "Sync declarative Uptime Kuma monitors";
       wantedBy = ["uptime-kuma-compose.service"];
-      after = ["uptime-kuma-compose.service"];
+      before = ["uptime-kuma-compose.service"];
       partOf = ["uptime-kuma-compose.service"];
 
       serviceConfig = {
