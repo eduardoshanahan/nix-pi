@@ -32,7 +32,7 @@ to the right document.
   - operator quick checks and deployed-service notes that are too detailed for
     the top-level repo README
 
-## Situational Notes And Plans
+## Session Continuity And Plans
 
 - `CODEX_SANDBOX_NIX_DAEMON_RUNBOOK.md`
 - `KUMA_AUTHENTIK_LIMITATION_NOTE_2026-03-06.md`

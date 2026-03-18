@@ -65,7 +65,7 @@ Current host-owned Uptime Kuma monitor policy:
 
 - `docs/UPTIME_KUMA_MONITOR_POLICY.md`
 
-## Table of Contents
+## Documentation Index
 
 - Docs index: `docs/README.md`
 - Getting started: `docs/SETUP.md`
@@ -150,19 +150,23 @@ For bootstrap, expansion, and key rotation details, see `docs/REMOTE_BUILDS.md`.
 - Docker on `pi-node-b` is configured to use `/srv/docker` as its data root, so image/layer storage also lives on the USB flash drive.
 - Existing service docs in this README that reference `/srv/...` should be treated as following this policy, not as one-off exceptions.
 
-## Monitoring Documentation Boundary
+## Boundary Reminder
 
-- This README owns host-specific runtime checks and operator quick commands for the currently deployed environment.
-- Service-side monitoring architecture, module contracts, and constraints are canonical in `nix-services/monitoring_and_metrics_plan_prometheus_traefik.md` and `nix-services/services/*/README.md`.
-- Host-managed monitor inventory and exceptions for `pi-node-b` are canonical in:
+- This README owns repo overview, host-lifecycle boundaries, and documentation
+  pointers.
+- Service-side monitoring architecture, module contracts, and constraints are
+  canonical in `nix-services/monitoring_and_metrics_plan_prometheus_traefik.md`
+  and `nix-services/services/*/README.md`.
+- Host-managed monitor inventory and exceptions for `pi-node-b` are canonical
+  in:
   - `docs/UPTIME_KUMA_MONITOR_POLICY.md`
   - `docs/HOST_RUNTIME_DIVERGENCES.md`
-- Local docs index for this repo:
+- Local documentation index for this repo:
   - `docs/README.md`
 
 ## Operations Docs
 
-- Host-specific quick checks and deployed-service notes now live in:
+- Host-specific operator quick checks and deployed-service notes live in:
   - `docs/OPERATIONS_CHECKS_AND_SERVICE_NOTES.md`
 - Keep this README focused on repo boundaries, navigation, and canonical
   documentation ownership.
