@@ -222,6 +222,13 @@
       "pi-node-b"
       "pi-node-c"
     ];
+    clusterNode = map (host: "${metricsHost host}:9100") [
+      "cluster-node-01"
+      "cluster-node-02"
+      "cluster-node-03"
+      "cluster-node-04"
+      "cluster-node-05"
+    ];
     traefik = map (host: "${metricsHost host}:8082") [
       "pi-node-a"
       "pi-node-b"
@@ -309,6 +316,7 @@
       dozzle = "https://dozzle.${config.lab.domain}/";
       d2 = "https://d2.${config.lab.domain}/";
       paperless = "https://paperless.${config.lab.domain}/";
+      clusterApi = "cluster-api.${config.lab.domain}";
     };
     direct = {
       lokiReady = "http://loki.${config.lab.domain}:3100/ready";
@@ -316,6 +324,7 @@
       gotenbergHealth = "http://gotenberg.${config.lab.domain}:3001/health";
       doltMetrics = "http://dolt.${config.lab.domain}:11228/metrics";
       nodeMetrics = map (target: "http://${target}/metrics") monitoringTargets.node;
+      clusterNodeMetrics = map (target: "http://${target}/metrics") monitoringTargets.clusterNode;
       promtailReady = map (target: "http://${target}/ready") monitoringTargets.promtail;
       snmpExporterMetrics = map (target: "http://${target}/metrics") monitoringTargets.snmpExporter;
       piholeExporterMetrics = map (target: "http://${target}/metrics") monitoringTargets.piholeExporter;
@@ -383,6 +392,47 @@
         "Node Exporter pi-node-c"
       ]
       availabilityTargets.direct.nodeMetrics)
+    ++ (mkNamedHttpMonitors [
+        "Node Exporter cluster-node-01"
+        "Node Exporter cluster-node-02"
+        "Node Exporter cluster-node-03"
+        "Node Exporter cluster-node-04"
+        "Node Exporter cluster-node-05"
+      ]
+      availabilityTargets.direct.clusterNodeMetrics)
+    ++ (mkNamedPortMonitors [
+        "Cluster API"
+        "SSH cluster-node-01"
+        "SSH cluster-node-02"
+        "SSH cluster-node-03"
+        "SSH cluster-node-04"
+        "SSH cluster-node-05"
+      ] [
+        {
+          host = availabilityTargets.routed.clusterApi;
+          port = 6443;
+        }
+        {
+          host = "cluster-node-01.${config.lab.domain}";
+          port = 22;
+        }
+        {
+          host = "cluster-node-02.${config.lab.domain}";
+          port = 22;
+        }
+        {
+          host = "cluster-node-03.${config.lab.domain}";
+          port = 22;
+        }
+        {
+          host = "cluster-node-04.${config.lab.domain}";
+          port = 22;
+        }
+        {
+          host = "cluster-node-05.${config.lab.domain}";
+          port = 22;
+        }
+      ])
     ++ (mkNamedHttpMonitors [
         "Promtail pi-node-a"
         "Promtail pi-node-b"
@@ -2293,7 +2343,7 @@ in
       retentionTime = "30d";
 
       scrape = {
-        nodeTargets = monitoringTargets.node;
+        nodeTargets = monitoringTargets.node ++ monitoringTargets.clusterNode;
         synologyNodeTargets = [
           "nas-host.${config.lab.domain}:9100"
         ];

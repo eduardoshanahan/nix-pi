@@ -28,6 +28,21 @@ The host adds:
 On restart, the host syncs the declarative monitor set into the SQLite database
 used by the deployed Uptime Kuma instance.
 
+## Cluster Observability Phase 1 Coverage
+
+The declarative monitor set now also includes the Phase 1 Raspberry Pi cluster
+checks:
+
+- port monitor for `cluster-api.<lab-domain>:6443`
+- port monitors for SSH on `cluster-node-01` through `cluster-node-05`
+- HTTP monitors for `node_exporter` on
+  `cluster-node-01-metrics.<lab-domain>:9100` through
+  `cluster-node-05-metrics.<lab-domain>:9100`
+
+These follow the same default sync behavior as other host-managed port and HTTP
+monitors. There are no cluster-specific exceptions in the sync logic at this
+time.
+
 ## Default Monitor Behavior
 
 For host-managed HTTP monitors, current sync behavior is:
