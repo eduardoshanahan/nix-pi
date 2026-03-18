@@ -28,6 +28,9 @@ to the right document.
 - `UPTIME_KUMA_MONITOR_POLICY.md`
   - canonical host-owned policy and exceptions for declarative Uptime Kuma
     monitors on `pi-node-b`
+- `OPERATIONS_CHECKS_AND_SERVICE_NOTES.md`
+  - operator quick checks and deployed-service notes that are too detailed for
+    the top-level repo README
 
 ## Situational Notes And Plans
 
