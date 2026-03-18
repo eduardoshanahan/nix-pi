@@ -53,12 +53,22 @@ For the ownership baseline and contradiction register, see:
 
 - `nix-services/documentation_unification_block_1.md`
 
+Current host-runtime divergence register:
+
+- `docs/HOST_RUNTIME_DIVERGENCES.md`
+
+Current host-owned Uptime Kuma monitor policy:
+
+- `docs/UPTIME_KUMA_MONITOR_POLICY.md`
+
 ## Table of Contents
 
 - Getting started: `docs/SETUP.md`
 - Provisioning (build, flash, first boot): `docs/PROVISIONING.md`
 - Secrets (sops-nix): `docs/SECRETS.md`
 - Remote builds and signing: `docs/REMOTE_BUILDS.md`
+- Host runtime divergences: `docs/HOST_RUNTIME_DIVERGENCES.md`
+- Uptime Kuma monitor policy: `docs/UPTIME_KUMA_MONITOR_POLICY.md`
 - Private overrides (gitignored): `nixos/hosts/private/README.md`
 - Local runbook (gitignored): `private/PROVISIONING_LOCAL.md`
 - NixOS config layout:
@@ -137,6 +147,9 @@ For bootstrap, expansion, and key rotation details, see `docs/REMOTE_BUILDS.md`.
 
 - This README owns host-specific runtime checks and operator quick commands for the currently deployed environment.
 - Service-side monitoring architecture, module contracts, and constraints are canonical in `nix-services/monitoring_and_metrics_plan_prometheus_traefik.md` and `nix-services/services/*/README.md`.
+- Host-managed monitor inventory and exceptions for `pi-node-b` are canonical in:
+  - `docs/UPTIME_KUMA_MONITOR_POLICY.md`
+  - `docs/HOST_RUNTIME_DIVERGENCES.md`
 
 ## Known Good Checks (Loki + Promtail + Node Exporter)
 
