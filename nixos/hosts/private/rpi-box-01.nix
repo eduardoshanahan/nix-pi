@@ -5,6 +5,8 @@
     inputs.nix-services.services.pihole
     inputs.nix-services.services.piholeSync
     inputs.nix-services.services.piholeExporter
+    inputs.nix-services.services.dozzleCompose
+    inputs.nix-services.services.d2Compose
     inputs.nix-services.services.excalidraw
     inputs.nix-services.services.traggoCompose
     inputs.nix-services.services.cadvisor
@@ -135,6 +137,25 @@
       username = "eduardo";
       passwordFile = config.sops.secrets.traggo-admin-password.path;
     };
+  };
+
+  services.dozzleCompose = {
+    enable = true;
+    hostname = "dozzle.${config.lab.domain}";
+    tls = true;
+    dataDir = "/var/lib/dozzle";
+    remoteHosts = [
+      "tcp://pi-node-c.${config.lab.domain}:2375|pi-node-c"
+      "tcp://nas-host.${config.lab.domain}:2375|nas-host"
+    ];
+  };
+
+  services.d2Compose = {
+    enable = true;
+    hostname = "d2.${config.lab.domain}";
+    tls = true;
+    dataDir = "/var/lib/d2";
+    auth.username = "eduardo";
   };
 
   services.promtailCompose = {

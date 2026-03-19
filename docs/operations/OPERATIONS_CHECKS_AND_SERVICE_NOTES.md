@@ -58,25 +58,25 @@ ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-a "systemctl status excalidraw-
 ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-a "journalctl -u excalidraw-healthcheck -n 50 --no-pager"
 ```
 
-## D2 Workspace (`pi-node-b`)
+## D2 Workspace (`pi-node-a`)
 
 - URL: `https://d2.<lab-domain>/`
-- Persistent data path: `/srv/d2`
+- Persistent data path: `/var/lib/d2`
 - Generated auth password path (first start, when no external password file is set):
-  `/srv/d2/auth/admin-password`
+  `/var/lib/d2/auth/admin-password`
 
 ### D2 quick checks
 
 ```bash
-ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "systemctl is-active d2; sudo systemctl --no-pager --lines=40 status d2"
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-a "systemctl is-active d2; sudo systemctl --no-pager --lines=40 status d2"
 
-ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "docker ps --filter name=d2 --format 'table {{.Names}}\t{{.Status}}\t{{.Image}}'"
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-a "docker ps --filter name=d2 --format 'table {{.Names}}\t{{.Status}}\t{{.Image}}'"
 
-ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "sudo cat /srv/d2/auth/admin-password"
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-a "sudo cat /var/lib/d2/auth/admin-password"
 
-ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "curl -sSI -H 'Host: <d2-fqdn>' http://127.0.0.1/ | sed -n '1,8p'"
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-a "curl -sSI -H 'Host: <d2-fqdn>' http://127.0.0.1/ | sed -n '1,8p'"
 
-ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "curl -skI https://<d2-fqdn>/ | sed -n '1,12p'"
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-a "curl -skI https://<d2-fqdn>/ | sed -n '1,12p'"
 ```
 
 ## OwnTracks Recorder (`pi-node-b`)

@@ -1339,18 +1339,6 @@ in
       };
     };
 
-    services.dozzleCompose = {
-      enable = true;
-      hostname = "dozzle.${config.lab.domain}";
-      tls = true;
-      dataDir = "/srv/dozzle";
-      remoteHosts = [
-        "tcp://pi-node-a.${config.lab.domain}:2375|pi-node-a"
-        "tcp://pi-node-c.${config.lab.domain}:2375|pi-node-c"
-        "tcp://nas-host.${config.lab.domain}:2375|nas-host"
-      ];
-    };
-
     services.uptimeKuma = {
       enable = true;
       hostname = "kuma.${config.lab.domain}";
@@ -1717,7 +1705,7 @@ in
                 "D2" = {
                   href = availabilityTargets.routed.d2;
                   description = "Diagram-as-code workspace";
-                  server = "local";
+                  server = "pi-node-a";
                   container = "d2";
                 };
               }
@@ -1857,7 +1845,7 @@ in
                 "Dozzle" = {
                   href = availabilityTargets.routed.dozzle;
                   description = "Docker logs viewer";
-                  server = "local";
+                  server = "pi-node-a";
                   container = "dozzle";
                 };
               }
@@ -2627,17 +2615,7 @@ in
             };
           };
         })
-        (lib.recursiveUpdate
-          (lib.optionalAttrs hasD2Module {
-            services.d2Compose = {
-              enable = true;
-              hostname = "d2.${config.lab.domain}";
-              tls = true;
-              dataDir = "/srv/d2";
-              auth.username = "eduardo";
-            };
-          })
-          (lib.optionalAttrs hasProwlarrModule {
+        (lib.optionalAttrs hasProwlarrModule {
             services.prowlarrCompose = {
               enable = true;
               hostname = "prowlarr.${config.lab.domain}";
@@ -2664,7 +2642,7 @@ in
                 }
               ];
             };
-          })))
+          }))
       (lib.optionalAttrs hasPostgresExporterModule {
         services.postgresExporterCompose = {
           enable = true;
