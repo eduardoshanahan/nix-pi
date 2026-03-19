@@ -259,3 +259,39 @@ Format
   expansion and key rotation.
 - References: scripts/bootstrap-nix-signing-key, docs/lifecycle/REMOTE_BUILDS.md,
   docs/lifecycle/SECRETS.md, docs/lifecycle/PROVISIONING.md, private/PROVISIONING_LOCAL.md
+
+- Date: 2026-03-19
+- Work: Added Pi-hole to `pi-node-c` and integrated it into host monitoring.
+- Details: Enabled Pi-hole, Pi-hole exporter, and pull-based Pi-hole sync on
+  `pi-node-c`, added the new admin/exporter inventory to the `pi-node-b`
+  monitoring surfaces, and verified a successful first sync pull from
+  `pi-node-a`.
+- References: nixos/hosts/private/pi-node-c.nix,
+  nixos/hosts/private/pi-node-b.nix,
+  docs/policy/UPTIME_KUMA_MONITOR_POLICY.md,
+  docs/operations/OPERATIONS_CHECKS_AND_SERVICE_NOTES.md
+
+- Date: 2026-03-19
+- Work: Migrated `pi-node-c` service state from the SD card to the external disk.
+- Details: Reworked the host so the external disk mounts at `/srv`, keeping
+  Docker on `/srv/docker` and moving Loki backups, Promtail state, and Pi-hole
+  sync state under `/srv/...`. The host rebooted successfully onto the new
+  storage layout and returned with the main services healthy.
+- References: nixos/hosts/private/pi-node-c.nix, README.md,
+  docs/operations/OPERATIONS_CHECKS_AND_SERVICE_NOTES.md
+
+- Date: 2026-03-19
+- Work: Removed stale SD-card Docker data and measured remaining SD usage.
+- Details: Confirmed Docker is actively using `/srv/docker`, removed the stale
+  `/var/lib/docker` copy from the SD card, and rechecked root usage after
+  cleanup. Remaining routine SD activity is now mainly `/nix/store`, journald,
+  and ordinary `/var` state.
+- References: nixos/modules/docker.nix, nixos/hosts/private/pi-node-c.nix
+
+- Date: 2026-03-19
+- Work: Investigated `/nix` migration on `pi-node-c` and deferred execution.
+- Details: Determined that moving `/nix` to the external disk is feasible but
+  too risky without console access because a bad `/nix` boot path could prevent
+  SSH from coming up. Deferred this migration until a direct recovery path is
+  available.
+- References: records/DECISIONS.md, records/SESSION_PROMPT.md

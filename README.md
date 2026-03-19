@@ -154,6 +154,16 @@ For bootstrap, expansion, and key rotation details, see `docs/lifecycle/REMOTE_B
 - Docker on `pi-node-b` is configured to use `/srv/docker` as its data root, so image/layer storage also lives on the USB flash drive.
 - Existing service docs in this README that reference `/srv/...` should be treated as following this policy, not as one-off exceptions.
 
+## `pi-node-c` Storage Policy
+
+- `pi-node-c` has two different storage classes:
+  - SD card root filesystem at `/`
+  - external disk mounted at `/srv`
+- Persistent service state on `pi-node-c` should be placed on the external-disk-backed `/srv` storage, not on the SD card.
+- Docker on `pi-node-c` is configured to use `/srv/docker` as its data root, so image/layer storage and named volumes should live on the external disk.
+- Loki state should live under `/srv/loki`, with backups under `/srv/backups/loki`.
+- Host-local sync and log-shipper state should also prefer `/srv/...` paths on this host when practical.
+
 ## Boundary Reminder
 
 - This README owns repo overview, host-lifecycle boundaries, and documentation

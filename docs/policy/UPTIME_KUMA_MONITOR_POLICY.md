@@ -29,6 +29,20 @@ Before Uptime Kuma starts, the host syncs the declarative monitor set into the
 SQLite database used by the deployed instance. This ensures newly added
 host-managed monitors are already present when Kuma loads its scheduler state.
 
+The current Pi-hole monitor inventory includes:
+
+- `Pi-hole Admin Primary`
+- `Pi-hole Admin Secondary`
+- `Pi-hole Admin Tertiary`
+- `Pi-hole Exporter pi-node-a`
+- `Pi-hole Exporter pi-node-b`
+- `Pi-hole Exporter pi-node-c`
+
+`Pi-hole Admin Tertiary` monitors the additional Pi-hole instance on
+`pi-node-c`. `pi-node-c` also uses scheduled `pihole-sync` pulls from
+`pi-node-a`, but it remains an additional synced resolver rather than changing
+the existing primary/secondary operational labels used for boxes 1 and 2.
+
 ## Cluster Observability Phase 1 Coverage
 
 The declarative monitor set now also includes the Phase 1 Raspberry Pi cluster

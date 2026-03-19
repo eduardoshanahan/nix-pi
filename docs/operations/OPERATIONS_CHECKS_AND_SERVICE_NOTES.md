@@ -7,6 +7,17 @@ Use `README.md` for repo boundaries and navigation.
 Use this file for operator-facing runtime checks and current deployed-state
 notes.
 
+## `pi-node-c` Storage Notes
+
+- External disk is intended to be mounted at `/srv` on `pi-node-c`.
+- Docker data root should be `/srv/docker`, not SD-card-backed root storage.
+- Loki persistent state should be under `/srv/loki/data`.
+- Loki backups should be under `/srv/backups/loki`.
+- Promtail state should be under `/srv/promtail`.
+- Pi-hole sync state/backups should be under:
+  - `/srv/pihole-sync`
+  - `/srv/backups/pihole-sync`
+
 ## Known Good Checks (Loki + Promtail + Node Exporter)
 
 ```bash
@@ -245,7 +256,11 @@ On SQLite deployments, `uptime-kuma` syncs and prunes tagged host-managed
 monitors in the SQLite database during startup before the container is started.
 
 - `pihole01`
-- `Pi-hole Admin`
+- `pihole02`
+- `pihole03`
+- `Pi-hole Admin Primary`
+- `Pi-hole Admin Secondary`
+- `Pi-hole Admin Tertiary`
 - `diagrams.net`
 - `Excalidraw`
 - `Kuma Self`
@@ -257,6 +272,9 @@ monitors in the SQLite database during startup before the container is started.
 - `Node Exporter pi-node-a`
 - `Node Exporter pi-node-b`
 - `Node Exporter pi-node-c`
+- `Pi-hole Exporter pi-node-a`
+- `Pi-hole Exporter pi-node-b`
+- `Pi-hole Exporter pi-node-c`
 - `DNS Pi-hole`
 
 ### TLS note for internal services

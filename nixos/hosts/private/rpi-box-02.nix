@@ -249,6 +249,7 @@
     piholeExporter = map (host: "${metricsHost host}:9617") [
       "pi-node-a"
       "pi-node-b"
+      "pi-node-c"
     ];
     cadvisor = map (host: "${metricsHost host}:8081") [
       "pi-node-a"
@@ -284,6 +285,7 @@
     routed = {
       piholePrimary = "https://pihole01.${config.lab.domain}/admin/";
       piholeSecondary = "https://pihole02.${config.lab.domain}/admin/";
+      piholeTertiary = "https://pihole03.${config.lab.domain}/admin/";
       diagramsNet = "https://diagramsnet.${config.lab.domain}/";
       excalidraw = "https://excalidraw.${config.lab.domain}/";
       fossflow = "https://fossflow.${config.lab.domain}/";
@@ -344,6 +346,7 @@
     [
       (mkHttpMonitor "Pi-hole Admin Primary" availabilityTargets.routed.piholePrimary)
       (mkHttpMonitor "Pi-hole Admin Secondary" availabilityTargets.routed.piholeSecondary)
+      (mkHttpMonitor "Pi-hole Admin Tertiary" availabilityTargets.routed.piholeTertiary)
       (mkHttpMonitor "diagrams.net" availabilityTargets.routed.diagramsNet)
       (mkHttpMonitor "Excalidraw" availabilityTargets.routed.excalidraw)
       (mkHttpMonitor "FossFLOW" availabilityTargets.routed.fossflow)
@@ -468,6 +471,7 @@
     ++ (mkNamedHttpMonitors [
         "Pi-hole Exporter pi-node-a"
         "Pi-hole Exporter pi-node-b"
+        "Pi-hole Exporter pi-node-c"
       ]
       availabilityTargets.direct.piholeExporterMetrics)
     ++ (mkNamedHttpMonitors [
@@ -1617,6 +1621,14 @@ in
                   container = "pihole";
                 };
               }
+              {
+                "Pi-hole Tertiary" = {
+                  href = availabilityTargets.routed.piholeTertiary;
+                  description = "Third DNS admin";
+                  server = "pi-node-c";
+                  container = "pihole";
+                };
+              }
             ];
           }
           {
@@ -1933,6 +1945,73 @@ in
                   href = "http://pi-node-a.${config.lab.domain}:2375/_ping";
                   description = "Read-only Docker API proxy";
                   server = "pi-node-a";
+                  container = "docker-socket-proxy";
+                };
+              }
+            ];
+          }
+          {
+            "pi-node-c" = [
+              {
+                "Pi-hole Tertiary" = {
+                  href = availabilityTargets.routed.piholeTertiary;
+                  description = "Third DNS admin (not part of pihole-sync)";
+                  server = "pi-node-c";
+                  container = "pihole";
+                };
+              }
+              {
+                "Loki" = {
+                  href = availabilityTargets.direct.lokiReady;
+                  description = "Log storage readiness";
+                  server = "pi-node-c";
+                  container = "loki";
+                };
+              }
+              {
+                "cAdvisor (box 3)" = {
+                  href = "http://${metricsHost "pi-node-c"}:8081/metrics";
+                  description = "Container metrics endpoint";
+                  server = "pi-node-c";
+                  container = "cadvisor";
+                };
+              }
+              {
+                "Promtail (box 3)" = {
+                  href = "http://${metricsHost "pi-node-c"}:9080/ready";
+                  description = "Log shipper readiness";
+                  server = "pi-node-c";
+                  container = "promtail";
+                };
+              }
+              {
+                "Traefik (box 3)" = {
+                  href = "http://${metricsHost "pi-node-c"}:8082/metrics";
+                  description = "Ingress metrics endpoint";
+                  server = "pi-node-c";
+                  container = "traefik";
+                };
+              }
+              {
+                "Pi-hole Exporter (box 3)" = {
+                  href = "http://${metricsHost "pi-node-c"}:9617/metrics";
+                  description = "Pi-hole exporter metrics";
+                  server = "pi-node-c";
+                  container = "pihole-exporter";
+                };
+              }
+              {
+                "Node Exporter (box 3)" = {
+                  href = "http://${metricsHost "pi-node-c"}:9100/metrics";
+                  description = "Host metrics endpoint";
+                  server = "pi-node-c";
+                };
+              }
+              {
+                "Docker Socket Proxy (box 3)" = {
+                  href = "http://pi-node-c.${config.lab.domain}:2375/_ping";
+                  description = "Read-only Docker API proxy";
+                  server = "pi-node-c";
                   container = "docker-socket-proxy";
                 };
               }

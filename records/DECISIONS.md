@@ -220,3 +220,29 @@ Format
 - Status: active
 - References: scripts/bootstrap-nix-signing-key, docs/lifecycle/SECRETS.md,
   docs/lifecycle/PROVISIONING.md, docs/lifecycle/REMOTE_BUILDS.md
+
+- Date: 2026-03-19
+- Decision: Keep `pi-node-c` on an external-disk-backed `/srv` layout while
+  deferring `/nix` migration.
+- Context: The goal was to reduce SD-card wear on `pi-node-c` without taking a
+  remote-only boot risk that could lock out SSH access.
+- Rationale: Moving Docker and service state to `/srv` captures most of the
+  wear-reduction benefit with acceptable risk. Moving `/nix` would reduce SD
+  usage further, but it can fail before SSH is available, so it should wait
+  until a console recovery path exists.
+- Status: active
+- References: nixos/hosts/private/pi-node-c.nix, README.md,
+  docs/operations/OPERATIONS_CHECKS_AND_SERVICE_NOTES.md
+
+- Date: 2026-03-19
+- Decision: Treat `pi-node-c` as an additional synced Pi-hole resolver rather
+  than renaming the existing primary/secondary roles immediately.
+- Context: `pi-node-c` now runs Pi-hole full time and pulls configuration from
+  `pi-node-a`, but the current monitor and operator labels still refer to
+  boxes 1 and 2 as primary/secondary.
+- Rationale: This keeps the current operational vocabulary stable while adding
+  a third synced resolver. A full role renumbering can be done later if the lab
+  DNS preference is intentionally shifted toward `pi-node-c`.
+- Status: active
+- References: nixos/hosts/private/pi-node-b.nix,
+  docs/policy/UPTIME_KUMA_MONITOR_POLICY.md
