@@ -819,6 +819,7 @@ in
         inputs.nix-services.services.timeTaggerCompose
         inputs.nix-services.services.traggoCompose
         inputs.nix-services.services.promtail
+        inputs.nix-services.services.dockerSocketProxyCompose
         inputs.nix-services.services.snmpExporter
         inputs.nix-services.services.unpoller
       ]
@@ -2441,6 +2442,17 @@ in
       enable = true;
       dataDir = "/srv/promtail";
       lokiPushUrl = "http://loki.internal.example:3100/loki/api/v1/push";
+    };
+
+    services.dockerSocketProxyCompose = {
+      enable = true;
+      listenAddress = "192.0.2.10";
+      listenPort = 2375;
+      socketPath = "/var/run/docker.sock";
+      image = {
+        tag = "latest";
+        allowMutableTag = true;
+      };
     };
 
     services.snmpExporterCompose = {
