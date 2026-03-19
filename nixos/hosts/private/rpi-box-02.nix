@@ -844,6 +844,7 @@ in
     networking.nameservers = lib.mkForce [
       "192.0.2.10"
       "192.0.2.10"
+      "192.0.2.10"
     ];
 
     boot.supportedFilesystems = ["nfs"];
@@ -1232,7 +1233,7 @@ in
       enable = true;
 
       source = {
-        host = "pi-node-a";
+        host = "pi-node-c";
         user = "eduardo";
       };
 
@@ -1955,7 +1956,7 @@ in
               {
                 "Pi-hole Tertiary" = {
                   href = availabilityTargets.routed.piholeTertiary;
-                  description = "Third DNS admin (not part of pihole-sync)";
+                  description = "Third DNS admin and sync source";
                   server = "pi-node-c";
                   container = "pihole";
                 };

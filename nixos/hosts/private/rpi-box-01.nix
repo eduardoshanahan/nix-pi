@@ -3,6 +3,7 @@
   imports = [
     inputs.nix-services.services.traefik
     inputs.nix-services.services.pihole
+    inputs.nix-services.services.piholeSync
     inputs.nix-services.services.piholeExporter
     inputs.nix-services.services.cadvisor
     inputs.nix-services.services.promtail
@@ -22,9 +23,10 @@
 
   networking.defaultGateway = "192.0.2.10";
   # Use internal DNS only so split-horizon zones (for example
-  # *.internal.example) always resolve correctly. Keep peer first so this host
-  # can still resolve while local Pi-hole restarts.
+  # *.internal.example) always resolve correctly. Prefer pi-node-c now that it
+  # is the sync source, while keeping the other Pi-hole nodes as fallbacks.
   networking.nameservers = lib.mkForce [
+    "192.0.2.10"
     "192.0.2.10"
     "192.0.2.10"
   ];
@@ -74,6 +76,16 @@
     mode = "0400";
   };
 
+  sops.secrets.pihole-sync-ssh-key = {
+    sopsFile = ../../../secrets/secrets.yaml;
+    format = "yaml";
+    key = "pihole-sync-ssh-key";
+    path = "/run/secrets/pihole-sync-ssh-key";
+    owner = "root";
+    group = "root";
+    mode = "0400";
+  };
+
   services.traefik.tls = {
     enable = true;
     certFile = config.sops.secrets.traefik-tls-crt.path;
@@ -105,6 +117,20 @@
       protocol = "http";
       passwordFile = config.sops.secrets.pihole-web-password.path;
     };
+  };
+
+  services.piholeSync = {
+    enable = true;
+
+    source = {
+      host = "pi-node-c";
+      user = "eduardo";
+    };
+
+    ssh.identityFile = config.sops.secrets.pihole-sync-ssh-key.path;
+
+    schedule = "*-*-* 00,12:00:00";
+    randomizedDelaySec = "45m";
   };
 
   services.cadvisorCompose = {

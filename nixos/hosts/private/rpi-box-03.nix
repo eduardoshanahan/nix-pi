@@ -3,7 +3,6 @@
   imports = [
     inputs.nix-services.services.traefik
     inputs.nix-services.services.pihole
-    inputs.nix-services.services.piholeSync
     inputs.nix-services.services.piholeExporter
     inputs.nix-services.services.loki
     inputs.nix-services.services.cadvisor
@@ -16,6 +15,7 @@
     "pi-node-b:Tn8hXVRqRBvg1734Z/0xcpiRGJocvYC3rqogAGMRQL8="
   ];
   networking.nameservers = lib.mkForce [
+    "192.0.2.10"
     "192.0.2.10"
     "192.0.2.10"
   ];
@@ -56,16 +56,6 @@
     mode = "0400";
   };
 
-  sops.secrets.pihole-sync-ssh-key = {
-    sopsFile = ../../../secrets/secrets.yaml;
-    format = "yaml";
-    key = "pihole-sync-ssh-key";
-    path = "/run/secrets/pihole-sync-ssh-key";
-    owner = "root";
-    group = "root";
-    mode = "0400";
-  };
-
   services.traefik.tls = {
     enable = true;
     certFile = config.sops.secrets.traefik-tls-crt.path;
@@ -92,22 +82,6 @@
       protocol = "http";
       passwordFile = config.sops.secrets.pihole-web-password.path;
     };
-  };
-
-  services.piholeSync = {
-    enable = true;
-
-    source = {
-      host = "pi-node-a";
-      user = "eduardo";
-    };
-
-    ssh.identityFile = config.sops.secrets.pihole-sync-ssh-key.path;
-
-    schedule = "*-*-* 00,12:00:00";
-    randomizedDelaySec = "30m";
-    stateDir = "/srv/pihole-sync";
-    backup.directory = "/srv/backups/pihole-sync";
   };
 
   services.lokiCompose = {

@@ -39,9 +39,9 @@ The current Pi-hole monitor inventory includes:
 - `Pi-hole Exporter pi-node-c`
 
 `Pi-hole Admin Tertiary` monitors the additional Pi-hole instance on
-`pi-node-c`. `pi-node-c` also uses scheduled `pihole-sync` pulls from
-`pi-node-a`, but it remains an additional synced resolver rather than changing
-the existing primary/secondary operational labels used for boxes 1 and 2.
+`pi-node-c`. `pi-node-c` is now the scheduled `pihole-sync` source for
+`pi-node-a` and `pi-node-b`, but the existing primary/secondary operational
+labels used for boxes 1 and 2 are intentionally unchanged for now.
 
 ## Cluster Observability Phase 1 Coverage
 
