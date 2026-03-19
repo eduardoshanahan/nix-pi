@@ -5,6 +5,8 @@
     inputs.nix-services.services.pihole
     inputs.nix-services.services.piholeSync
     inputs.nix-services.services.piholeExporter
+    inputs.nix-services.services.fossflowCompose
+    inputs.nix-services.services.timeTaggerCompose
     inputs.nix-services.services.dozzleCompose
     inputs.nix-services.services.d2Compose
     inputs.nix-services.services.excalidraw
@@ -139,12 +141,32 @@
     };
   };
 
+  services.fossflowCompose = {
+    enable = true;
+    hostname = "fossflow.${config.lab.domain}";
+    tls = true;
+    dataDir = "/var/lib/fossflow";
+  };
+
+  services.timeTaggerCompose = {
+    enable = true;
+    hostname = "timetagger.${config.lab.domain}";
+    tls = true;
+    dataDir = "/var/lib/timetagger";
+    credentials = "eduardo:$2b$12$VjK7w0lS.IfPf8GpnhfzPOUaCLBZRnXb/D0z9NYjnvUvBffv2Zobe";
+    image = {
+      tag = "latest";
+      allowMutableTag = true;
+    };
+  };
+
   services.dozzleCompose = {
     enable = true;
     hostname = "dozzle.${config.lab.domain}";
     tls = true;
     dataDir = "/var/lib/dozzle";
     remoteHosts = [
+      "tcp://pi-node-b.${config.lab.domain}:2375|pi-node-b"
       "tcp://pi-node-c.${config.lab.domain}:2375|pi-node-c"
       "tcp://nas-host.${config.lab.domain}:2375|nas-host"
     ];

@@ -1249,13 +1249,6 @@ in
       tls = true;
     };
 
-    services.fossflowCompose = {
-      enable = true;
-      hostname = "fossflow.${config.lab.domain}";
-      tls = true;
-      dataDir = "/srv/fossflow";
-    };
-
     services.searxngCompose = {
       enable = true;
       hostname = "searxng.${config.lab.domain}";
@@ -1295,18 +1288,6 @@ in
       bootstrap = {
         email = "contact@primary.example";
         passwordFile = config.sops.secrets.authentik-bootstrap-password.path;
-      };
-    };
-
-    services.timeTaggerCompose = {
-      enable = true;
-      hostname = "timetagger.${config.lab.domain}";
-      tls = true;
-      dataDir = "/srv/timetagger";
-      credentials = "eduardo:$2b$12$VjK7w0lS.IfPf8GpnhfzPOUaCLBZRnXb/D0z9NYjnvUvBffv2Zobe";
-      image = {
-        tag = "latest";
-        allowMutableTag = true;
       };
     };
 
@@ -1670,22 +1651,6 @@ in
                 };
               }
               {
-                "Excalidraw" = {
-                  href = availabilityTargets.routed.excalidraw;
-                  description = "Whiteboard";
-                  server = "pi-node-a";
-                  container = "excalidraw";
-                };
-              }
-              {
-                "FossFLOW" = {
-                  href = availabilityTargets.routed.fossflow;
-                  description = "Isometric diagram editor";
-                  server = "local";
-                  container = "fossflow";
-                };
-              }
-              {
                 "SearXNG" = {
                   href = availabilityTargets.routed.searxng;
                   description = "Private metasearch";
@@ -1699,14 +1664,6 @@ in
                   description = "Tasks";
                   server = "local";
                   container = "vikunja";
-                };
-              }
-              {
-                "D2" = {
-                  href = availabilityTargets.routed.d2;
-                  description = "Diagram-as-code workspace";
-                  server = "pi-node-a";
-                  container = "d2";
                 };
               }
               {
@@ -1826,30 +1783,6 @@ in
                 };
               }
               {
-                "TimeTagger" = {
-                  href = availabilityTargets.routed.timeTagger;
-                  description = "Time tracking";
-                  server = "local";
-                  container = "timetagger";
-                };
-              }
-              {
-                "Traggo" = {
-                  href = availabilityTargets.routed.traggo;
-                  description = "Task and time management";
-                  server = "pi-node-a";
-                  container = "traggo";
-                };
-              }
-              {
-                "Dozzle" = {
-                  href = availabilityTargets.routed.dozzle;
-                  description = "Docker logs viewer";
-                  server = "pi-node-a";
-                  container = "dozzle";
-                };
-              }
-              {
                 "Woodpecker" = {
                   href = availabilityTargets.routed.woodpecker;
                   description = "CI server and runner control plane";
@@ -1867,6 +1800,54 @@ in
                   description = "Primary DNS admin (health in Uptime Kuma)";
                   server = "pi-node-a";
                   container = "pihole";
+                };
+              }
+              {
+                "Excalidraw" = {
+                  href = availabilityTargets.routed.excalidraw;
+                  description = "Whiteboard";
+                  server = "pi-node-a";
+                  container = "excalidraw";
+                };
+              }
+              {
+                "FossFLOW" = {
+                  href = availabilityTargets.routed.fossflow;
+                  description = "Isometric diagram editor";
+                  server = "pi-node-a";
+                  container = "fossflow";
+                };
+              }
+              {
+                "D2" = {
+                  href = availabilityTargets.routed.d2;
+                  description = "Diagram-as-code workspace";
+                  server = "pi-node-a";
+                  container = "d2";
+                };
+              }
+              {
+                "TimeTagger" = {
+                  href = availabilityTargets.routed.timeTagger;
+                  description = "Time tracking";
+                  server = "pi-node-a";
+                  container = "timetagger";
+                };
+              }
+              {
+                "Traggo" = {
+                  href = availabilityTargets.routed.traggo;
+                  description = "Task and time management";
+                  server = "pi-node-a";
+                  container = "traggo";
+                };
+              }
+              {
+                "Dozzle" = {
+                  href = availabilityTargets.routed.dozzle;
+                  description = "Docker logs viewer";
+                  server = "pi-node-a";
+                  container = "dozzle";
                 };
               }
               {
