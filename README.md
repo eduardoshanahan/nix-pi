@@ -14,7 +14,7 @@ SSH public keys, domains, IPs) live in gitignored private overrides.
 
 Before commit/push, run the sanitization checklist in:
 
-`PUBLIC_REPO_SANITIZATION_POLICY.md`
+`docs/policy/PUBLIC_REPO_SANITIZATION_POLICY.md`
 
 ## Housekeeping Reminder
 
@@ -51,31 +51,35 @@ Current-state rule:
 
 For the ownership baseline and contradiction register, see:
 
-- `nix-services/documentation_unification_block_1.md`
+- `../nix-services/records/documentation_unification_block_1.md`
 
 Documentation sync gate for future changes:
 
-- `../nix-services/DOC_SYNC_CHECKLIST.md`
+- `../nix-services/docs/policy/DOC_SYNC_CHECKLIST.md`
 
 Current host-runtime divergence register:
 
-- `docs/HOST_RUNTIME_DIVERGENCES.md`
+- `docs/policy/HOST_RUNTIME_DIVERGENCES.md`
 
 Current host-owned Uptime Kuma monitor policy:
 
-- `docs/UPTIME_KUMA_MONITOR_POLICY.md`
+- `docs/policy/UPTIME_KUMA_MONITOR_POLICY.md`
 
 ## Documentation Index
 
-- Docs index: `docs/README.md`
-- Getting started: `docs/SETUP.md`
-- Provisioning (build, flash, first boot): `docs/PROVISIONING.md`
-- Secrets (sops-nix): `docs/SECRETS.md`
-- Remote builds and signing: `docs/REMOTE_BUILDS.md`
-- Host runtime divergences: `docs/HOST_RUNTIME_DIVERGENCES.md`
-- Uptime Kuma monitor policy: `docs/UPTIME_KUMA_MONITOR_POLICY.md`
-- Operations checks and service notes: `docs/OPERATIONS_CHECKS_AND_SERVICE_NOTES.md`
-- Documentation sync checklist: `../nix-services/DOC_SYNC_CHECKLIST.md`
+- Documentation index: `DOCUMENTATION_INDEX.md`
+- Docs layout: `docs/README.md`
+- Getting started: `docs/lifecycle/SETUP.md`
+- Provisioning (build, flash, first boot): `docs/lifecycle/PROVISIONING.md`
+- Secrets (sops-nix): `docs/lifecycle/SECRETS.md`
+- Remote builds and signing: `docs/lifecycle/REMOTE_BUILDS.md`
+- Host runtime divergences: `docs/policy/HOST_RUNTIME_DIVERGENCES.md`
+- Uptime Kuma monitor policy: `docs/policy/UPTIME_KUMA_MONITOR_POLICY.md`
+- Operations checks and service notes: `docs/operations/OPERATIONS_CHECKS_AND_SERVICE_NOTES.md`
+- Plans and audits: `docs/plans/`
+- Recovery docs: `docs/recovery/`
+- Continuity notes: `docs/continuity/`
+- Documentation sync checklist: `../nix-services/docs/policy/DOC_SYNC_CHECKLIST.md`
 - Private overrides (gitignored): `nixos/hosts/private/README.md`
 - Local runbook (gitignored): `private/PROVISIONING_LOCAL.md`
 - NixOS config layout:
@@ -137,7 +141,7 @@ Remote build note:
 - In the current setup, `pi-node-b` signs with `/etc/nix/pi-node-b-priv.pem`, and `pi-node-c` trusts `pi-node-b:Tn8hXVRqRBvg1734Z/0xcpiRGJocvYC3rqogAGMRQL8=`.
 - If the builder signing key changes or `pi-node-c` is rebuilt from scratch, re-establish target trust before using `--build-host eduardo@pi-node-b` again.
 
-For bootstrap, expansion, and key rotation details, see `docs/REMOTE_BUILDS.md`.
+For bootstrap, expansion, and key rotation details, see `docs/lifecycle/REMOTE_BUILDS.md`.
 
 ## `pi-node-b` Storage Policy
 
@@ -159,14 +163,14 @@ For bootstrap, expansion, and key rotation details, see `docs/REMOTE_BUILDS.md`.
   and `nix-services/services/*/README.md`.
 - Host-managed monitor inventory and exceptions for `pi-node-b` are canonical
   in:
-  - `docs/UPTIME_KUMA_MONITOR_POLICY.md`
-  - `docs/HOST_RUNTIME_DIVERGENCES.md`
+  - `docs/policy/UPTIME_KUMA_MONITOR_POLICY.md`
+  - `docs/policy/HOST_RUNTIME_DIVERGENCES.md`
 - Local documentation index for this repo:
-  - `docs/README.md`
+  - `DOCUMENTATION_INDEX.md`
 
 ## Operations Docs
 
 - Host-specific operator quick checks and deployed-service notes live in:
-  - `docs/OPERATIONS_CHECKS_AND_SERVICE_NOTES.md`
+  - `docs/operations/OPERATIONS_CHECKS_AND_SERVICE_NOTES.md`
 - Keep this README focused on repo boundaries, navigation, and canonical
   documentation ownership.

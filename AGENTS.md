@@ -18,21 +18,22 @@ This file is the working guide for agents operating inside `nix-pi/`.
 When working in `nix-pi`, read in this order:
 
 1. `README.md`
-2. `docs/README.md`
-3. the specific operator/policy doc for the task:
-   - `docs/SETUP.md`
-   - `docs/PROVISIONING.md`
-   - `docs/SECRETS.md`
-   - `docs/REMOTE_BUILDS.md`
-   - `docs/HOST_RUNTIME_DIVERGENCES.md`
-   - `docs/UPTIME_KUMA_MONITOR_POLICY.md`
-   - `docs/OPERATIONS_CHECKS_AND_SERVICE_NOTES.md`
-4. the relevant implementation files in:
+2. `DOCUMENTATION_INDEX.md`
+3. `docs/README.md`
+4. the specific operator/policy doc for the task:
+   - `docs/lifecycle/SETUP.md`
+   - `docs/lifecycle/PROVISIONING.md`
+   - `docs/lifecycle/SECRETS.md`
+   - `docs/lifecycle/REMOTE_BUILDS.md`
+   - `docs/policy/HOST_RUNTIME_DIVERGENCES.md`
+   - `docs/policy/UPTIME_KUMA_MONITOR_POLICY.md`
+   - `docs/operations/OPERATIONS_CHECKS_AND_SERVICE_NOTES.md`
+5. the relevant implementation files in:
    - `flake.nix`
    - `nixos/modules/`
    - `nixos/profiles/`
    - `nixos/hosts/private/`
-5. `records/README.md` plus the relevant records files if session continuity matters
+6. `records/README.md` plus the relevant records files if session continuity matters
 
 If a pointer doc exists here and points to `nix-services`, follow the pointer instead of duplicating policy locally.
 
@@ -65,6 +66,7 @@ Rule: if the change is a reusable service behavior change, it probably belongs i
 - `nixos/hosts/private/`: real host modules and private overrides; treat these as live config
 - `scripts/`: operational helper scripts
 - `docs/`: canonical host-owned docs
+- `DOCUMENTATION_INDEX.md`: quick navigation index for repo-level docs
 - `records/`: long-lived project/session records
 - `secrets/`: SOPS-encrypted secret files safe to commit
 - `private/`: gitignored local runbooks, prompts, and execution notes
@@ -93,8 +95,8 @@ Rule: if the change is a reusable service behavior change, it probably belongs i
 - Generic SD image outputs are defined for `rpi4`, `rpi3`, and optional `rpi3-armv7l`.
 - Host outputs exist for `pi-node-a`, `pi-node-b`, and `pi-node-c`.
 - `pi-node-c` is normally rebuilt with `pi-node-b` as its remote builder and signer.
-- If a task touches remote builds, signing, or trust, also update `docs/REMOTE_BUILDS.md`.
-- If a task changes host provisioning or bootstrap expectations, also update `docs/PROVISIONING.md` and/or `docs/SECRETS.md`.
+- If a task touches remote builds, signing, or trust, also update `docs/lifecycle/REMOTE_BUILDS.md`.
+- If a task changes host provisioning or bootstrap expectations, also update `docs/lifecycle/PROVISIONING.md` and/or `docs/lifecycle/SECRETS.md`.
 
 ## Host-Specific Reality
 
@@ -126,13 +128,13 @@ When you change behavior, update the owning docs in the same change.
 Especially:
 
 - host runtime divergence changes:
-  update `docs/HOST_RUNTIME_DIVERGENCES.md`
+  update `docs/policy/HOST_RUNTIME_DIVERGENCES.md`
 - Uptime Kuma host-managed monitor changes:
-  update `docs/UPTIME_KUMA_MONITOR_POLICY.md`
+  update `docs/policy/UPTIME_KUMA_MONITOR_POLICY.md`
 - provisioning/bootstrap changes:
-  update `docs/PROVISIONING.md`, `docs/SECRETS.md`, or `docs/REMOTE_BUILDS.md`
+  update `docs/lifecycle/PROVISIONING.md`, `docs/lifecycle/SECRETS.md`, or `docs/lifecycle/REMOTE_BUILDS.md`
 - storage-policy changes on `pi-node-b`:
-  keep `README.md` and `docs/OPERATIONS_CHECKS_AND_SERVICE_NOTES.md` aligned
+  keep `README.md` and `docs/operations/OPERATIONS_CHECKS_AND_SERVICE_NOTES.md` aligned
 
 If a local doc is pointer-only, update the canonical file in `nix-services` instead.
 
@@ -184,7 +186,7 @@ Prefer appending new record entries over rewriting historical ones.
 - Need to enable or wire an existing shared service on one host:
   work in `nix-pi`.
 - Need to capture a one-host exception from shared behavior:
-  implement in `nix-pi` and document it in `docs/HOST_RUNTIME_DIVERGENCES.md`.
+  implement in `nix-pi` and document it in `docs/policy/HOST_RUNTIME_DIVERGENCES.md`.
 - Need to add a secret:
   add SOPS-encrypted source data plus host declaration pointing to `/run/secrets/...`.
 - Need to use local private values:

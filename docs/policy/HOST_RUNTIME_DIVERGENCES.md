@@ -57,7 +57,7 @@ Do not duplicate full service module contracts here. Those remain canonical in
   - monitor inventory is treated as host-managed declarative policy rather than
     UI-only state
 - Canonical monitor policy:
-  - `docs/UPTIME_KUMA_MONITOR_POLICY.md`
+  - `docs/policy/UPTIME_KUMA_MONITOR_POLICY.md`
 - Source of truth:
   - `nixos/hosts/private/pi-node-b.nix`
 
@@ -100,4 +100,4 @@ When a host runtime-affecting override is added, removed, or materially changed:
 2. Update the relevant service README in `nix-services` if operators should be
    warned that a host-specific divergence exists.
 3. If the change affects Uptime Kuma monitor behavior, also update
-   `docs/UPTIME_KUMA_MONITOR_POLICY.md`.
+   `docs/policy/UPTIME_KUMA_MONITOR_POLICY.md`.

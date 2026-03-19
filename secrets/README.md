@@ -11,4 +11,4 @@ Recommended layout:
 - `secrets/secrets.yaml`: shared secrets (optional)
 - `secrets/<hostname>.yaml`: host-specific secrets (optional)
 
-SOPS configuration lives at `.sops.yaml`. See `docs/SECRETS.md` for the workflow and examples.
+SOPS configuration lives at `.sops.yaml`. See `docs/lifecycle/SECRETS.md` for the workflow and examples.

@@ -26,7 +26,7 @@ root-level copies were removed after this summary was written.
   container-only names.
 - Current operational truth is now split across:
   - `nix-services/services/{seerr,radarr,sonarr,lidarr,prowlarr,lazylibrarian}/README.md`
-  - `nix-pi/docs/OPERATIONS_CHECKS_AND_SERVICE_NOTES.md`
+  - `nix-pi/docs/operations/OPERATIONS_CHECKS_AND_SERVICE_NOTES.md`
   - `synology-services/nas-host/{jellyfin,qbittorrent}/README.md`
 
 ### Storage and runtime layout
@@ -37,8 +37,8 @@ root-level copies were removed after this summary was written.
   `/srv/<service>` preferred for new or migrated services.
 - Canonical docs:
   - `nix-pi/README.md`
-  - `nix-pi/docs/OPERATIONS_CHECKS_AND_SERVICE_NOTES.md`
-  - `nix-pi/docs/STORAGE_DIRECTORY_AUDIT_AND_REMEDIATION_PLAN.md`
+  - `nix-pi/docs/operations/OPERATIONS_CHECKS_AND_SERVICE_NOTES.md`
+  - `nix-pi/docs/plans/STORAGE_DIRECTORY_AUDIT_AND_REMEDIATION_PLAN.md`
 
 ### Shared infra migrations and app follow-through
 
@@ -46,7 +46,7 @@ root-level copies were removed after this summary was written.
   infra usage, Home Assistant, Grafana, and Alertmanager email were all
   implemented and are no longer “next session” plans.
 - Canonical current-state docs:
-  - `nix-pi/docs/OPERATIONS_CHECKS_AND_SERVICE_NOTES.md`
+  - `nix-pi/docs/operations/OPERATIONS_CHECKS_AND_SERVICE_NOTES.md`
   - `nix-services/services/{smtp-relay,home-assistant,grafana,alertmanager}/README.md`
   - `synology-services/nas-host/{postgres,outline}/README.md`
 
@@ -56,8 +56,8 @@ root-level copies were removed after this summary was written.
   continuation and the documentation sync work completed afterward.
 - Canonical docs:
   - `nix-services/SERVICE_INVESTIGATION_CONTINUATION_2026-03-18.md`
-  - `nix-pi/docs/HOST_RUNTIME_DIVERGENCES.md`
-  - `nix-pi/docs/UPTIME_KUMA_MONITOR_POLICY.md`
+  - `nix-pi/docs/policy/HOST_RUNTIME_DIVERGENCES.md`
+  - `nix-pi/docs/policy/UPTIME_KUMA_MONITOR_POLICY.md`
   - `nix-services/DOC_SYNC_CHECKLIST.md`
 
 ### Woodpecker deployment shape
@@ -89,7 +89,7 @@ root-level copies were removed after this summary was written.
 - Replaced by:
   - service READMEs in `nix-services/services/*`
   - host runtime and validation notes in
-    `nix-pi/docs/OPERATIONS_CHECKS_AND_SERVICE_NOTES.md`
+    `nix-pi/docs/operations/OPERATIONS_CHECKS_AND_SERVICE_NOTES.md`
   - live host wiring in `nix-pi/nixos/hosts/private/pi-node-b.nix`
 
 ### Grafana handoffs and next-session prompts
@@ -101,7 +101,7 @@ root-level copies were removed after this summary was written.
 - Replaced by:
   - `nix-services/services/grafana/README.md`
   - current host/operator notes in
-    `nix-pi/docs/OPERATIONS_CHECKS_AND_SERVICE_NOTES.md`
+    `nix-pi/docs/operations/OPERATIONS_CHECKS_AND_SERVICE_NOTES.md`
 
 ### Migration and session handoffs from early March
 
@@ -113,7 +113,7 @@ root-level copies were removed after this summary was written.
   - `session_handover_2026-03-05_home_assistant.md`
   - `session_handover_2026-03-08_box2_data_dir_migration.md`
 - Replaced by:
-  - `nix-pi/docs/OPERATIONS_CHECKS_AND_SERVICE_NOTES.md`
+  - `nix-pi/docs/operations/OPERATIONS_CHECKS_AND_SERVICE_NOTES.md`
   - `synology-services/nas-host/DOCUMENTATION_INDEX.md`
   - service READMEs in `nix-services/services/*`
 

@@ -42,7 +42,7 @@ Format
 - Context: Need consistent setup on Ubuntu or NixOS and `nix develop` support.
 - Rationale: Flakes provide reproducible inputs and a clear onboarding path.
 - Status: active
-- References: flake.nix, docs/SETUP.md,
+- References: flake.nix, docs/lifecycle/SETUP.md,
   records/architecture-decisions/0001-use-nix-flakes.md
 
 - Date: 2026-01-20
@@ -53,7 +53,7 @@ Format
 - Rationale: Prevents leakage of credentials and private data while enabling
   open collaboration.
 - Status: active
-- References: docs/CONFIDENTIALITY.md, .gitignore
+- References: docs/policy/CONFIDENTIALITY.md, .gitignore
 
 - Date: 2026-01-20
 - Decision: Use `prek` with a secrets scan (gitleaks) as the first pre-commit
@@ -62,7 +62,7 @@ Format
 - Rationale: `prek` is a fast drop-in alternative and gitleaks is a standard
   secrets scanner.
 - Status: active
-- References: .pre-commit-config.yaml, flake.nix, docs/SETUP.md,
+- References: .pre-commit-config.yaml, flake.nix, docs/lifecycle/SETUP.md,
   records/architecture-decisions/0002-use-prek-and-gitleaks.md
 
 - Date: 2026-01-20
@@ -121,7 +121,7 @@ Format
 - Context: SSH access is required at first boot without embedding keys in the repo.
 - Rationale: Allows injecting public keys into the SD image without user home dirs.
 - Status: active
-- References: nixos/modules/ssh.nix, docs/PROVISIONING.md
+- References: nixos/modules/ssh.nix, docs/lifecycle/PROVISIONING.md
 
 - Date: 2026-01-22
 - Decision: Embed admin public key(s) into SD images via `lab.adminAuthorizedKeys`
@@ -131,7 +131,7 @@ Format
 - Rationale: Fully automated first-boot SSH access without post-flash SD mounting,
   while keeping keys and usernames out of Git.
 - Status: active
-- References: nixos/modules/options.nix, nixos/modules/ssh.nix, docs/PROVISIONING.md,
+- References: nixos/modules/options.nix, nixos/modules/ssh.nix, docs/lifecycle/PROVISIONING.md,
   nixos/hosts/private/README.md
 
 - Date: 2026-01-20
@@ -167,7 +167,7 @@ Format
   optional if hostnames can be configured later.
 - Rationale: Reduces build count while keeping architecture-specific images.
 - Status: active
-- References: docs/PROVISIONING.md
+- References: docs/lifecycle/PROVISIONING.md
 
 - Date: 2026-01-21
 - Decision: Build two generic SD images (RPi4 and RPi3) without hostnames.
@@ -176,7 +176,7 @@ Format
 - Rationale: One image per architecture is sufficient; hostnames can be set on
   first boot via `hostnamectl` and later automated if desired.
 - Status: active
-- References: flake.nix, docs/PROVISIONING.md
+- References: flake.nix, docs/lifecycle/PROVISIONING.md
 
 - Date: 2026-01-22
 - Decision: Run the Pi 3 on 64-bit NixOS (`aarch64-linux`) by default; keep armv7l
@@ -186,7 +186,7 @@ Format
 - Rationale: aarch64 builds have significantly better substitute coverage and are
   much faster on x86 hosts; Pi 3 hardware supports 64-bit.
 - Status: active
-- References: flake.nix, nixos/profiles/rpi3.nix, docs/PROVISIONING.md
+- References: flake.nix, nixos/profiles/rpi3.nix, docs/lifecycle/PROVISIONING.md
 
 - Date: 2026-02-22
 - Decision: Keep `sops-nix` and standardize a one-time per-host age-key bootstrap script.
@@ -195,7 +195,7 @@ Format
 - Rationale: This keeps the existing secrets architecture and makes the bootstrap
   precondition explicit, repeatable, and scriptable instead of ad-hoc.
 - Status: active
-- References: scripts/bootstrap-sops-age-key, docs/SECRETS.md, docs/PROVISIONING.md
+- References: scripts/bootstrap-sops-age-key, docs/lifecycle/SECRETS.md, docs/lifecycle/PROVISIONING.md
 
 - Date: 2026-03-03
 - Decision: Use `pi-node-b` as the remote builder and Nix signer for `pi-node-c`.
@@ -218,5 +218,5 @@ Format
   secrets while still making backup, restore, expansion, and rotation explicit
   and repeatable.
 - Status: active
-- References: scripts/bootstrap-nix-signing-key, docs/SECRETS.md,
-  docs/PROVISIONING.md, docs/REMOTE_BUILDS.md
+- References: scripts/bootstrap-nix-signing-key, docs/lifecycle/SECRETS.md,
+  docs/lifecycle/PROVISIONING.md, docs/lifecycle/REMOTE_BUILDS.md

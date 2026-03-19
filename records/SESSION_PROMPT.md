@@ -14,9 +14,9 @@ Last updated: 2026-01-22
 - ADRs live in `records/architecture-decisions/` (one file per decision).
 - ADR review cadence is set: per major change and at start of each working
   session.
-- Nix dev shell is defined via `flake.nix`; onboarding guide in `docs/SETUP.md`.
+- Nix dev shell is defined via `flake.nix`; onboarding guide in `docs/lifecycle/SETUP.md`.
 - Confidentiality guidance and Git hygiene defaults added; see
-  `docs/CONFIDENTIALITY.md`.
+  `docs/policy/CONFIDENTIALITY.md`.
 - `prek` is included for pre-commit checks with a gitleaks secrets scan.
 - Markdown linting added to pre-commit hooks via markdownlint-cli2.
 - Setup docs explain why `prek install` is manual.
@@ -25,7 +25,7 @@ Last updated: 2026-01-22
 - Admin user is configurable via private overrides; SSH access is configured via
   `/etc/ssh/authorized_keys/%u`.
 - Provisioning docs added for SD image builds and SSH access.
-- `docs/PROVISIONING.md` is the primary guide for imaging and first boot.
+- `docs/lifecycle/PROVISIONING.md` is the primary guide for imaging and first boot.
 - Provisioning guide includes QEMU/binfmt setup for x86 hosts.
 - Provisioning guide includes troubleshooting for cross-arch builds.
 - Repo defaults are anonymized; private overrides live in
@@ -93,6 +93,6 @@ and binaries, before proceeding.
 - Optional: for Pi 3 armv7l builds, use:
   `NIXPKGS_ALLOW_BROKEN=1 nix build --impure path:.#nixosConfigurations.rpi3-armv7l.config.system.build.sdImage -o result-rpi3`
   and ensure `/etc/nix/nix.conf` includes `gccarch-armv7-a` in `system-features`.
-- Flash SD cards per `docs/PROVISIONING.md`.
+- Flash SD cards per `docs/lifecycle/PROVISIONING.md`.
 - If `lab.adminAuthorizedKeys` is not set, inject the key onto the SD card as a
-  fallback (see `docs/PROVISIONING.md`).
+  fallback (see `docs/lifecycle/PROVISIONING.md`).

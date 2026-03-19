@@ -10,4 +10,4 @@
 - Rationale: `prek` is fast and drop-in compatible; `gitleaks` is a standard
   secrets scanner.
 - Consequences: Contributors need `prek` available (provided via Nix dev shell).
-- References: .pre-commit-config.yaml, flake.nix, docs/SETUP.md
+- References: .pre-commit-config.yaml, flake.nix, docs/lifecycle/SETUP.md

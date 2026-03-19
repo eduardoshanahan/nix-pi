@@ -10,4 +10,4 @@
 - Rationale: Flakes provide reproducible inputs and a standard dev shell workflow.
 - Consequences: Requires enabling flakes for contributors; legacy `shell.nix` is
   not provided.
-- References: flake.nix, docs/SETUP.md
+- References: flake.nix, docs/lifecycle/SETUP.md

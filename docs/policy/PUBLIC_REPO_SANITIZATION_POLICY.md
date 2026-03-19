@@ -2,7 +2,7 @@
 
 Canonical source of truth for this policy lives in:
 
-- `nix-services/PUBLIC_REPO_SANITIZATION_POLICY.md`
+- `../nix-services/docs/policy/PUBLIC_REPO_SANITIZATION_POLICY.md`
 
 This file is intentionally pointer-only to avoid drift between repositories.
 

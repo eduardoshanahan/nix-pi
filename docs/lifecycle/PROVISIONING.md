@@ -262,7 +262,7 @@ scripts/bootstrap-sops-age-key pi-node-a pi-node-b pi-node-c
 
 Run this before the first rebuild that depends on SOPS secrets on a target host.
 
-See `docs/SECRETS.md`.
+See `docs/lifecycle/SECRETS.md`.
 
 ## Cross-machine sync
 
@@ -278,4 +278,4 @@ after rebuild or replacement.
 Use `scripts/bootstrap-nix-signing-key` to restore an existing builder identity
 onto a rebuilt host, then rebuild declaratively.
 
-See `docs/REMOTE_BUILDS.md`.
+See `docs/lifecycle/REMOTE_BUILDS.md`.

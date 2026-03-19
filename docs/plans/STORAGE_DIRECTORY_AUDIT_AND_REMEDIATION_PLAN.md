@@ -54,7 +54,7 @@ The repo audit found the following state.
   - OwnTracks at `/srv/prometheus/owntracks`
   - Home Assistant at `/srv/prometheus/home-assistant`
   - SMTP relay backups at `/srv/prometheus/backups/smtp-relay/...`
-- `docs/N8N_RPI_BOX_02_PHASE1_PLAN.md` already correctly treated
+- `docs/plans/N8N_RPI_BOX_02_PHASE1_PLAN.md` already correctly treated
   `/srv/prometheus` as Prometheus-only and required n8n to use a dedicated
   path outside it
 
@@ -103,7 +103,7 @@ Validated on `pi-node-b` on March 10, 2026:
   Home Assistant
 - `README.md` plus SMTP relay backup script: both reflected a confusing shared
   storage layout and were remediated in this session
-- `docs/N8N_RPI_BOX_02_PHASE1_PLAN.md`: already aligned with the desired
+- `docs/plans/N8N_RPI_BOX_02_PHASE1_PLAN.md`: already aligned with the desired
   boundary
 
 ## Remediation sequence completed

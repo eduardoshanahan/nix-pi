@@ -19,4 +19,4 @@ scripts/export-sd-image result-rpi3 sd-image rpi3 --decompress
 This writes `sd-image/<name>.img(.zst)` plus a `sha256` file, and these are
 gitignored by default.
 
-Provisioning workflow (build/flash/SSH key injection) lives in `docs/PROVISIONING.md`.
+Provisioning workflow (build/flash/SSH key injection) lives in `docs/lifecycle/PROVISIONING.md`.

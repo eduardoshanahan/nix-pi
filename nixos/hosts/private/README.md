@@ -34,4 +34,4 @@ Notes
 - This repo is set up so `nixos/hosts/private/` is gitignored; do not commit any
   secrets here.
 - When building SD images, use `path:.#...` so Nix can see your local private
-  overrides (see `docs/PROVISIONING.md`).
+  overrides (see `docs/lifecycle/PROVISIONING.md`).

@@ -88,4 +88,4 @@ scripts/bootstrap-nix-signing-key --from-files <private-key-file> <public-key-fi
 Keep any backup copy of the private signing key outside Git, and treat it like
 other privileged host material.
 
-See `docs/REMOTE_BUILDS.md` for the trust model and rotation procedure.
+See `docs/lifecycle/REMOTE_BUILDS.md` for the trust model and rotation procedure.

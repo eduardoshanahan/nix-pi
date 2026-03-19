@@ -1,6 +1,6 @@
 # DNS Migration Execution Log (Zero‑Downtime) — 2026‑01‑28
 
-**Scope:** Phase 3 execution support for `zero_downtime_dns_migration_checklist.md`  
+**Scope:** Phase 3 execution support for `docs/plans/zero_downtime_dns_migration_checklist.md`  
 **Goal:** Keep a running record of what we did, what we observed, and how we verified it (commands, UI paths, and rationale).  
 **Rule:** Do not paste secrets/tokens/passwords into this log.
 

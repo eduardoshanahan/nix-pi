@@ -87,5 +87,5 @@ The first check is a secrets scan via `gitleaks`.
 - If you need additional tools, update `devShells.default.packages` in `flake.nix`.
 - If `nix develop` reports `flake.nix` is not tracked, run `git init` and
   `git add flake.nix flake.lock` before retrying.
-- See `docs/PROVISIONING.md` for Raspberry Pi SD image workflow.
-- Private values should live in gitignored files; see `docs/CONFIDENTIALITY.md`.
+- See `docs/lifecycle/PROVISIONING.md` for Raspberry Pi SD image workflow.
+- Private values should live in gitignored files; see `docs/policy/CONFIDENTIALITY.md`.
