@@ -42,20 +42,20 @@ ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-c "systemctl is-active cadvisor
 ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "sudo docker exec prometheus wget -qO- 'http://127.0.0.1:9090/api/v1/query?query=up%7Bjob%3D%22cadvisor%22%7D'"
 ```
 
-## Known Good Checks (Excalidraw on `pi-node-b`)
+## Known Good Checks (Excalidraw on `pi-node-a`)
 
 ```bash
-ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "systemctl is-active excalidraw; sudo systemctl --no-pager --lines=40 status excalidraw"
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-a "systemctl is-active excalidraw; sudo systemctl --no-pager --lines=40 status excalidraw"
 
-ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "docker inspect --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}}' excalidraw"
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-a "docker inspect --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}}' excalidraw"
 
-ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "curl -sSI -H 'Host: <excalidraw-fqdn>' http://127.0.0.1/ | sed -n '1,6p'"
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-a "curl -sSI -H 'Host: <excalidraw-fqdn>' http://127.0.0.1/ | sed -n '1,6p'"
 
-ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "curl -skI -H 'Host: <excalidraw-fqdn>' https://127.0.0.1/ | sed -n '1,12p'"
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-a "curl -skI -H 'Host: <excalidraw-fqdn>' https://127.0.0.1/ | sed -n '1,12p'"
 
-ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "systemctl status excalidraw-healthcheck.timer --no-pager"
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-a "systemctl status excalidraw-healthcheck.timer --no-pager"
 
-ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "journalctl -u excalidraw-healthcheck -n 50 --no-pager"
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-a "journalctl -u excalidraw-healthcheck -n 50 --no-pager"
 ```
 
 ## D2 Workspace (`pi-node-b`)

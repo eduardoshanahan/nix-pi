@@ -5,6 +5,8 @@
     inputs.nix-services.services.pihole
     inputs.nix-services.services.piholeSync
     inputs.nix-services.services.piholeExporter
+    inputs.nix-services.services.excalidraw
+    inputs.nix-services.services.traggoCompose
     inputs.nix-services.services.cadvisor
     inputs.nix-services.services.promtail
     inputs.nix-services.services.tailscale
@@ -86,6 +88,16 @@
     mode = "0400";
   };
 
+  sops.secrets.traggo-admin-password = {
+    sopsFile = ../../../secrets/secrets.yaml;
+    format = "yaml";
+    key = "traggo-admin-password";
+    path = "/run/secrets/traggo-admin-password";
+    owner = "root";
+    group = "root";
+    mode = "0400";
+  };
+
   services.traefik.tls = {
     enable = true;
     certFile = config.sops.secrets.traefik-tls-crt.path;
@@ -102,6 +114,27 @@
 
     webPasswordFile = config.sops.secrets.pihole-web-password.path;
     tls = true;
+  };
+
+  services.excalidraw = {
+    enable = true;
+    hostname = "excalidraw.${config.lab.domain}";
+    tls = true;
+    image = {
+      repository = "excalidraw/excalidraw";
+      digest = "sha256:3c2513e830bb6e195147c05b34ecf8393d0ba2b1cc86e93b407a5777d6135c6c";
+    };
+  };
+
+  services.traggoCompose = {
+    enable = true;
+    hostname = "traggo.${config.lab.domain}";
+    tls = true;
+    dataDir = "/var/lib/traggo";
+    admin = {
+      username = "eduardo";
+      passwordFile = config.sops.secrets.traggo-admin-password.path;
+    };
   };
 
   services.promtailCompose = {

@@ -1249,16 +1249,6 @@ in
       tls = true;
     };
 
-    services.excalidraw = {
-      enable = true;
-      hostname = "excalidraw.${config.lab.domain}";
-      tls = true;
-      image = {
-        repository = "excalidraw/excalidraw";
-        digest = "sha256:3c2513e830bb6e195147c05b34ecf8393d0ba2b1cc86e93b407a5777d6135c6c";
-      };
-    };
-
     services.fossflowCompose = {
       enable = true;
       hostname = "fossflow.${config.lab.domain}";
@@ -1317,17 +1307,6 @@ in
       image = {
         tag = "latest";
         allowMutableTag = true;
-      };
-    };
-
-    services.traggoCompose = {
-      enable = true;
-      hostname = "traggo.${config.lab.domain}";
-      tls = true;
-      dataDir = "/srv/traggo";
-      admin = {
-        username = "eduardo";
-        passwordFile = config.sops.secrets.traggo-admin-password.path;
       };
     };
 
@@ -1706,7 +1685,7 @@ in
                 "Excalidraw" = {
                   href = availabilityTargets.routed.excalidraw;
                   description = "Whiteboard";
-                  server = "local";
+                  server = "pi-node-a";
                   container = "excalidraw";
                 };
               }
@@ -1870,7 +1849,7 @@ in
                 "Traggo" = {
                   href = availabilityTargets.routed.traggo;
                   description = "Task and time management";
-                  server = "local";
+                  server = "pi-node-a";
                   container = "traggo";
                 };
               }
