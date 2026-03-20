@@ -18,6 +18,27 @@ Do not duplicate full service module contracts here. Those remain canonical in
 - Shared module behavior/options: `nix-services`
 - Host-specific runtime differences: this file in `nix-pi`
 
+## `pi-node-a`
+
+### Tailscale
+
+- Shared module: `services.tailscaleCompose`
+- Intentional divergence:
+  - `pi-node-a` adds:
+    - `tailscale-reconcile.service`
+    - `tailscale-reconcile.timer`
+- Why:
+  - the shared Tailscale module currently uses a `Type=oneshot` systemd wrapper
+    around `docker compose up -d`
+  - if the `tailscale` container disappears later, `tailscale.service` can
+    still appear healthy while remote Tailscale reachability and split DNS are
+    broken
+  - the host-side reconcile timer heals that specific failure mode by
+    periodically restarting `tailscale.service` when the container is missing
+    or not running
+- Source of truth:
+  - `nixos/hosts/private/pi-node-a.nix`
+
 ## `pi-node-b`
 
 ### Homepage

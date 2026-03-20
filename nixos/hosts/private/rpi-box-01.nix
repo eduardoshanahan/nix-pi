@@ -242,6 +242,54 @@
     firewallMode = "nftables";
   };
 
+  systemd.services.tailscale-reconcile = {
+    description = "Reconcile Tailscale container presence on pi-node-a";
+    after = [ "docker.service" "tailscale.service" ];
+    wants = [ "docker.service" ];
+    path = [
+      config.virtualisation.docker.package
+      pkgs.systemd
+    ];
+    script = let
+      containerName = config.services.tailscaleCompose.containerName;
+    in ''
+      set -eu
+
+      if ! systemctl is-active --quiet docker.service; then
+        echo "tailscale-reconcile: docker.service is not active; skipping"
+        exit 0
+      fi
+
+      if ! docker container inspect ${lib.escapeShellArg containerName} >/dev/null 2>&1; then
+        echo "tailscale-reconcile: container ${containerName} is missing; restarting tailscale.service"
+        exec systemctl restart tailscale.service
+      fi
+
+      status="$(docker inspect -f '{{.State.Status}}' ${lib.escapeShellArg containerName})"
+      if [ "$status" != "running" ]; then
+        echo "tailscale-reconcile: container ${containerName} status=$status; restarting tailscale.service"
+        exec systemctl restart tailscale.service
+      fi
+
+      echo "tailscale-reconcile: container ${containerName} is healthy"
+    '';
+    serviceConfig = {
+      Type = "oneshot";
+    };
+  };
+
+  systemd.timers.tailscale-reconcile = {
+    description = "Periodic Tailscale container reconciliation on pi-node-a";
+    wantedBy = [ "timers.target" ];
+    partOf = [ "tailscale-reconcile.service" ];
+    timerConfig = {
+      OnBootSec = "5m";
+      OnUnitActiveSec = "5m";
+      RandomizedDelaySec = "1m";
+      Unit = "tailscale-reconcile.service";
+    };
+  };
+
   environment.systemPackages = with pkgs; [
     dnsutils
   ];

@@ -58,6 +58,35 @@ ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-a "systemctl status excalidraw-
 ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-a "journalctl -u excalidraw-healthcheck -n 50 --no-pager"
 ```
 
+## Tailscale (`pi-node-a`)
+
+- Purpose:
+  - offsite Tailscale reachability and split-DNS recovery path for
+    `*.internal.example`
+- Host-side safeguard:
+  - `pi-node-a` adds `tailscale-reconcile.timer`, which checks every few
+    minutes whether the `tailscale` container still exists and is running
+  - if the container is missing or stopped, the timer triggers
+    `systemctl restart tailscale`
+
+### Tailscale quick checks
+
+```bash
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-a "systemctl is-active tailscale tailscale-reconcile.timer; systemctl --no-pager --lines=30 status tailscale tailscale-reconcile.timer"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-a "docker ps --filter name=tailscale --format 'table {{.Names}}\t{{.Status}}\t{{.Image}}'"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-a "journalctl -u tailscale-reconcile -n 50 --no-pager"
+
+tailscale status
+
+tailscale ping pi-node-a
+
+getent hosts nas-host.internal.example
+
+getent hosts nas2.internal.example
+```
+
 ## D2 Workspace (`pi-node-a`)
 
 - URL: `https://d2.<lab-domain>/`
