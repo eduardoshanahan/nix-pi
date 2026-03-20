@@ -2459,9 +2459,8 @@ in
       enable = true;
       hostname = "pi-node-b";
       authKeyFile = config.sops.secrets.tailscale-authkey.path;
-      acceptRoutes = true;
+      acceptRoutes = false;
       acceptDns = false;
-      firewallMode = "nftables";
     };
 
     services.dockerSocketProxyCompose = {

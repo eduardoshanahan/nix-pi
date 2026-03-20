@@ -96,6 +96,8 @@ getent hosts nas2.internal.example
   - these hosts are added as direct Tailscale nodes
   - this does not by itself move subnet-route ownership or split-DNS failover
     away from `pi-node-a`
+  - current host config keeps `acceptRoutes = false` and `acceptDns = false`
+    on these nodes so they stay simple direct-access peers
 - Host-side safeguard:
   - both hosts add `tailscale-reconcile.timer` with the same container
     existence/running-state check used on `pi-node-a`

@@ -125,9 +125,8 @@
     enable = true;
     hostname = "pi-node-c";
     authKeyFile = config.sops.secrets.tailscale-authkey.path;
-    acceptRoutes = true;
+    acceptRoutes = false;
     acceptDns = false;
-    firewallMode = "nftables";
   };
 
   systemd.services.tailscale-reconcile = {
