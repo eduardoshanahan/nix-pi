@@ -20,7 +20,7 @@ Do not duplicate full service module contracts here. Those remain canonical in
 
 ## `pi-node-a`
 
-### Tailscale
+### Tailscale (`pi-node-a`)
 
 - Shared module: `services.tailscaleCompose`
 - Intentional divergence:
@@ -40,6 +40,21 @@ Do not duplicate full service module contracts here. Those remain canonical in
   - `nixos/hosts/private/pi-node-a.nix`
 
 ## `pi-node-b`
+
+### Tailscale (`pi-node-b`)
+
+- Shared module: `services.tailscaleCompose`
+- Intentional divergence:
+  - `pi-node-b` adds:
+    - `tailscale-reconcile.service`
+    - `tailscale-reconcile.timer`
+- Why:
+  - the shared Tailscale module currently uses a `Type=oneshot` systemd wrapper
+    around `docker compose up -d`
+  - `pi-node-b` is a direct Tailscale node for remote host access, so it gets
+    the same container-presence safeguard as `pi-node-a`
+- Source of truth:
+  - `nixos/hosts/private/pi-node-b.nix`
 
 ### Homepage
 
@@ -112,6 +127,23 @@ Do not duplicate full service module contracts here. Those remain canonical in
   - `pi-node-b` follows the shared module behavior directly
 - Why documented:
   - this was previously host-divergent and is now intentionally aligned again
+
+## `pi-node-c`
+
+### Tailscale (`pi-node-c`)
+
+- Shared module: `services.tailscaleCompose`
+- Intentional divergence:
+  - `pi-node-c` adds:
+    - `tailscale-reconcile.service`
+    - `tailscale-reconcile.timer`
+- Why:
+  - `pi-node-c` is now also a direct Tailscale node as part of the planned
+    move toward `pi-node-c` as the primary DNS host
+  - the host-side reconcile timer protects it from the same oneshot-container
+    drift failure mode seen on `pi-node-a`
+- Source of truth:
+  - `nixos/hosts/private/pi-node-c.nix`
 
 ## Update Rule
 

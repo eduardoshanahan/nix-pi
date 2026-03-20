@@ -1,4 +1,4 @@
-{ config, inputs, lib, ... }:
+{ config, inputs, lib, pkgs, ... }:
 {
   imports = [
     inputs.nix-services.services.traefik
@@ -7,6 +7,7 @@
     inputs.nix-services.services.loki
     inputs.nix-services.services.cadvisor
     inputs.nix-services.services.promtail
+    inputs.nix-services.services.tailscale
     inputs.nix-services.services.dockerSocketProxyCompose
   ];
 
@@ -51,6 +52,16 @@
     format = "yaml";
     key = "pihole-web-password";
     path = "/run/secrets/pihole-web-password";
+    owner = "root";
+    group = "root";
+    mode = "0400";
+  };
+
+  sops.secrets.tailscale-authkey = {
+    sopsFile = ../../../secrets/secrets.yaml;
+    format = "yaml";
+    key = "tailscale-authkey";
+    path = "/run/secrets/tailscale-authkey";
     owner = "root";
     group = "root";
     mode = "0400";
@@ -107,6 +118,63 @@
       enable = true;
       listenAddress = "0.0.0.0:1514";
       jobLabel = "synology-file-activity";
+    };
+  };
+
+  services.tailscaleCompose = {
+    enable = true;
+    hostname = "pi-node-c";
+    authKeyFile = config.sops.secrets.tailscale-authkey.path;
+    acceptRoutes = true;
+    acceptDns = false;
+    firewallMode = "nftables";
+  };
+
+  systemd.services.tailscale-reconcile = {
+    description = "Reconcile Tailscale container presence on pi-node-c";
+    after = [ "docker.service" "tailscale.service" ];
+    wants = [ "docker.service" ];
+    path = [
+      config.virtualisation.docker.package
+      pkgs.systemd
+    ];
+    script = let
+      containerName = config.services.tailscaleCompose.containerName;
+    in ''
+      set -eu
+
+      if ! systemctl is-active --quiet docker.service; then
+        echo "tailscale-reconcile: docker.service is not active; skipping"
+        exit 0
+      fi
+
+      if ! docker container inspect ${lib.escapeShellArg containerName} >/dev/null 2>&1; then
+        echo "tailscale-reconcile: container ${containerName} is missing; restarting tailscale.service"
+        exec systemctl restart tailscale.service
+      fi
+
+      status="$(docker inspect -f '{{.State.Status}}' ${lib.escapeShellArg containerName})"
+      if [ "$status" != "running" ]; then
+        echo "tailscale-reconcile: container ${containerName} status=$status; restarting tailscale.service"
+        exec systemctl restart tailscale.service
+      fi
+
+      echo "tailscale-reconcile: container ${containerName} is healthy"
+    '';
+    serviceConfig = {
+      Type = "oneshot";
+    };
+  };
+
+  systemd.timers.tailscale-reconcile = {
+    description = "Periodic Tailscale container reconciliation on pi-node-c";
+    wantedBy = [ "timers.target" ];
+    partOf = [ "tailscale-reconcile.service" ];
+    timerConfig = {
+      OnBootSec = "5m";
+      OnUnitActiveSec = "5m";
+      RandomizedDelaySec = "1m";
+      Unit = "tailscale-reconcile.service";
     };
   };
 

@@ -69,7 +69,7 @@ ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-a "journalctl -u excalidraw-hea
   - if the container is missing or stopped, the timer triggers
     `systemctl restart tailscale`
 
-### Tailscale quick checks
+### Tailscale quick checks (`pi-node-a`)
 
 ```bash
 ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-a "systemctl is-active tailscale tailscale-reconcile.timer; systemctl --no-pager --lines=30 status tailscale tailscale-reconcile.timer"
@@ -85,6 +85,35 @@ tailscale ping pi-node-a
 getent hosts nas-host.internal.example
 
 getent hosts nas2.internal.example
+```
+
+## Tailscale (`pi-node-b` / `pi-node-c`)
+
+- Purpose:
+  - direct offsite host access to the main app hub (`pi-node-b`) and the
+    future primary DNS / Loki host (`pi-node-c`)
+- Current scope:
+  - these hosts are added as direct Tailscale nodes
+  - this does not by itself move subnet-route ownership or split-DNS failover
+    away from `pi-node-a`
+- Host-side safeguard:
+  - both hosts add `tailscale-reconcile.timer` with the same container
+    existence/running-state check used on `pi-node-a`
+
+### Tailscale quick checks (`pi-node-b` / `pi-node-c`)
+
+```bash
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "systemctl is-active tailscale tailscale-reconcile.timer; systemctl --no-pager --lines=30 status tailscale tailscale-reconcile.timer"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-c "systemctl is-active tailscale tailscale-reconcile.timer; systemctl --no-pager --lines=30 status tailscale tailscale-reconcile.timer"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-b "docker ps --filter name=tailscale --format 'table {{.Names}}\t{{.Status}}\t{{.Image}}'"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 pi-node-c "docker ps --filter name=tailscale --format 'table {{.Names}}\t{{.Status}}\t{{.Image}}'"
+
+tailscale ping pi-node-b
+
+tailscale ping pi-node-c
 ```
 
 ## D2 Workspace (`pi-node-a`)

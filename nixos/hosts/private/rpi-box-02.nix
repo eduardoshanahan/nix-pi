@@ -819,6 +819,7 @@ in
         inputs.nix-services.services.timeTaggerCompose
         inputs.nix-services.services.traggoCompose
         inputs.nix-services.services.promtail
+        inputs.nix-services.services.tailscale
         inputs.nix-services.services.dockerSocketProxyCompose
         inputs.nix-services.services.snmpExporter
         inputs.nix-services.services.unpoller
@@ -920,6 +921,16 @@ in
       format = "yaml";
       key = "pihole-sync-ssh-key";
       path = "/run/secrets/pihole-sync-ssh-key";
+      owner = "root";
+      group = "root";
+      mode = "0400";
+    };
+
+    sops.secrets.tailscale-authkey = {
+      sopsFile = ../../../secrets/secrets.yaml;
+      format = "yaml";
+      key = "tailscale-authkey";
+      path = "/run/secrets/tailscale-authkey";
       owner = "root";
       group = "root";
       mode = "0400";
@@ -2444,6 +2455,15 @@ in
       lokiPushUrl = "http://loki.internal.example:3100/loki/api/v1/push";
     };
 
+    services.tailscaleCompose = {
+      enable = true;
+      hostname = "pi-node-b";
+      authKeyFile = config.sops.secrets.tailscale-authkey.path;
+      acceptRoutes = true;
+      acceptDns = false;
+      firewallMode = "nftables";
+    };
+
     services.dockerSocketProxyCompose = {
       enable = true;
       listenAddress = "192.0.2.10";
@@ -2466,6 +2486,54 @@ in
       enable = true;
       port = 9100;
       enabledCollectors = ["systemd" "filesystem" "meminfo" "netdev" "loadavg" "hwmon"];
+    };
+
+    systemd.services.tailscale-reconcile = {
+      description = "Reconcile Tailscale container presence on pi-node-b";
+      after = ["docker.service" "tailscale.service"];
+      wants = ["docker.service"];
+      path = [
+        config.virtualisation.docker.package
+        pkgs.systemd
+      ];
+      script = let
+        containerName = config.services.tailscaleCompose.containerName;
+      in ''
+        set -eu
+
+        if ! systemctl is-active --quiet docker.service; then
+          echo "tailscale-reconcile: docker.service is not active; skipping"
+          exit 0
+        fi
+
+        if ! docker container inspect ${lib.escapeShellArg containerName} >/dev/null 2>&1; then
+          echo "tailscale-reconcile: container ${containerName} is missing; restarting tailscale.service"
+          exec systemctl restart tailscale.service
+        fi
+
+        status="$(docker inspect -f '{{.State.Status}}' ${lib.escapeShellArg containerName})"
+        if [ "$status" != "running" ]; then
+          echo "tailscale-reconcile: container ${containerName} status=$status; restarting tailscale.service"
+          exec systemctl restart tailscale.service
+        fi
+
+        echo "tailscale-reconcile: container ${containerName} is healthy"
+      '';
+      serviceConfig = {
+        Type = "oneshot";
+      };
+    };
+
+    systemd.timers.tailscale-reconcile = {
+      description = "Periodic Tailscale container reconciliation on pi-node-b";
+      wantedBy = ["timers.target"];
+      partOf = ["tailscale-reconcile.service"];
+      timerConfig = {
+        OnBootSec = "5m";
+        OnUnitActiveSec = "5m";
+        RandomizedDelaySec = "1m";
+        Unit = "tailscale-reconcile.service";
+      };
     };
 
     systemd.services.github-profile-exporter = {
