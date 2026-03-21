@@ -278,7 +278,7 @@
       "dolt.${config.lab.domain}:11228"
     ];
     kubeStateMetrics = [
-      "cluster-node-01.${config.lab.domain}:30080"
+      "kube-state-metrics.${config.lab.domain}:443"
     ];
   };
   availabilityTargets = {
@@ -337,7 +337,7 @@
       unpollerMetrics = map (target: "http://${target}/metrics") monitoringTargets.unpoller;
       postgresExporterMetrics = map (target: "http://${target}/metrics") monitoringTargets.postgresExporter;
       redisExporterMetrics = map (target: "http://${target}/metrics") monitoringTargets.redisExporter;
-      kubeStateMetrics = map (target: "http://${target}/metrics") monitoringTargets.kubeStateMetrics;
+      kubeStateMetrics = map (target: "https://${target}/metrics") monitoringTargets.kubeStateMetrics;
       mysqlExporterMetrics = map (target: "http://${target}/metrics") monitoringTargets.mysqlExporter;
       mongodbExporterMetrics = map (target: "http://${target}/metrics") monitoringTargets.mongodbExporter;
     };
@@ -2435,6 +2435,8 @@ in
           "gitea.${config.lab.domain}:3000"
         ];
         kubeStateMetricsTargets = monitoringTargets.kubeStateMetrics;
+        kubeStateMetricsScheme = "https";
+        kubeStateMetricsTlsInsecureSkipVerify = true;
         githubProfileTargets = monitoringTargets.githubProfile;
         authentikTargets = [
           "authentik-server:9300"
