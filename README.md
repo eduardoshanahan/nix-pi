@@ -90,7 +90,6 @@ Current host-owned Uptime Kuma monitor policy:
 - NixOS config layout:
   - Modules: `nixos/modules/`
   - Profiles: `nixos/profiles/`
-- Application stacks (planned): `apps/README.md`
 - Project records (decisions, work log, session prompt): `records/README.md`
 
 ## Private Config Workflow
