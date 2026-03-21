@@ -54,6 +54,11 @@ checks:
   `cluster-node-01-metrics.<lab-domain>:9100` through
   `cluster-node-05-metrics.<lab-domain>:9100`
 
+The host-managed cluster observability checks now also include:
+
+- HTTPS monitor for `kube-state-metrics.<lab-domain>/metrics`
+- HTTPS monitor for `kube-state-metrics.<lab-domain>/apiserver-metrics`
+
 These follow the same default sync behavior as other host-managed port and HTTP
 monitors. There are no cluster-specific exceptions in the sync logic at this
 time.
