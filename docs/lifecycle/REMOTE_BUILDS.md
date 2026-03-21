@@ -56,6 +56,25 @@ restoring from a secure backup kept outside Git.
 
 ## Steady-state rebuild flow
 
+Preflight for `pi-node-c` through `pi-node-b`:
+
+```bash
+export NIX_PI_PRIVATE_FLAKE="${NIX_PI_PRIVATE_FLAKE:-$PWD/../nix-pi-private}"
+export NIX_PI_NIX_SERVICES_FLAKE="${NIX_PI_NIX_SERVICES_FLAKE:-$PWD/../nix-services}"
+
+nix run "path:$PWD#validate-private-config" -- pi-node-c
+nix run "path:$PWD#validate-pi-host" -- pi-node-c
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 eduardo@pi-node-b \
+  "test -f /etc/nix/pi-node-b-priv.pem && test -f /etc/nix/pi-node-b-pub.pem"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 eduardo@pi-node-c \
+  "grep -F 'pi-node-b:Tn8hXVRqRBvg1734Z/0xcpiRGJocvYC3rqogAGMRQL8=' /etc/nix/nix.conf"
+```
+
+If any of those checks fail, stop and repair the builder/signing path before
+attempting the rebuild.
+
 Example:
 
 ```bash
@@ -72,6 +91,19 @@ The declarative requirements are:
 
 - the builder host sets `lab.nix.signingKeyFile`
 - the target host includes the builder public key in `lab.nix.trustedPublicKeys`
+
+Recommended post-deploy checks for `pi-node-c`:
+
+```bash
+ssh -o BatchMode=yes -o ConnectTimeout=6 eduardo@pi-node-c \
+  "hostname; systemctl is-active traefik pihole loki promtail tailscale"
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 eduardo@pi-node-c \
+  "test -f /etc/ssl/certs/homelab-root-ca.crt"
+```
+
+If the rebuild succeeds but a post-deploy check fails, treat that as an
+incomplete rollout and record the exact failing check in the session handoff.
 
 ## If you expand beyond one builder-target pair
 
