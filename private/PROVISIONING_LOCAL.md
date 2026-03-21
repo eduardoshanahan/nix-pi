@@ -3,11 +3,12 @@
 This file is gitignored (`private/`) and is intended to contain exact commands
 for the current lab setup (usernames, key paths, IPs, etc).
 
-## Build images (include private overrides)
+## Build images (include private companion config)
 
 ```bash
-nix build path:.#nixosConfigurations.rpi4.config.system.build.sdImage -o result-rpi4
-nix build path:.#nixosConfigurations.rpi3.config.system.build.sdImage -o result-rpi3
+export NIX_PI_PRIVATE_FLAKE="${NIX_PI_PRIVATE_FLAKE:-$PWD/../nix-pi-private}"
+nix build --override-input private "path:$NIX_PI_PRIVATE_FLAKE" path:$PWD#nixosConfigurations.rpi4.config.system.build.sdImage -o result-rpi4
+nix build --override-input private "path:$NIX_PI_PRIVATE_FLAKE" path:$PWD#nixosConfigurations.rpi3.config.system.build.sdImage -o result-rpi3
 ```
 
 Optional: keep local copies in the repo (for sync/backups):
@@ -33,8 +34,9 @@ zstd -dc sd-image/rpi4.img.zst | sudo dd of=/dev/sdX bs=4M conv=fsync status=pro
 
 ### Recommended: no SD card modification
 
-Set `lab.adminAuthorizedKeys` in `nixos/hosts/private/overrides.nix`, rebuild with
-`path:.#...`, flash, and boot. This removes the SD mounting/key injection step.
+Set `lab.adminAuthorizedKeys` in `../nix-pi-private/modules/shared.nix`,
+rebuild with the private flake override, flash, and boot. This removes the SD
+mounting/key injection step.
 
 ### Fallback: inject key onto mounted SD card
 
@@ -83,8 +85,10 @@ ssh eduardo@192.0.2.10
 `pi-node-c` is rebuilt using `pi-node-b` as the builder:
 
 ```bash
+export NIX_PI_PRIVATE_FLAKE="${NIX_PI_PRIVATE_FLAKE:-$PWD/../nix-pi-private}"
 nixos-rebuild switch \
-  --flake path:.#pi-node-c \
+  --flake path:$PWD#pi-node-c \
+  --override-input private "path:$NIX_PI_PRIVATE_FLAKE" \
   --target-host eduardo@pi-node-c \
   --build-host eduardo@pi-node-b \
   --sudo

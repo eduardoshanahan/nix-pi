@@ -6,7 +6,7 @@ This file is the working guide for agents operating inside `nix-pi/`.
 
 - Raspberry Pi NixOS flake outputs and SD-image workflows
 - base host modules (`nixos/modules/`)
-- private overlays and host-specific configs (`nixos/hosts/private/`)
+- explicit private companion flake input (`../nix-pi-private`)
 - host-side runtime secret provisioning (`sops-nix` to `/run/secrets`)
 - host selection and wiring for services imported from `nix-services`
 - host-owned operational docs, divergence registers, and runbooks
@@ -32,7 +32,8 @@ When working in `nix-pi`, read in this order:
    - `flake.nix`
    - `nixos/modules/`
    - `nixos/profiles/`
-   - `nixos/hosts/private/`
+   - `nixos/hosts/`
+   - `../nix-pi-private/modules/`
 6. `records/README.md` plus the relevant records files if session continuity matters
 
 If a pointer doc exists here and points to `nix-services`, follow the pointer instead of duplicating policy locally.
@@ -63,7 +64,7 @@ Rule: if the change is a reusable service behavior change, it probably belongs i
 - `flake.nix`: flake inputs, NixOS outputs, dev shell
 - `nixos/modules/`: common host primitives
 - `nixos/profiles/`: RPi image profiles
-- `nixos/hosts/private/`: real host modules and private overrides; treat these as live config
+- `nixos/hosts/`: public host entry modules
 - `scripts/`: operational helper scripts
 - `docs/`: canonical host-owned docs
 - `DOCUMENTATION_INDEX.md`: quick navigation index for repo-level docs
@@ -73,7 +74,9 @@ Rule: if the change is a reusable service behavior change, it probably belongs i
 
 ## Important Working Rules
 
-- Build with `path:.#...` when private overrides under `nixos/hosts/private/` must be visible during flake evaluation.
+- Treat the sibling private flake as the canonical private source of truth.
+- Use `nix run "path:$PWD#validate-private-config" -- <host>` before builds or rebuilds.
+- For direct `nix build` and `nixos-rebuild` commands, pass `--override-input private "path:${NIX_PI_PRIVATE_FLAKE:-$PWD/../nix-pi-private}"`.
 - Never put plaintext secrets in Git.
 - Decrypted secrets must only appear at runtime under `/run/secrets`.
 - `lab.sops.ageKeyFile` must point to a host file, never a Nix store path.
@@ -87,8 +90,8 @@ Rule: if the change is a reusable service behavior change, it probably belongs i
 - Committed secret material must stay SOPS-encrypted under `secrets/`.
 - Host age private keys live outside Git, normally at `/var/lib/sops/age.key`.
 - Builder signing keys are separate from SOPS and also stay outside Git.
-- Private/environment-specific values belong under `nixos/hosts/private/` or `private/`, not public docs.
-- This checkout may contain real private values in gitignored files. Read carefully and do not echo secrets into new files, docs, or commit messages.
+- Private/environment-specific values belong in the sibling private companion repo or in local-only `private/` notes, not public docs.
+- Real private values now live in `../nix-pi-private`. Do not echo them into new files, docs, or commit messages.
 
 ## Build, Deploy, And Validation Norms
 
@@ -111,7 +114,7 @@ Rule: if the change is a reusable service behavior change, it probably belongs i
 - main app and monitoring hub
 - USB-backed `/srv` storage is the intended home for persistent state
 - NFS media mount at `/mnt/media`
-- large host-specific config surface in `nixos/hosts/private/pi-node-b.nix`
+- large host-specific config surface in `../nix-pi-private/modules/pi-node-b.nix`
 - host-managed Uptime Kuma monitor inventory
 - intentional Homepage Docker inventory override
 - intentional Ghost compose override for SMTP TLS behavior
@@ -140,7 +143,7 @@ If a local doc is pointer-only, update the canonical file in `nix-services` inst
 
 ## `pi-node-b.nix` Guidance
 
-`nixos/hosts/private/pi-node-b.nix` is large and mixes:
+`../nix-pi-private/modules/pi-node-b.nix` is large and mixes:
 
 - host imports from `nix-services`
 - SOPS secret declarations
@@ -189,13 +192,13 @@ Prefer appending new record entries over rewriting historical ones.
   implement in `nix-pi` and document it in `docs/policy/HOST_RUNTIME_DIVERGENCES.md`.
 - Need to add a secret:
   add SOPS-encrypted source data plus host declaration pointing to `/run/secrets/...`.
-- Need to use local private values:
-  prefer `nixos/hosts/private/overrides.nix` or host-specific private modules.
+- Need to use private values:
+  prefer `../nix-pi-private` plus the explicit private flake override flow.
 
 ## Avoid
 
 - duplicating shared service logic from `nix-services`
 - committing plaintext secrets or private identifiers unnecessarily
-- assuming `nix build .#...` will include gitignored private overrides
+- assuming `nix build .#...` will automatically pick up the private companion flake
 - editing host runtime behavior without updating the owning docs
-- treating `private/` and `nixos/hosts/private/` as throwaway examples in this checkout
+- treating `private/` or `../nix-pi-private` as throwaway examples

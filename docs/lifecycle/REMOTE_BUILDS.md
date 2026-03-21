@@ -59,8 +59,10 @@ restoring from a secure backup kept outside Git.
 Example:
 
 ```bash
+export NIX_PI_PRIVATE_FLAKE="${NIX_PI_PRIVATE_FLAKE:-$PWD/../nix-pi-private}"
 nixos-rebuild switch \
-  --flake path:.#pi-node-c \
+  --flake path:$PWD#pi-node-c \
+  --override-input private "path:$NIX_PI_PRIVATE_FLAKE" \
   --target-host eduardo@pi-node-c \
   --build-host eduardo@pi-node-b \
   --sudo

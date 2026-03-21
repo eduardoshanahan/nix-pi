@@ -13,10 +13,11 @@ anonymize artifacts before sharing.
 
 ## Suggested workflow
 
-1) Keep confidential inputs in a local, untracked directory (outside the repo
-   when possible).
-2) Generate anonymized or redacted outputs into the repo.
-3) Use environment variables or local-only config files for secrets.
+1) Keep confidential inputs in a sibling private companion repo when they are
+   part of the evaluated Nix configuration.
+2) Generate anonymized or redacted outputs into the public repo.
+3) Use runtime secret files or environment variables for decrypted secret
+   material.
 
 ## Git hygiene
 
@@ -27,4 +28,4 @@ anonymize artifacts before sharing.
 ## Optional local config
 
 If needed, add a `config/local.env` or similar file and keep it out of Git.
-Use `nixos/hosts/private/overrides.nix` for sensitive NixOS overrides.
+For evaluated private NixOS values, use the sibling `nix-pi-private` repo.

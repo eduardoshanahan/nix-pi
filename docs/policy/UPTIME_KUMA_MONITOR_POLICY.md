@@ -12,7 +12,7 @@ The shared service module in `nix-services` owns container lifecycle for
 - Shared service lifecycle, options, and runtime model:
   - `nix-services/services/uptime-kuma/README.md`
 - Host-managed monitor inventory and exceptions:
-  - `nixos/hosts/private/pi-node-b.nix`
+  - `../nix-pi-private/modules/pi-node-b.nix`
   - this document
 
 ## Current Model
@@ -69,7 +69,7 @@ For host-managed HTTP monitors, current sync behavior is:
 - redirects allowed: `10`
 
 For keyword, DNS, and port monitors, the same sync code in
-`nixos/hosts/private/pi-node-b.nix` is canonical.
+`../nix-pi-private/modules/pi-node-b.nix` is canonical.
 
 ## Current Named Exceptions
 
@@ -106,5 +106,5 @@ When a host-managed monitor changes because of:
 
 update both:
 
-1. `nixos/hosts/private/pi-node-b.nix`
+1. `../nix-pi-private/modules/pi-node-b.nix`
 2. this document

@@ -119,12 +119,24 @@
         "type": "github"
       }
     },
+    "private": {
+      "locked": {
+        "path": "./private-config-template",
+        "type": "path"
+      },
+      "original": {
+        "path": "./private-config-template",
+        "type": "path"
+      },
+      "parent": []
+    },
     "root": {
       "inputs": {
         "flake-utils": "flake-utils",
         "nix-services": "nix-services",
         "nixos-hardware": "nixos-hardware",
         "nixpkgs": "nixpkgs_2",
+        "private": "private",
         "sops-nix": "sops-nix"
       }
     },

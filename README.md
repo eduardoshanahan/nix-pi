@@ -7,8 +7,13 @@ This repo builds SD card images for:
 - Raspberry Pi 4 (aarch64)
 - Raspberry Pi 3 (aarch64 by default, armv7l optional)
 
-The public repo stays anonymized; environment-specific values (admin username,
-SSH public keys, domains, IPs) live in gitignored private overrides.
+The public repo keeps a tracked placeholder private input, while the real
+environment-specific values live in a sibling private companion repo:
+
+- public repo: `nix-pi`
+- private companion: `../nix-pi-private`
+- tracked placeholder: `private-config-template/`
+- override variable used by repo helpers: `NIX_PI_PRIVATE_FLAKE`
 
 ## Public Repo Hygiene
 
@@ -80,7 +85,7 @@ Current host-owned Uptime Kuma monitor policy:
 - Recovery docs: `docs/recovery/`
 - Continuity notes: `docs/continuity/`
 - Documentation sync checklist: `../nix-services/docs/policy/DOC_SYNC_CHECKLIST.md`
-- Private overrides (gitignored): `nixos/hosts/private/README.md`
+- Private companion contract: `nixos/hosts/private/README.md`
 - Local runbook (gitignored): `private/PROVISIONING_LOCAL.md`
 - NixOS config layout:
   - Modules: `nixos/modules/`
@@ -88,13 +93,43 @@ Current host-owned Uptime Kuma monitor policy:
 - Application stacks (planned): `apps/README.md`
 - Project records (decisions, work log, session prompt): `records/README.md`
 
+## Private Config Workflow
+
+Private values are now expected from a sibling flake:
+
+- `../nix-pi-private`
+
+The tracked placeholder contract lives in:
+
+- `private-config-template/`
+
+The repo has explicit preflight helpers for the private input:
+
+- `nix run "path:$PWD#validate-private-config" -- pi-node-a`
+- `nix run "path:$PWD#validate-pi-host" -- pi-node-a`
+
+By default the helpers look for `../nix-pi-private`.
+If your private flake lives elsewhere, set:
+
+- `NIX_PI_PRIVATE_FLAKE=/absolute/path/to/nix-pi-private`
+
+If you also need to validate against a local sibling `nix-services` checkout
+instead of the locked remote input, set:
+
+- `NIX_PI_NIX_SERVICES_FLAKE=/absolute/path/to/nix-services`
+
+For direct `nix build` or `nixos-rebuild` commands, pass the private flake
+explicitly with `--override-input private "path:${NIX_PI_PRIVATE_FLAKE:-$PWD/../nix-pi-private}"`.
+
 ## Quick build commands
 
-Build images (including gitignored private overrides) from the repo root:
+Build images with the real private flake from the repo root:
 
 ```bash
-nix build path:.#nixosConfigurations.rpi4.config.system.build.sdImage -o result-rpi4
-nix build path:.#nixosConfigurations.rpi3.config.system.build.sdImage -o result-rpi3
+export NIX_PI_PRIVATE_FLAKE="${NIX_PI_PRIVATE_FLAKE:-$PWD/../nix-pi-private}"
+nix run "path:$PWD#validate-private-config" -- pi-node-a
+nix build --override-input private "path:$NIX_PI_PRIVATE_FLAKE" path:$PWD#nixosConfigurations.rpi4.config.system.build.sdImage -o result-rpi4
+nix build --override-input private "path:$NIX_PI_PRIVATE_FLAKE" path:$PWD#nixosConfigurations.rpi3.config.system.build.sdImage -o result-rpi3
 ```
 
 If you want local image files in this repo (for sync/backups), export them:
@@ -104,29 +139,36 @@ scripts/export-sd-image result-rpi4 sd-image rpi4 --decompress
 scripts/export-sd-image result-rpi3 sd-image rpi3 --decompress
 ```
 
-Deploy (host-local for `pi-node-a` / `pi-node-b`, remote builder for `pi-node-c`)
+Deploy one host at a time (host-local for `pi-node-a` / `pi-node-b`, remote builder for `pi-node-c`)
 
 ```bash
 cd /home/eduardo/Programming/gitea.internal.example/hhlab-insfrastructure/nix-pi
+export NIX_PI_PRIVATE_FLAKE="${NIX_PI_PRIVATE_FLAKE:-$PWD/../nix-pi-private}"
+nix run "path:$PWD#validate-pi-host" -- pi-node-a
+nix run "path:$PWD#validate-pi-host" -- pi-node-b
+nix run "path:$PWD#validate-pi-host" -- pi-node-c
 nix flake update nix-services
 git add flake.lock
 git commit -m "flake: bump nix-services"
 git push
 
 nixos-rebuild switch \
-  --flake path:.#pi-node-a \
+  --flake path:$PWD#pi-node-a \
+  --override-input private "path:$NIX_PI_PRIVATE_FLAKE" \
   --target-host eduardo@pi-node-a \
   --build-host eduardo@pi-node-a \
   --sudo
 
 nixos-rebuild switch \
-  --flake path:.#pi-node-b \
+  --flake path:$PWD#pi-node-b \
+  --override-input private "path:$NIX_PI_PRIVATE_FLAKE" \
   --target-host eduardo@pi-node-b \
   --build-host eduardo@pi-node-b \
   --sudo
 
 nixos-rebuild switch \
-  --flake path:.#pi-node-c \
+  --flake path:$PWD#pi-node-c \
+  --override-input private "path:$NIX_PI_PRIVATE_FLAKE" \
   --target-host eduardo@pi-node-c \
   --build-host eduardo@pi-node-b \
   --sudo
@@ -140,6 +182,8 @@ Remote build note:
 - Cross-host Nix store copies require the builder to sign locally built paths and the target to trust the builder public key.
 - In the current setup, `pi-node-b` signs with `/etc/nix/pi-node-b-priv.pem`, and `pi-node-c` trusts `pi-node-b:Tn8hXVRqRBvg1734Z/0xcpiRGJocvYC3rqogAGMRQL8=`.
 - If the builder signing key changes or `pi-node-c` is rebuilt from scratch, re-establish target trust before using `--build-host eduardo@pi-node-b` again.
+- Keep rebuilds one host at a time so any migration mistake is isolated to a
+  single box.
 
 For bootstrap, expansion, and key rotation details, see `docs/lifecycle/REMOTE_BUILDS.md`.
 

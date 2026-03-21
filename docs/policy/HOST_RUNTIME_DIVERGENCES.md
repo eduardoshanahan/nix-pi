@@ -67,7 +67,7 @@ Do not duplicate full service module contracts here. Those remain canonical in
   - the Homepage instance on `pi-node-b` needs to query remote Docker APIs on
     `pi-node-a`, `pi-node-c`, and `nas-host`
 - Source of truth:
-  - `nixos/hosts/private/pi-node-b.nix`
+  - `../nix-pi-private/modules/pi-node-b.nix`
 
 ### Ghost (`blog` instance)
 
@@ -79,7 +79,7 @@ Do not duplicate full service module contracts here. Those remain canonical in
   - Ghost auth-code mail against the internal SMTP relay has needed TLS
     verification relaxation on this host
 - Source of truth:
-  - `nixos/hosts/private/pi-node-b.nix`
+  - `../nix-pi-private/modules/pi-node-b.nix`
 
 ### Uptime Kuma Monitor Inventory
 
@@ -95,7 +95,7 @@ Do not duplicate full service module contracts here. Those remain canonical in
 - Canonical monitor policy:
   - `docs/policy/UPTIME_KUMA_MONITOR_POLICY.md`
 - Source of truth:
-  - `nixos/hosts/private/pi-node-b.nix`
+  - `../nix-pi-private/modules/pi-node-b.nix`
 
 ### Unpoller
 
@@ -105,7 +105,7 @@ Do not duplicate full service module contracts here. Those remain canonical in
 - Why:
   - this host is intentionally Prometheus-only
 - Source of truth:
-  - `nixos/hosts/private/pi-node-b.nix`
+  - `../nix-pi-private/modules/pi-node-b.nix`
 
 ### Postgres Exporter
 
@@ -117,7 +117,7 @@ Do not duplicate full service module contracts here. Those remain canonical in
 - Why:
   - match the current Postgres role/version compatibility envelope on this host
 - Source of truth:
-  - `nixos/hosts/private/pi-node-b.nix`
+  - `../nix-pi-private/modules/pi-node-b.nix`
 
 ### MySQL Exporter
 

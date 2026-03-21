@@ -28,6 +28,20 @@
       description = "Lab domain used for hostnames once DNS is available.";
     };
 
+    privateConfig = {
+      source = lib.mkOption {
+        type = lib.types.str;
+        default = "private-config-template";
+        description = "Human-readable description of the active private config source.";
+      };
+
+      isPlaceholder = lib.mkOption {
+        type = lib.types.bool;
+        default = true;
+        description = "Whether the active private config is still a placeholder template.";
+      };
+    };
+
     sops = {
       ageKeyFile = lib.mkOption {
         type = lib.types.str;

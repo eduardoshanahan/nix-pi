@@ -11,31 +11,34 @@ while keeping secrets out of Git.
 - Access: SSH public key is injected onto the SD card before first boot.
 - Admin user: configured via `lab.adminUser` (default is `admin`).
 
-## Private overrides (recommended)
+## Private companion repo (required)
 
-Create `nixos/hosts/private/overrides.nix` to store sensitive values (usernames,
-domains, or hostnames). This path is gitignored. See
-`nixos/hosts/private/README.md` for an example.
-For hostnames, prefer setting them after first boot. If you do want per-host
-images later, you can create a private file per node (for example
-`<hostname>.nix`) and build per-host outputs in your own fork if desired.
+Real private values now live in a sibling private flake:
+
+- public repo: `nix-pi`
+- private companion: `../nix-pi-private`
+
+The public repo keeps only the tracked placeholder contract in
+`private-config-template/`.
+
+Before building or rebuilding, validate the active private config:
+
+```bash
+cd ~/Programming/gitea.internal.example/hhlab-insfrastructure/nix-pi
+nix run "path:$PWD#validate-private-config" -- pi-node-a
+```
 
 ## Build the SD image
 
-### Important: private overrides and flakes
+### Important: private flake overrides
 
-This repo keeps `nixos/hosts/private/` gitignored. If you build with
-`nix build .#...` from a Git working tree, Nix treats the flake source as the
-*tracked* Git tree, so gitignored/untracked private overrides may not be visible
-during evaluation.
-
-If you need `nixos/hosts/private/overrides.nix` (for example to set
-`lab.adminUser = "<adminUser>";`) to be included in the build, use a path-based
-flake reference:
+The public flake input named `private` points at the tracked placeholder by
+default. For real builds, pass the sibling private flake explicitly:
 
 ```bash
-nix build path:.#nixosConfigurations.rpi4.config.system.build.sdImage -o result-rpi4
-nix build path:.#nixosConfigurations.rpi3.config.system.build.sdImage -o result-rpi3
+export NIX_PI_PRIVATE_FLAKE="${NIX_PI_PRIVATE_FLAKE:-$PWD/../nix-pi-private}"
+nix build --override-input private "path:$NIX_PI_PRIVATE_FLAKE" path:$PWD#nixosConfigurations.rpi4.config.system.build.sdImage -o result-rpi4
+nix build --override-input private "path:$NIX_PI_PRIVATE_FLAKE" path:$PWD#nixosConfigurations.rpi3.config.system.build.sdImage -o result-rpi3
 ```
 
 ### Recommended builds (one image per architecture)
@@ -43,21 +46,21 @@ nix build path:.#nixosConfigurations.rpi3.config.system.build.sdImage -o result-
 RPi 4 (aarch64):
 
 ```bash
-nix build path:.#nixosConfigurations.rpi4.config.system.build.sdImage -o result-rpi4
+nix build --override-input private "path:${NIX_PI_PRIVATE_FLAKE:-$PWD/../nix-pi-private}" path:$PWD#nixosConfigurations.rpi4.config.system.build.sdImage -o result-rpi4
 ```
 
 RPi 3 (recommended: 64-bit aarch64 for better cache coverage and faster builds
 on x86):
 
 ```bash
-nix build path:.#nixosConfigurations.rpi3.config.system.build.sdImage -o result-rpi3
+nix build --override-input private "path:${NIX_PI_PRIVATE_FLAKE:-$PWD/../nix-pi-private}" path:$PWD#nixosConfigurations.rpi3.config.system.build.sdImage -o result-rpi3
 ```
 
 Optional: RPi 3 in 32-bit mode (armv7l). Much slower on x86 hosts and may require
 `--impure` and `NIXPKGS_ALLOW_BROKEN=1`:
 
 ```bash
-NIXPKGS_ALLOW_BROKEN=1 nix build --impure path:.#nixosConfigurations.rpi3-armv7l.config.system.build.sdImage -o result-rpi3
+NIXPKGS_ALLOW_BROKEN=1 nix build --impure --override-input private "path:${NIX_PI_PRIVATE_FLAKE:-$PWD/../nix-pi-private}" path:$PWD#nixosConfigurations.rpi3-armv7l.config.system.build.sdImage -o result-rpi3
 ```
 
 If the build fails due to architecture emulation, enable binfmt support for
@@ -174,20 +177,9 @@ Replace `/dev/sdX` with the correct device.
 ### Fully automated (recommended)
 
 If you want provisioning to be repeatable without modifying SD cards after flashing,
-set the admin public key(s) in your gitignored `nixos/hosts/private/overrides.nix`:
-
-```nix
-{ ... }:
-{
-  lab.adminUser = "<adminUser>";
-  lab.adminAuthorizedKeys = [
-    "ssh-ed25519 AAAA... comment"
-  ];
-}
-```
-
-Then rebuild using `path:.#...` (so the private overrides are included) and
-flash the image. With `lab.adminAuthorizedKeys` set, the image will include
+set the admin public key(s) in `nix-pi-private/modules/shared.nix`, then rebuild
+with the private flake override and flash the image. With
+`lab.adminAuthorizedKeys` set, the image will include
 `/etc/ssh/authorized_keys/<adminUser>` automatically.
 
 ### Manual injection (fallback)

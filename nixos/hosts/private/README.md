@@ -1,37 +1,38 @@
-# Private Host Overrides
+# Private Companion Contract
 
-Place sensitive or environment-specific overrides here. This directory is not
-tracked by Git. Create `overrides.nix` to override admin usernames or domains.
-For hostnames, add a file that matches the public hostname, for example
-`<hostname>.nix`.
+`nix-pi` no longer treats `nixos/hosts/private/` as the canonical source of
+private values.
 
-Example `overrides.nix`:
+The real private source of truth is now the sibling flake:
 
-```nix
-{ ... }:
-{
-  lab.adminUser = "your-admin";
-  # Fully automated SSH access (recommended): embed public keys into the image.
-  # This avoids mounting the SD card after flashing.
-  lab.adminAuthorizedKeys = [
-    "ssh-ed25519 AAAA... comment"
-  ];
-  lab.domain = "lab.internal.example";
-}
+```text
+../nix-pi-private
 ```
 
-Example host-specific override `<hostname>.nix`:
+This directory is kept only as the tracked public-side contract and migration
+reference.
 
-```nix
-{ ... }:
-{
-  networking.hostName = "example-host";
-}
+Current public/private split:
+
+- public placeholder input:
+  `private-config-template/`
+- real private companion:
+  `../nix-pi-private`
+- override variable used by repo helpers:
+  `NIX_PI_PRIVATE_FLAKE`
+- optional sibling `nix-services` override for helper validation:
+  `NIX_PI_NIX_SERVICES_FLAKE`
+
+Validate the active private config before builds or rebuilds:
+
+```bash
+cd ~/Programming/gitea.internal.example/hhlab-insfrastructure/nix-pi
+nix run "path:$PWD#validate-private-config" -- pi-node-a
+nix run "path:$PWD#validate-pi-host" -- pi-node-a
 ```
 
-Notes
+For direct `nix build` or `nixos-rebuild` commands, also pass:
 
-- This repo is set up so `nixos/hosts/private/` is gitignored; do not commit any
-  secrets here.
-- When building SD images, use `path:.#...` so Nix can see your local private
-  overrides (see `docs/lifecycle/PROVISIONING.md`).
+```bash
+--override-input private "path:${NIX_PI_PRIVATE_FLAKE:-$PWD/../nix-pi-private}"
+```

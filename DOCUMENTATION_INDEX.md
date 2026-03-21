@@ -64,7 +64,9 @@ to look for stable host lifecycle or host-runtime truth.
 - `records/`
   - project/session records
 - `nixos/hosts/private/`
-  - live host-specific configuration and local overrides
+  - placeholder contract and migration notes for the private companion model
+- `../nix-pi-private/modules/`
+  - live private shared and host-specific configuration
 - `../nix-services/services/*/README.md`
   - shared service behavior and options
 - `../nix-services/docs/policy/DOC_SYNC_CHECKLIST.md`
