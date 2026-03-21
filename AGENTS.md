@@ -81,7 +81,12 @@ Rule: if the change is a reusable service behavior change, it probably belongs i
 - Decrypted secrets must only appear at runtime under `/run/secrets`.
 - `lab.sops.ageKeyFile` must point to a host file, never a Nix store path.
 - Prefer the repo-local `nix develop` shell for commits, hooks, and tool-driven work.
+- At the start of a session, enter `nix develop`, run `git fetch origin`, then
+  `git pull --rebase origin main`, and check `git status --short --branch`
+  before editing.
 - Do not bypass hooks by default. Missing tools usually means the shell is wrong, not that hooks should be skipped.
+- At the end of a finished task, commit and push the resulting branch state to
+  `origin` unless the user explicitly asks to leave work local.
 - Keep the public repo anonymized unless the user explicitly wants a de-anonymizing change.
 - Treat `records/` as part of the operating model, not disposable notes.
 
