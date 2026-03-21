@@ -71,7 +71,8 @@ Rule: if the change is a reusable service behavior change, it probably belongs i
 - `records/`: long-lived public-safe project/session records
 - `../nix-pi-private/docs/`: private operator notes and continuity files
 - `secrets/`: SOPS-encrypted secret files safe to commit
-- `private/`: gitignored local runbooks, prompts, and execution notes
+- `../nix-pi-private/docs/local/`: private local runbooks and execution notes
+- `../nix-pi-private/prompts/`: private prompts and session helpers
 
 ## Important Working Rules
 
@@ -96,7 +97,8 @@ Rule: if the change is a reusable service behavior change, it probably belongs i
 - Committed secret material must stay SOPS-encrypted under `secrets/`.
 - Host age private keys live outside Git, normally at `/var/lib/sops/age.key`.
 - Builder signing keys are separate from SOPS and also stay outside Git.
-- Private/environment-specific values belong in the sibling private companion repo or in local-only `private/` notes, not public docs.
+- Private/environment-specific values belong in the sibling private companion
+  repo, not public docs.
 - Real private values now live in `../nix-pi-private`. Do not echo them into new files, docs, or commit messages.
 
 ## Build, Deploy, And Validation Norms
@@ -207,4 +209,4 @@ Prefer appending new record entries over rewriting historical ones.
 - committing plaintext secrets or private identifiers unnecessarily
 - assuming `nix build .#...` will automatically pick up the private companion flake
 - editing host runtime behavior without updating the owning docs
-- treating `private/` or `../nix-pi-private` as throwaway examples
+- treating `../nix-pi-private` as a throwaway example

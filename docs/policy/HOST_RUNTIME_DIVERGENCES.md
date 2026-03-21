@@ -54,7 +54,7 @@ Do not duplicate full service module contracts here. Those remain canonical in
   - `pi-node-b` is a direct Tailscale node for remote host access, so it gets
     the same container-presence safeguard as `pi-node-a`
 - Source of truth:
-  - `nixos/hosts/private/pi-node-b.nix`
+  - `../nix-pi-private/modules/pi-node-b.nix`
 
 ### Homepage
 

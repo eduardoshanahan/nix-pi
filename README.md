@@ -86,7 +86,7 @@ Current host-owned Uptime Kuma monitor policy:
 - Continuity notes: `docs/continuity/`
 - Documentation sync checklist: `../nix-services/docs/policy/DOC_SYNC_CHECKLIST.md`
 - Private companion contract: `nixos/hosts/private/README.md`
-- Local runbook (gitignored): `private/PROVISIONING_LOCAL.md`
+- Private local runbook: `../nix-pi-private/docs/local/PROVISIONING_LOCAL.md`
 - NixOS config layout:
   - Modules: `nixos/modules/`
   - Profiles: `nixos/profiles/`

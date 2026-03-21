@@ -21,7 +21,8 @@ anonymize artifacts before sharing.
 
 ## Git hygiene
 
-- Use `.gitignore` to exclude local-only files and private folders.
+- Prefer the sibling private companion repo for private runbooks, prompts, and
+  environment-specific notes.
 - If a secret is committed, rotate it immediately and rewrite history before
   publishing.
 

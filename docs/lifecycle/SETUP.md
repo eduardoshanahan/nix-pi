@@ -76,7 +76,7 @@ The first check is a secrets scan via `gitleaks`.
 - Initialize Git in the repo (`git init`) if it is not already a Git repo.
 - Enter the dev shell (`nix develop`).
 - Clone `nix-pi-private` next to `nix-pi`, if needed.
-- Optional local runbook: `private/PROVISIONING_LOCAL.md`
+- Optional local runbook: `../nix-pi-private/docs/local/PROVISIONING_LOCAL.md`
 - Install hooks (`prek install`).
 - Run checks (`prek run --all-files`).
 
