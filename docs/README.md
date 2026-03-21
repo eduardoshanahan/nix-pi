@@ -7,13 +7,13 @@ Repository-level documentation under `nix-pi/` lives here.
 - `policy/`
   - stable host policy, divergence, confidentiality, and sanitization docs
 - `operations/`
-  - operator quick checks and deployed-state notes
+  - public pointer docs for operator notes that now live in `../nix-pi-private/docs/operations/`
 - `plans/`
-  - rollout, migration, audit, and planning references
+  - public-safe rollout, migration, audit, and planning references
 - `recovery/`
   - backup and rebuild runbooks
 - `continuity/`
-  - continuity notes, archive summaries, and session-support docs
+  - public-safe continuity notes, archive summaries, and session-support docs
 - `prompts/`
   - local prompt/style pointers
 

@@ -24,7 +24,7 @@ The public repo keeps only the tracked placeholder contract in
 Before building or rebuilding, validate the active private config:
 
 ```bash
-cd ~/Programming/gitea.internal.example/hhlab-insfrastructure/nix-pi
+cd /absolute/path/to/nix-pi
 nix run "path:$PWD#validate-private-config" -- pi-node-a
 ```
 

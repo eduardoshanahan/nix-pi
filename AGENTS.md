@@ -27,7 +27,7 @@ When working in `nix-pi`, read in this order:
    - `docs/lifecycle/REMOTE_BUILDS.md`
    - `docs/policy/HOST_RUNTIME_DIVERGENCES.md`
    - `docs/policy/UPTIME_KUMA_MONITOR_POLICY.md`
-   - `docs/operations/OPERATIONS_CHECKS_AND_SERVICE_NOTES.md`
+   - `../nix-pi-private/docs/operations/OPERATIONS_CHECKS_AND_SERVICE_NOTES.md`
 5. the relevant implementation files in:
    - `flake.nix`
    - `nixos/modules/`
@@ -66,9 +66,10 @@ Rule: if the change is a reusable service behavior change, it probably belongs i
 - `nixos/profiles/`: RPi image profiles
 - `nixos/hosts/`: public host entry modules
 - `scripts/`: operational helper scripts
-- `docs/`: canonical host-owned docs
+- `docs/`: canonical public-safe host-owned docs
 - `DOCUMENTATION_INDEX.md`: quick navigation index for repo-level docs
-- `records/`: long-lived project/session records
+- `records/`: long-lived public-safe project/session records
+- `../nix-pi-private/docs/`: private operator notes and continuity files
 - `secrets/`: SOPS-encrypted secret files safe to commit
 - `private/`: gitignored local runbooks, prompts, and execution notes
 

@@ -37,7 +37,7 @@ Do not duplicate full service module contracts here. Those remain canonical in
     periodically restarting `tailscale.service` when the container is missing
     or not running
 - Source of truth:
-  - `nixos/hosts/private/pi-node-a.nix`
+  - `../nix-pi-private/modules/pi-node-a.nix`
 
 ## `pi-node-b`
 
@@ -65,7 +65,7 @@ Do not duplicate full service module contracts here. Those remain canonical in
     view.
 - Why:
   - the Homepage instance on `pi-node-b` needs to query remote Docker APIs on
-    `pi-node-a`, `pi-node-c`, and `nas-host`
+    `pi-node-a`, `pi-node-c`, and an additional external Docker host
 - Source of truth:
   - `../nix-pi-private/modules/pi-node-b.nix`
 
@@ -143,7 +143,7 @@ Do not duplicate full service module contracts here. Those remain canonical in
   - the host-side reconcile timer protects it from the same oneshot-container
     drift failure mode seen on `pi-node-a`
 - Source of truth:
-  - `nixos/hosts/private/pi-node-c.nix`
+  - `../nix-pi-private/modules/pi-node-c.nix`
 
 ## Update Rule
 

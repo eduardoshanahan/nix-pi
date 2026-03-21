@@ -15,7 +15,8 @@ Current builder signing identity:
 - Builder: `pi-node-b`
 - Private key path: `/etc/nix/pi-node-b-priv.pem`
 - Public key path: `/etc/nix/pi-node-b-pub.pem`
-- Trusted public key string: `pi-node-b:Tn8hXVRqRBvg1734Z/0xcpiRGJocvYC3rqogAGMRQL8=`
+- Trusted public key string: managed in the private companion config and host
+  runbook for the active builder/target pair
 
 ## Why signing is required
 
@@ -69,7 +70,7 @@ ssh -o BatchMode=yes -o ConnectTimeout=6 eduardo@pi-node-b \
   "test -f /etc/nix/pi-node-b-priv.pem && test -f /etc/nix/pi-node-b-pub.pem"
 
 ssh -o BatchMode=yes -o ConnectTimeout=6 eduardo@pi-node-c \
-  "grep -F 'pi-node-b:Tn8hXVRqRBvg1734Z/0xcpiRGJocvYC3rqogAGMRQL8=' /etc/nix/nix.conf"
+  "grep -F '<builder-public-key-string>' /etc/nix/nix.conf"
 ```
 
 If any of those checks fail, stop and repair the builder/signing path before

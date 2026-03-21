@@ -25,6 +25,7 @@ the right class of document.
 ## Operations Docs
 
 - `docs/operations/OPERATIONS_CHECKS_AND_SERVICE_NOTES.md`
+  - pointer to the private operator notes in `../nix-pi-private/docs/operations/`
 
 ## Plans And Reference Notes
 
@@ -60,13 +61,15 @@ to look for stable host lifecycle or host-runtime truth.
 - `README.md`
   - repo overview, ownership boundaries, and main documentation pointers
 - `docs/`
-  - host lifecycle, policy, operator, planning, and continuity docs
+  - host lifecycle, policy, and public-safe planning/continuity docs
 - `records/`
   - project/session records
 - `nixos/hosts/private/`
   - placeholder contract and migration notes for the private companion model
 - `../nix-pi-private/modules/`
   - live private shared and host-specific configuration
+- `../nix-pi-private/docs/`
+  - private operator notes, continuity files, and internal rollout details
 - `../nix-services/services/*/README.md`
   - shared service behavior and options
 - `../nix-services/docs/policy/DOC_SYNC_CHECKLIST.md`

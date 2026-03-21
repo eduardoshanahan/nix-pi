@@ -80,7 +80,7 @@ Current host-owned Uptime Kuma monitor policy:
 - Remote builds and signing: `docs/lifecycle/REMOTE_BUILDS.md`
 - Host runtime divergences: `docs/policy/HOST_RUNTIME_DIVERGENCES.md`
 - Uptime Kuma monitor policy: `docs/policy/UPTIME_KUMA_MONITOR_POLICY.md`
-- Operations checks and service notes: `docs/operations/OPERATIONS_CHECKS_AND_SERVICE_NOTES.md`
+- Operations checks and service notes: `../nix-pi-private/docs/operations/OPERATIONS_CHECKS_AND_SERVICE_NOTES.md`
 - Plans and audits: `docs/plans/`
 - Recovery docs: `docs/recovery/`
 - Continuity notes: `docs/continuity/`
@@ -142,7 +142,7 @@ scripts/export-sd-image result-rpi3 sd-image rpi3 --decompress
 Deploy one host at a time (host-local for `pi-node-a` / `pi-node-b`, remote builder for `pi-node-c`)
 
 ```bash
-cd /home/eduardo/Programming/gitea.internal.example/hhlab-insfrastructure/nix-pi
+cd /absolute/path/to/nix-pi
 export NIX_PI_PRIVATE_FLAKE="${NIX_PI_PRIVATE_FLAKE:-$PWD/../nix-pi-private}"
 nix run "path:$PWD#validate-pi-host" -- pi-node-a
 nix run "path:$PWD#validate-pi-host" -- pi-node-b
@@ -180,7 +180,9 @@ Remote build note:
 
 - `pi-node-c` builds on `pi-node-b` because `pi-node-c` does not have enough local build capacity.
 - Cross-host Nix store copies require the builder to sign locally built paths and the target to trust the builder public key.
-- In the current setup, `pi-node-b` signs with `/etc/nix/pi-node-b-priv.pem`, and `pi-node-c` trusts `pi-node-b:Tn8hXVRqRBvg1734Z/0xcpiRGJocvYC3rqogAGMRQL8=`.
+- In the current setup, the designated builder signs with its host-local key,
+  and target nodes trust the matching public key string declared in the private
+  companion config.
 - If the builder signing key changes or `pi-node-c` is rebuilt from scratch, re-establish target trust before using `--build-host eduardo@pi-node-b` again.
 - Keep rebuilds one host at a time so any migration mistake is isolated to a
   single box.

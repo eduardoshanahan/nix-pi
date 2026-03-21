@@ -261,7 +261,7 @@ Actions:
 
 ```bash
 cd ~
-git clone ssh://git@gitea.internal.example:2222/eduardo/nix-pi.git
+git clone <nix-pi-repo-url>
 cd nix-pi
 ```
 

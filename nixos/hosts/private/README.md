@@ -26,7 +26,7 @@ Current public/private split:
 Validate the active private config before builds or rebuilds:
 
 ```bash
-cd ~/Programming/gitea.internal.example/hhlab-insfrastructure/nix-pi
+cd /absolute/path/to/nix-pi
 nix run "path:$PWD#validate-private-config" -- pi-node-a
 nix run "path:$PWD#validate-pi-host" -- pi-node-a
 ```
