@@ -89,6 +89,9 @@ Rule: if the change is a reusable service behavior change, it probably belongs i
 - Do not bypass hooks by default. Missing tools usually means the shell is wrong, not that hooks should be skipped.
 - At the end of a finished task, commit and push the resulting branch state to
   `origin` unless the user explicitly asks to leave work local.
+- If the task changes service behavior, finish the rollout after push with a
+  full rebuild of the owning host and verify on the live system that the fix
+  still works after that rebuild.
 - Keep the public repo anonymized unless the user explicitly wants a de-anonymizing change.
 - Treat `records/` as part of the operating model, not disposable notes.
 
