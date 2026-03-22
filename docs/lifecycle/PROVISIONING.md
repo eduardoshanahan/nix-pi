@@ -6,7 +6,7 @@ while keeping secrets out of Git.
 
 ## Assumptions
 
-- Host machine: Ubuntu 25.10 x86_64 with Nix installed and flakes enabled.
+- Host machine: NixOS x86_64.
 - Network: DHCP only; IPs will be reserved after first boot.
 - Access: SSH public key is injected onto the SD card before first boot.
 - Admin user: configured via `lab.adminUser` (default is `admin`).
@@ -56,22 +56,29 @@ on x86):
 nix build --override-input private "path:${NIX_PI_PRIVATE_FLAKE:-$PWD/../nix-pi-private}" path:$PWD#nixosConfigurations.rpi3.config.system.build.sdImage -o result-rpi3
 ```
 
-Optional: RPi 3 in 32-bit mode (armv7l). Much slower on x86 hosts and may require
-`--impure` and `NIXPKGS_ALLOW_BROKEN=1`:
-
-```bash
-NIXPKGS_ALLOW_BROKEN=1 nix build --impure --override-input private "path:${NIX_PI_PRIVATE_FLAKE:-$PWD/../nix-pi-private}" path:$PWD#nixosConfigurations.rpi3-armv7l.config.system.build.sdImage -o result-rpi3
-```
-
 If the build fails due to architecture emulation, enable binfmt support for
 ARM on the host before retrying.
 
-On Ubuntu (host), enable QEMU binfmt:
+On NixOS (host), enable binfmt and ARM build support in your system config:
+
+```nix
+{
+  boot.binfmt.emulatedSystems = [
+    "aarch64-linux"
+    "armv7l-linux"
+  ];
+
+  nix.settings.extra-platforms = [
+    "aarch64-linux"
+    "armv7l-linux"
+  ];
+}
+```
+
+Then rebuild the host:
 
 ```bash
-sudo apt-get update
-sudo apt-get install -y qemu-user-static binfmt-support
-sudo systemctl restart binfmt-support
+sudo nixos-rebuild switch
 ```
 
 Verify ARM support is registered:
@@ -79,22 +86,6 @@ Verify ARM support is registered:
 ```bash
 ls /proc/sys/fs/binfmt_misc | rg -i 'arm|aarch64'
 ```
-
-Enable cross-architecture builds in Nix:
-
-For multi-user Nix (daemon), edit `/etc/nix/nix.conf`:
-
-```conf
-extra-platforms = aarch64-linux armv7l-linux
-```
-
-Then restart the daemon:
-
-```bash
-sudo systemctl restart nix-daemon
-```
-
-For single-user Nix, add the same line to `~/.config/nix/nix.conf`.
 
 ### Pi 3 (armv7l) builds: required `system-features`
 
@@ -111,17 +102,26 @@ Check current features:
 nix show-config | rg '^system-features'
 ```
 
-For multi-user Nix (daemon), add `gccarch-armv7-a` to `system-features` in
-`/etc/nix/nix.conf` (include your existing features), for example:
+If it is missing, add `gccarch-armv7-a` to your NixOS config (include your
+existing features), for example:
 
-```conf
-system-features = benchmark big-parallel kvm nixos-test uid-range gccarch-armv7-a
+```nix
+{
+  nix.settings.system-features = [
+    "benchmark"
+    "big-parallel"
+    "kvm"
+    "nixos-test"
+    "uid-range"
+    "gccarch-armv7-a"
+  ];
+}
 ```
 
-Then restart the daemon:
+Then rebuild the host:
 
 ```bash
-sudo systemctl restart nix-daemon
+sudo nixos-rebuild switch
 ```
 
 ## Troubleshooting
