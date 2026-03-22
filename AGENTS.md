@@ -103,6 +103,9 @@ Rule: if the change is a reusable service behavior change, it probably belongs i
 - Private/environment-specific values belong in the sibling private companion
   repo, not public docs.
 - Real private values now live in `../nix-pi-private`. Do not echo them into new files, docs, or commit messages.
+- Private continuity notes, real host identifiers, real internal IPs, and
+  operator-specific workflow belong in `../nix-pi-private/docs/`, not in the
+  public repo.
 
 ## Build, Deploy, And Validation Norms
 
