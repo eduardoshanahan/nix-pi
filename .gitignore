@@ -1,5 +1,3 @@
-# Local-only config
-config/local.env
 
 # Nix build symlinks
 result
@@ -9,8 +7,5 @@ result-*
 sd-image/*.img
 sd-image/*.img.zst
 sd-image/*.sha256
-
-# OS / editor
-.DS_Store
 
 .direnv/
