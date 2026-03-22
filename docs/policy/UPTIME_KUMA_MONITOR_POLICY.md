@@ -100,6 +100,23 @@ For keyword, DNS, and port monitors, the same sync code in
   - monitor the base URL and follow normal redirects instead of depending on
     `/dashboard` being available during the service's own startup window
 
+### `MinIO API`
+
+- monitor target:
+  - `https://minio.<lab-domain>/minio/health/live`
+- rationale:
+  - the MinIO API root commonly returns a non-2xx S3 response for anonymous
+    requests
+  - the explicit health endpoint gives Kuma a stable `200 OK` signal
+
+### `MinIO Console`
+
+- monitor target:
+  - `https://minio-console.<lab-domain>/`
+- rationale:
+  - the admin console is reverse-proxied on a separate hostname from the S3 API
+  - monitoring the console root avoids depending on direct `:9001` access
+
 ## Operator Rule
 
 When a host-managed monitor changes because of:
