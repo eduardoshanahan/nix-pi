@@ -21,6 +21,7 @@
           specialArgs = {
             inherit inputs self;
             piRepoRoot = ./.;
+            privateRepoRoot = inputs.private.outPath;
           };
           modules =
           [
