@@ -7,7 +7,7 @@
     nixos-hardware.url = "github:NixOS/nixos-hardware";
     nix-services.url = "git+ssh://git@gitea.internal.example:2222/eduardo/nix-services.git?ref=main";
     sops-nix.url = "github:Mic92/sops-nix";
-    private.url = "path:./private-config-template";
+    private.url = "git+ssh://git@gitea.internal.example:2222/eduardo/nix-pi-private.git?ref=main";
   };
 
   outputs = inputs@{ self, nixpkgs, flake-utils, nixos-hardware, private, ... }:
