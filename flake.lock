@@ -121,11 +121,11 @@
     },
     "private": {
       "locked": {
-        "lastModified": 1774536616,
-        "narHash": "sha256-BaPL6QaNCAA8N36I0Pl9xisMBommzhnPiv97Wh3bPJc=",
+        "lastModified": 1774539369,
+        "narHash": "sha256-Wr6xJEjI4yxXocXfDwAc8lZGqriXWPDetBqwiOIJ8mQ=",
         "ref": "main",
-        "rev": "ea118c6cb40828284dacab332d9db5a0a2fcd298",
-        "revCount": 21,
+        "rev": "04577a95f70ed576972c3b0adfbbbd1d44b7da7b",
+        "revCount": 22,
         "type": "git",
         "url": "ssh://git@gitea.internal.example:2222/eduardo/nix-pi-private.git"
       },
