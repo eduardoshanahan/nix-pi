@@ -38,6 +38,10 @@ The current Pi-hole monitor inventory includes:
 - `Pi-hole Exporter pi-node-b`
 - `Pi-hole Exporter pi-node-c`
 
+The inventory also covers shared admin tooling:
+
+- `Adminer` (`https://adminer.<lab-domain>/`, the Synology-hosted MariaDB/MySQL/Postgres UI used by the homelab)
+
 `Pi-hole Admin Tertiary` monitors the additional Pi-hole instance on
 `pi-node-c`. `pi-node-c` is now the scheduled `pihole-sync` source for
 `pi-node-a` and `pi-node-b`, but the existing primary/secondary operational
