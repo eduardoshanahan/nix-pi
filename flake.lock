@@ -42,11 +42,11 @@
         "nixpkgs": "nixpkgs"
       },
       "locked": {
-        "lastModified": 1774771003,
-        "narHash": "sha256-DgPt/+yOxgS3kpl4WbbnsaaqwgkLmZZkilyQsLXCJCw=",
+        "lastModified": 1775227460,
+        "narHash": "sha256-vAdpNzQVcnxlHzOSh2gcL9+C+NDcYVUVNYjcXwktxXE=",
         "ref": "main",
-        "rev": "6c63c65976025782d77ab54b16754bbfba5df64d",
-        "revCount": 28,
+        "rev": "83cb77ec9fa6e6ffb082468dd65f99b90997f8ba",
+        "revCount": 38,
         "type": "git",
         "url": "ssh://git@gitea.internal.example:2222/eduardo/nix-services.git"
       },
@@ -121,11 +121,11 @@
     },
     "private": {
       "locked": {
-        "lastModified": 1774772945,
-        "narHash": "sha256-2mhZe7FxogFN20zTIkJDwnLrvIJk7aH+ggb5TJvIYew=",
+        "lastModified": 1775227446,
+        "narHash": "sha256-W3wy1Q6bmXFb0R8P1G1g9isNTaVAreRTluN9wfIr9gQ=",
         "ref": "main",
-        "rev": "914b332ac54e72032d9f4cdd12b5f097f6784dc4",
-        "revCount": 31,
+        "rev": "1b5ba3b311bccfa07b13ceb4bc5e9880d804bc9a",
+        "revCount": 33,
         "type": "git",
         "url": "ssh://git@gitea.internal.example:2222/eduardo/nix-pi-private.git"
       },
