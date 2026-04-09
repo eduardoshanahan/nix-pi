@@ -172,7 +172,7 @@ nixos-rebuild switch \
   --build-host eduardo@pi-node-b \
   --sudo
 
-ssh-copy-id -i ~/.ssh/id_ed25519_homelab.pub eduardo@<nas-fqdn>
+ssh-copy-id -i ~/.ssh/id_ed25519_homelab.pub <admin-user>@<nas-fqdn>
 ```
 
 Remote build note:
