@@ -75,28 +75,28 @@
         pi-node-a = mkBaseSystem {
           system = "aarch64-linux";
           profile = ./nixos/profiles/rpi4.nix;
-          hostModule = ./nixos/hosts/pi-node-a.nix;
+          hostModule = ./nixos/hosts/rpi-box-01.nix;
           extraModules = [ nixos-hardware.nixosModules.raspberry-pi-4 ];
           privateSharedModule = privateSharedOverrides;
-          privateHostModule = maybePrivateHost "pi-node-a";
+          privateHostModule = maybePrivateHost "rpi-box-01";
         };
 
         pi-node-b = mkBaseSystem {
           system = "aarch64-linux";
           profile = ./nixos/profiles/rpi4.nix;
-          hostModule = ./nixos/hosts/pi-node-b.nix;
+          hostModule = ./nixos/hosts/rpi-box-02.nix;
           extraModules = [ nixos-hardware.nixosModules.raspberry-pi-4 ];
           privateSharedModule = privateSharedOverrides;
-          privateHostModule = maybePrivateHost "pi-node-b";
+          privateHostModule = maybePrivateHost "rpi-box-02";
         };
 
         pi-node-c = mkBaseSystem {
           system = "aarch64-linux";
           profile = ./nixos/profiles/rpi4.nix;
-          hostModule = ./nixos/hosts/pi-node-c.nix;
+          hostModule = ./nixos/hosts/rpi-box-03.nix;
           extraModules = [ nixos-hardware.nixosModules.raspberry-pi-4 ];
           privateSharedModule = privateSharedOverrides;
-          privateHostModule = maybePrivateHost "pi-node-c";
+          privateHostModule = maybePrivateHost "rpi-box-03";
         };
       };
     }
