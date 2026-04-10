@@ -81,6 +81,20 @@ Do not duplicate full service module contracts here. Those remain canonical in
 - Source of truth:
   - `../nix-pi-private/modules/pi-node-b.nix`
 
+### cAdvisor
+
+- Shared module: `services.cadvisorCompose`
+- Intentional divergence:
+  - `cadvisor-startup-reconcile.service`
+  - `cadvisor-startup-reconcile.timer`
+- Why:
+  - after power failures, Docker can leave a stale exited `cadvisor`
+    container pointing at a missing compose network
+  - the host-side reconcile timer removes the stale container and restarts the
+    unit so `rpi-box-02:8081` comes back without a manual cleanup step
+- Source of truth:
+  - `../nix-pi-private/modules/rpi-box-02.nix`
+
 ### SNMP Exporter
 
 - Shared module: `services.snmpExporterCompose`
