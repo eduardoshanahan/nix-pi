@@ -140,6 +140,10 @@ scripts/export-sd-image result-rpi3 sd-image rpi3 --decompress
 
 Deploy one host at a time (host-local for `pi-node-a` / `pi-node-b`, remote builder for `pi-node-c`)
 
+The flake outputs are named `pi-node-a` / `pi-node-b` / `pi-node-c`, but the
+SSH deploy targets are the physical hostnames `rpi-box-01` / `rpi-box-02` /
+`rpi-box-03`.
+
 ```bash
 cd /absolute/path/to/nix-pi
 export NIX_PI_PRIVATE_FLAKE="${NIX_PI_PRIVATE_FLAKE:-$PWD/../nix-pi-private}"
@@ -154,22 +158,22 @@ git push
 nixos-rebuild switch \
   --flake path:$PWD#pi-node-a \
   --override-input private "path:$NIX_PI_PRIVATE_FLAKE" \
-  --target-host eduardo@pi-node-a \
-  --build-host eduardo@pi-node-a \
+  --target-host eduardo@rpi-box-01 \
+  --build-host eduardo@rpi-box-01 \
   --sudo
 
 nixos-rebuild switch \
   --flake path:$PWD#pi-node-b \
   --override-input private "path:$NIX_PI_PRIVATE_FLAKE" \
-  --target-host eduardo@pi-node-b \
-  --build-host eduardo@pi-node-b \
+  --target-host eduardo@rpi-box-02 \
+  --build-host eduardo@rpi-box-02 \
   --sudo
 
 nixos-rebuild switch \
   --flake path:$PWD#pi-node-c \
   --override-input private "path:$NIX_PI_PRIVATE_FLAKE" \
-  --target-host eduardo@pi-node-c \
-  --build-host eduardo@pi-node-b \
+  --target-host eduardo@rpi-box-03 \
+  --build-host eduardo@rpi-box-02 \
   --sudo
 
 ssh-copy-id -i ~/.ssh/id_ed25519_homelab.pub <admin-user>@<nas-fqdn>

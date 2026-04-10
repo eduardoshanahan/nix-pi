@@ -66,10 +66,10 @@ export NIX_PI_NIX_SERVICES_FLAKE="${NIX_PI_NIX_SERVICES_FLAKE:-$PWD/../nix-servi
 nix run "path:$PWD#validate-private-config" -- pi-node-c
 nix run "path:$PWD#validate-pi-host" -- pi-node-c
 
-ssh -o BatchMode=yes -o ConnectTimeout=6 eduardo@pi-node-b \
+ssh -o BatchMode=yes -o ConnectTimeout=6 eduardo@rpi-box-02 \
   "test -f /etc/nix/pi-node-b-priv.pem && test -f /etc/nix/pi-node-b-pub.pem"
 
-ssh -o BatchMode=yes -o ConnectTimeout=6 eduardo@pi-node-c \
+ssh -o BatchMode=yes -o ConnectTimeout=6 eduardo@rpi-box-03 \
   "grep -F '<builder-public-key-string>' /etc/nix/nix.conf"
 ```
 
@@ -83,8 +83,8 @@ export NIX_PI_PRIVATE_FLAKE="${NIX_PI_PRIVATE_FLAKE:-$PWD/../nix-pi-private}"
 nixos-rebuild switch \
   --flake path:$PWD#pi-node-c \
   --override-input private "path:$NIX_PI_PRIVATE_FLAKE" \
-  --target-host eduardo@pi-node-c \
-  --build-host eduardo@pi-node-b \
+  --target-host eduardo@rpi-box-03 \
+  --build-host eduardo@rpi-box-02 \
   --sudo
 ```
 
@@ -96,10 +96,10 @@ The declarative requirements are:
 Recommended post-deploy checks for `pi-node-c`:
 
 ```bash
-ssh -o BatchMode=yes -o ConnectTimeout=6 eduardo@pi-node-c \
+ssh -o BatchMode=yes -o ConnectTimeout=6 eduardo@rpi-box-03 \
   "hostname; systemctl is-active traefik pihole loki promtail tailscale"
 
-ssh -o BatchMode=yes -o ConnectTimeout=6 eduardo@pi-node-c \
+ssh -o BatchMode=yes -o ConnectTimeout=6 eduardo@rpi-box-03 \
   "test -f /etc/ssl/certs/homelab-root-ca.crt"
 ```
 
