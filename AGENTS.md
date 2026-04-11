@@ -122,11 +122,12 @@ Rule: if the change is a reusable service behavior change, it probably belongs i
 - Pi-hole primary
 - Traefik, Promtail, cAdvisor, Tailscale, Docker socket proxy
 - static LAN addressing and internal DNS preference
+- SSD-backed `/srv` storage is available for persistent host-local state
 
 ### `pi-node-b`
 
 - main app and monitoring hub
-- USB-backed `/srv` storage is the intended home for persistent state
+- SSD-backed `/srv` storage is the intended home for persistent state
 - NFS media mount at `/mnt/media`
 - large host-specific config surface in `../nix-pi-private/modules/pi-node-b.nix`
 - host-managed Uptime Kuma monitor inventory
@@ -136,6 +137,7 @@ Rule: if the change is a reusable service behavior change, it probably belongs i
 ### `pi-node-c`
 
 - Loki host
+- SSD-backed `/srv` storage is available for persistent host-local state
 - trusts `pi-node-b` Nix signing key for remote builds
 
 ## Documentation Sync Rules

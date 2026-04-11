@@ -196,20 +196,20 @@ For bootstrap, expansion, and key rotation details, see `docs/lifecycle/REMOTE_B
 
 - `pi-node-b` has two different storage classes:
   - SD card root filesystem at `/`
-  - USB flash storage mounted at `/srv`
-- Persistent service state on `pi-node-b` should be placed on the USB-backed `/srv` storage, not on the SD card.
+  - SSD storage mounted at `/srv`
+- Persistent service state on `pi-node-b` should be placed on the SSD-backed `/srv` storage, not on the SD card.
 - For new services, prefer dedicated paths such as `/srv/<service>` for application data and `/srv/backups/<service>` for backups.
 - Do not place new long-lived application state under `/var/lib/...` on `pi-node-b` unless there is a specific reason it must stay on root.
-- Docker on `pi-node-b` is configured to use `/srv/docker` as its data root, so image/layer storage also lives on the USB flash drive.
+- Docker on `pi-node-b` is configured to use `/srv/docker` as its data root, so image/layer storage also lives on the SSD.
 - Existing service docs in this README that reference `/srv/...` should be treated as following this policy, not as one-off exceptions.
 
 ## `pi-node-c` Storage Policy
 
 - `pi-node-c` has two different storage classes:
   - SD card root filesystem at `/`
-  - external disk mounted at `/srv`
-- Persistent service state on `pi-node-c` should be placed on the external-disk-backed `/srv` storage, not on the SD card.
-- Docker on `pi-node-c` is configured to use `/srv/docker` as its data root, so image/layer storage and named volumes should live on the external disk.
+  - SSD storage mounted at `/srv`
+- Persistent service state on `pi-node-c` should be placed on the SSD-backed `/srv` storage, not on the SD card.
+- Docker on `pi-node-c` is configured to use `/srv/docker` as its data root, so image/layer storage and named volumes should live on the SSD.
 - Loki state should live under `/srv/loki`, with backups under `/srv/backups/loki`.
 - Host-local sync and log-shipper state should also prefer `/srv/...` paths on this host when practical.
 
