@@ -33,7 +33,7 @@ If a command uses `nix`, `nix develop`, or anything that needs the daemon:
 Use elevated execution for:
 
 - `nix develop -c sops set --in-place ...`
-- `nix develop -c sops -d secrets/secrets.yaml`
+- `nix develop -c sops -d ../nix-pi-private/secrets/secrets.yaml`
 - `nix eval`, `nix build`, `nixos-rebuild` (when they touch daemon/socket paths)
 
 ## Recommendation

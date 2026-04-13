@@ -69,7 +69,8 @@ In a host module, declare secrets and ensure services read from `/run/secrets`:
 Notes:
 
 - Only encrypted SOPS files are stored in the Nix store; decrypted outputs stay in `/run/secrets`.
-- If you create `secrets/secrets.yaml`, `nixos/modules/secrets.nix` will auto-use it as `sops.defaultSopsFile`.
+- In the live paired setup, `../nix-pi-private/secrets/secrets.yaml` is the canonical shared default and `nix-pi-private/modules/shared.nix` sets it as `lab.sops.defaultSopsFile`.
+- Do not add new long-lived shared secrets to `nix-pi/secrets/secrets.yaml`; keep them in the private companion repo instead.
 
 ## Remote builder signing keys
 

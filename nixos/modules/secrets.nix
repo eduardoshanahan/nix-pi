@@ -1,16 +1,9 @@
 { config, lib, ... }:
 let
-  repoRoot = ../..;
-  defaultSopsFilePath = repoRoot + "/secrets/secrets.yaml";
-  inferredDefaultSopsFile =
-    if builtins.pathExists defaultSopsFilePath
-    then builtins.path { path = defaultSopsFilePath; name = "secrets.yaml"; }
-    else null;
-
   effectiveDefaultSopsFile =
     if config.lab.sops.defaultSopsFile != null
     then config.lab.sops.defaultSopsFile
-    else inferredDefaultSopsFile;
+    else null;
 
   effectiveDefaultSopsFileStorePath =
     if effectiveDefaultSopsFile != null

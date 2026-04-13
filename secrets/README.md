@@ -8,7 +8,9 @@ This directory is for SOPS-encrypted secret files that are safe to commit to Git
 
 Recommended layout:
 
-- `secrets/secrets.yaml`: shared secrets (optional)
 - `secrets/<hostname>.yaml`: host-specific secrets (optional)
+
+The live shared default secrets file now lives in `../nix-pi-private/secrets/secrets.yaml`.
+Keep new shared private values there instead of recreating `secrets/secrets.yaml` here.
 
 SOPS configuration lives at `.sops.yaml`. See `docs/lifecycle/SECRETS.md` for the workflow and examples.

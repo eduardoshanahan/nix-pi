@@ -54,7 +54,7 @@
         type = lib.types.nullOr lib.types.path;
         default = null;
         description = "Optional default SOPS file path (unencrypted content never enters the Nix store).";
-        example = ./secrets/secrets.yaml;
+        example = ../nix-pi-private/secrets/secrets.yaml;
       };
     };
 
