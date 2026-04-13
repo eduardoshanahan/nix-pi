@@ -86,7 +86,8 @@ Rule: if the change is a reusable service behavior change, it probably belongs i
 - At the start of a session, enter `nix develop`, run `git fetch origin`, then
   `git pull --rebase origin main`, and check `git status --short --branch`
   before editing.
-- Do not bypass hooks by default. Missing tools usually means the shell is wrong, not that hooks should be skipped.
+- Do not bypass hooks. Missing tools means the shell is wrong; enter
+  `nix develop` and rerun the normal workflow instead of using `--no-verify`.
 - At the end of a finished task, commit and push the resulting branch state to
   `origin` unless the user explicitly asks to leave work local.
 - If the task changes service behavior, finish the rollout after push with a
