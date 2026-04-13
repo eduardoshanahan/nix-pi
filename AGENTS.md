@@ -69,6 +69,16 @@ Treat those values as sanitized public-side references, not as the canonical
 live endpoints. The real values and wiring live in `../nix-pi-private` and the
 other matching private sibling repos.
 
+## Sandbox And Homelab DNS
+
+Access to real homelab hostnames under `*.<homelab-domain>` should be treated as
+host-network work, not ordinary sandbox-safe repo work.
+
+If a command needs to reach `*.<homelab-domain>` over SSH, Git, HTTP, HTTPS, or
+similar network paths, prefer running it outside the sandbox. Do not change repo
+code just because a sandboxed command reports temporary resolution failure for a
+healthy homelab hostname.
+
 ## Repo Structure
 
 - `flake.nix`: flake inputs, NixOS outputs, dev shell
