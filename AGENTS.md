@@ -138,6 +138,13 @@ healthy homelab hostname.
 
 ## Host-Specific Reality
 
+Deployment naming note:
+
+- NixOS configuration names and live SSH hostnames are not interchangeable.
+- Use `pi-node-a`, `pi-node-b`, and `pi-node-c` as the flake host selectors.
+- Use `rpi-box-01`, `rpi-box-02`, and `rpi-box-03` as the real SSH target and build host names unless a doc for the task explicitly says otherwise.
+- Do not assume `--target-host eduardo@pi-node-a` will resolve just because the flake output is named `pi-node-a`.
+
 ### `pi-node-a`
 
 - Pi-hole primary
