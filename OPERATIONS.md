@@ -11,7 +11,7 @@ Quick reference for investigating and maintaining the homelab from a fresh sessi
 | pi-node-a | 192.0.2.10 | User apps (Pi-hole, media tools, self-hosted apps) | Self |
 | pi-node-b | 192.0.2.10 | Monitoring, home automation, heavy services | Self |
 | pi-node-c | 192.0.2.10 | DNS (Pi-hole primary), Loki, Promtail syslog | pi-node-b |
-| nas-host | 192.0.2.x | Synology NAS | n/a |
+| nas-host | `nas-lan-ip` | Synology NAS | n/a |
 
 ## SSH access
 

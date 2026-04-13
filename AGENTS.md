@@ -59,6 +59,16 @@ Use `nix-services` for:
 
 Rule: if the change is a reusable service behavior change, it probably belongs in `nix-services`, not here.
 
+## Public Vs Private References
+
+Public repos in this workspace may intentionally use anonymized placeholders
+such as `*.internal.example` for Git remotes, service URLs, hostnames, and
+other environment-specific identifiers.
+
+Treat those values as sanitized public-side references, not as the canonical
+live endpoints. The real values and wiring live in `../nix-pi-private` and the
+other matching private sibling repos.
+
 ## Repo Structure
 
 - `flake.nix`: flake inputs, NixOS outputs, dev shell
