@@ -35,6 +35,7 @@ When working in `nix-pi`, read in this order:
    - `nixos/hosts/`
    - `../nix-pi-private/modules/`
 6. `records/README.md` plus the relevant records files if session continuity matters
+7. related records in `../hhlab-wiki` (decisions, anti-patterns, architecture)
 
 If a pointer doc exists here and points to `nix-services`, follow the pointer instead of duplicating policy locally.
 
@@ -97,6 +98,7 @@ healthy homelab hostname.
 ## Important Working Rules
 
 - Treat the sibling private flake as the canonical private source of truth.
+- Run `nix run .#session-preflight` before meaningful implementation work.
 - Use `nix run "path:$PWD#validate-private-config" -- <host>` before builds or rebuilds.
 - For direct `nix build` and `nixos-rebuild` commands, pass `--override-input private "path:${NIX_PI_PRIVATE_FLAKE:-$PWD/../nix-pi-private}"`.
 - Never put plaintext secrets in Git.
@@ -207,6 +209,7 @@ When editing it:
 
 Use the existing helper scripts instead of rewriting ad hoc commands when possible:
 
+- `nix run .#session-preflight`
 - `scripts/export-sd-image`
 - `scripts/inject-ssh-key`
 - `scripts/bootstrap-sops-age-key`

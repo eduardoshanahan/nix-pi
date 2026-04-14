@@ -104,6 +104,7 @@ The tracked placeholder contract lives in:
 
 The repo has explicit preflight helpers for the private input:
 
+- `nix run .#session-preflight`
 - `nix run "path:$PWD#validate-private-config" -- pi-node-a`
 - `nix run "path:$PWD#validate-pi-host" -- pi-node-a`
 

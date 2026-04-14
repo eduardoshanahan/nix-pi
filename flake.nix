@@ -228,6 +228,74 @@
             echo "toplevel_drv=$toplevel_drv"
           '';
         };
+        sessionPreflight = pkgs.writeShellApplication {
+          name = "session-preflight";
+          runtimeInputs = [ pkgs.ripgrep ];
+          text = ''
+            set -euo pipefail
+
+            repo_root="$PWD"
+            kb_root="''${HHLAB_WIKI_DIR:-$repo_root/../hhlab-wiki}"
+
+            required_repo_docs=(
+              "$repo_root/README.md"
+              "$repo_root/DOCUMENTATION_INDEX.md"
+              "$repo_root/docs/README.md"
+            )
+
+            required_kb_docs=(
+              "$kb_root/README.md"
+              "$kb_root/indexes/by-repo.md"
+              "$kb_root/indexes/by-topic.md"
+              "$kb_root/indexes/by-date.md"
+            )
+
+            echo "nix-pi session pre-flight"
+            echo "repo_root=$repo_root"
+            echo "kb_root=$kb_root"
+            echo
+
+            missing=0
+            for file in "''${required_repo_docs[@]}"; do
+              if [ -f "$file" ]; then
+                echo "OK   $file"
+              else
+                echo "MISS $file" >&2
+                missing=1
+              fi
+            done
+
+            for file in "''${required_kb_docs[@]}"; do
+              if [ -f "$file" ]; then
+                echo "OK   $file"
+              else
+                echo "MISS $file" >&2
+                missing=1
+              fi
+            done
+
+            if [ "$missing" -ne 0 ]; then
+              cat >&2 <<'EOF'
+
+Pre-flight failed: required docs are missing.
+Set HHLAB_WIKI_DIR if your private wiki lives outside ../hhlab-wiki.
+EOF
+              exit 1
+            fi
+
+            echo
+            echo "Relevant KB entries for nix-pi:"
+            rg -n "nix-pi|nix-pi-private" "$kb_root/indexes/by-repo.md" || true
+
+            echo
+            cat <<'EOF'
+Next required steps:
+1. Read the linked KB records.
+2. Summarize grounded assumptions and open uncertainties.
+3. Validate plan against decisions and anti-patterns before implementation.
+EOF
+          '';
+        };
       in
       {
         devShells.default = pkgs.mkShell {
@@ -267,6 +335,7 @@
 
         packages.validate-private-config = validatePrivateConfig;
         packages.validate-pi-host = validatePiHost;
+        packages.session-preflight = sessionPreflight;
 
         apps.validate-private-config = {
           type = "app";
@@ -276,6 +345,11 @@
         apps.validate-pi-host = {
           type = "app";
           program = "${validatePiHost}/bin/validate-pi-host";
+        };
+
+        apps.session-preflight = {
+          type = "app";
+          program = "${sessionPreflight}/bin/session-preflight";
         };
       }
     );
