@@ -14,8 +14,8 @@ This is a one-time bootstrap step required before sops-nix can decrypt secrets
 on a host.
 
 Examples:
-  scripts/bootstrap-sops-age-key pi-node-a pi-node-b pi-node-c
-  scripts/bootstrap-sops-age-key --from-file ~/.config/sops/age/keys.txt pi-node-b
+  scripts/bootstrap-sops-age-key rpi-box-01 rpi-box-02 rpi-box-03
+  scripts/bootstrap-sops-age-key --from-file ~/.config/sops/age/keys.txt rpi-box-02
 USAGE
 }
 

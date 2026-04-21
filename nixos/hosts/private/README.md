@@ -27,8 +27,8 @@ Validate the active private config before builds or rebuilds:
 
 ```bash
 cd /absolute/path/to/nix-pi
-nix run "path:$PWD#validate-private-config" -- pi-node-a
-nix run "path:$PWD#validate-pi-host" -- pi-node-a
+nix run "path:$PWD#validate-private-config" -- rpi-box-01
+nix run "path:$PWD#validate-pi-host" -- rpi-box-01
 ```
 
 For direct `nix build` or `nixos-rebuild` commands, also pass:

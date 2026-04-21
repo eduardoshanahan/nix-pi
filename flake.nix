@@ -72,7 +72,7 @@
         };
 
         # Host-specific configs with private companion modules layered on top.
-        pi-node-a = mkBaseSystem {
+        rpi-box-01 = mkBaseSystem {
           system = "aarch64-linux";
           profile = ./nixos/profiles/rpi4.nix;
           hostModule = ./nixos/hosts/rpi-box-01.nix;
@@ -81,7 +81,7 @@
           privateHostModule = maybePrivateHost "rpi-box-01";
         };
 
-        pi-node-b = mkBaseSystem {
+        rpi-box-02 = mkBaseSystem {
           system = "aarch64-linux";
           profile = ./nixos/profiles/rpi4.nix;
           hostModule = ./nixos/hosts/rpi-box-02.nix;
@@ -90,7 +90,7 @@
           privateHostModule = maybePrivateHost "rpi-box-02";
         };
 
-        pi-node-c = mkBaseSystem {
+        rpi-box-03 = mkBaseSystem {
           system = "aarch64-linux";
           profile = ./nixos/profiles/rpi4.nix;
           hostModule = ./nixos/hosts/rpi-box-03.nix;
@@ -149,7 +149,7 @@
               usage
             fi
 
-            node="''${1:-pi-node-a}"
+            node="''${1:-rpi-box-01}"
             repo_flake_path="path:${self}"
             flake_ref="$repo_flake_path#nixosConfigurations.$node"
             private_flake_dir="''${NIX_PI_PRIVATE_FLAKE:-$PWD/../nix-pi-private}"

@@ -198,16 +198,16 @@ Format
 - References: scripts/bootstrap-sops-age-key, docs/lifecycle/SECRETS.md, docs/lifecycle/PROVISIONING.md
 
 - Date: 2026-03-03
-- Decision: Use `pi-node-b` as the remote builder and Nix signer for `pi-node-c`.
-- Context: `pi-node-c` does not have enough resources to build its own system
+- Decision: Use `rpi-box-02` as the remote builder and Nix signer for `rpi-box-03`.
+- Context: `rpi-box-03` does not have enough resources to build its own system
   reliably, but `nixos-rebuild` still needs signed store paths when copying
-  locally built outputs from `pi-node-b` to `pi-node-c`.
+  locally built outputs from `rpi-box-02` to `rpi-box-03`.
 - Rationale: Keep the established remote-build workflow while making cross-host
-  store copies explicit and trustworthy: `pi-node-b` signs locally built paths
-  and `pi-node-c` trusts the builder public key.
+  store copies explicit and trustworthy: `rpi-box-02` signs locally built paths
+  and `rpi-box-03` trusts the builder public key.
 - Status: active
 - References: nixos/modules/options.nix, nixos/modules/base.nix,
-  nixos/hosts/private/pi-node-b.nix, nixos/hosts/private/pi-node-c.nix, README.md
+  nixos/hosts/private/rpi-box-02.nix, nixos/hosts/private/rpi-box-03.nix, README.md
 
 - Date: 2026-03-03
 - Decision: Treat remote builder signing identities as explicitly bootstrapped host material with a documented rotation process.
@@ -222,27 +222,27 @@ Format
   docs/lifecycle/PROVISIONING.md, docs/lifecycle/REMOTE_BUILDS.md
 
 - Date: 2026-03-19
-- Decision: Keep `pi-node-c` on an external-disk-backed `/srv` layout while
+- Decision: Keep `rpi-box-03` on an external-disk-backed `/srv` layout while
   deferring `/nix` migration.
-- Context: The goal was to reduce SD-card wear on `pi-node-c` without taking a
+- Context: The goal was to reduce SD-card wear on `rpi-box-03` without taking a
   remote-only boot risk that could lock out SSH access.
 - Rationale: Moving Docker and service state to `/srv` captures most of the
   wear-reduction benefit with acceptable risk. Moving `/nix` would reduce SD
   usage further, but it can fail before SSH is available, so it should wait
   until a console recovery path exists.
 - Status: active
-- References: nixos/hosts/private/pi-node-c.nix, README.md,
+- References: nixos/hosts/private/rpi-box-03.nix, README.md,
   docs/operations/OPERATIONS_CHECKS_AND_SERVICE_NOTES.md
 
 - Date: 2026-03-19
-- Decision: Treat `pi-node-c` as an additional synced Pi-hole resolver rather
+- Decision: Treat `rpi-box-03` as an additional synced Pi-hole resolver rather
   than renaming the existing primary/secondary roles immediately.
-- Context: `pi-node-c` now runs Pi-hole full time and pulls configuration from
-  `pi-node-a`, but the current monitor and operator labels still refer to
+- Context: `rpi-box-03` now runs Pi-hole full time and pulls configuration from
+  `rpi-box-01`, but the current monitor and operator labels still refer to
   boxes 1 and 2 as primary/secondary.
 - Rationale: This keeps the current operational vocabulary stable while adding
   a third synced resolver. A full role renumbering can be done later if the lab
-  DNS preference is intentionally shifted toward `pi-node-c`.
+  DNS preference is intentionally shifted toward `rpi-box-03`.
 - Status: active
-- References: nixos/hosts/private/pi-node-b.nix,
+- References: nixos/hosts/private/rpi-box-02.nix,
   docs/policy/UPTIME_KUMA_MONITOR_POLICY.md

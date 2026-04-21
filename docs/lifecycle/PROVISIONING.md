@@ -25,7 +25,7 @@ Before building or rebuilding, validate the active private config:
 
 ```bash
 cd /absolute/path/to/nix-pi
-nix run "path:$PWD#validate-private-config" -- pi-node-a
+nix run "path:$PWD#validate-private-config" -- rpi-box-01
 ```
 
 ## Build the SD image
@@ -249,7 +249,7 @@ scripts/bootstrap-sops-age-key <source-host> <target-host> [target-host...]
 Example:
 
 ```bash
-scripts/bootstrap-sops-age-key pi-node-a pi-node-b pi-node-c
+scripts/bootstrap-sops-age-key rpi-box-01 rpi-box-02 rpi-box-03
 ```
 
 Run this before the first rebuild that depends on SOPS secrets on a target host.

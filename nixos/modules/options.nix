@@ -63,7 +63,7 @@
         type = lib.types.nullOr lib.types.str;
         default = null;
         description = "Optional local Nix store signing key file for this host.";
-        example = "/etc/nix/pi-node-b-priv.pem";
+        example = "/etc/nix/rpi-box-02-priv.pem";
       };
 
       trustedPublicKeys = lib.mkOption {
@@ -71,7 +71,7 @@
         default = [];
         description = "Additional trusted Nix signing public keys for cross-host store copies.";
         example = [
-          "pi-node-b:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+          "rpi-box-02:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
         ];
       };
     };

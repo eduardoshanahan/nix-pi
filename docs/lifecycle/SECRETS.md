@@ -21,7 +21,7 @@ scripts/bootstrap-sops-age-key <source-host> <target-host> [target-host...]
 Example:
 
 ```bash
-scripts/bootstrap-sops-age-key pi-node-a pi-node-b pi-node-c
+scripts/bootstrap-sops-age-key rpi-box-01 rpi-box-02 rpi-box-03
 ```
 
 This copies `/var/lib/sops/age.key` from the source host to each target host
@@ -43,7 +43,7 @@ creation_rules:
 Create one file per host (recommended) or a shared file:
 
 ```bash
-sops --encrypt --in-place secrets/pi-node-a.yaml
+sops --encrypt --in-place secrets/rpi-box-01.yaml
 ```
 
 Then add keys/values inside the file using `sops` (it will keep values encrypted).
@@ -56,7 +56,7 @@ In a host module, declare secrets and ensure services read from `/run/secrets`:
 { ... }:
 {
   sops.secrets."myservice.env" = {
-    sopsFile = ../../secrets/pi-node-a.yaml;
+    sopsFile = ../../secrets/rpi-box-01.yaml;
     format = "dotenv";
     path = "/run/secrets/myservice.env";
     owner = "root";

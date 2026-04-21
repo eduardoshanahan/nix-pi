@@ -115,7 +115,6 @@ healthy homelab hostname.
 - If the task changes service behavior, finish the rollout after push with a
   full rebuild of the owning host and verify on the live system that the fix
   still works after that rebuild.
-- Keep the public repo anonymized unless the user explicitly wants a de-anonymizing change.
 - Treat `records/` as part of the operating model, not disposable notes.
 
 ## Secrets And Private Data
@@ -133,42 +132,35 @@ healthy homelab hostname.
 ## Build, Deploy, And Validation Norms
 
 - Generic SD image outputs are defined for `rpi4`, `rpi3`, and optional `rpi3-armv7l`.
-- Host outputs exist for `pi-node-a`, `pi-node-b`, and `pi-node-c`.
-- `pi-node-c` is normally rebuilt with `pi-node-b` as its remote builder and signer.
+- Host outputs exist for `rpi-box-01`, `rpi-box-02`, and `rpi-box-03`.
+- `rpi-box-03` is normally rebuilt with `rpi-box-02` as its remote builder and signer.
 - If a task touches remote builds, signing, or trust, also update `docs/lifecycle/REMOTE_BUILDS.md`.
 - If a task changes host provisioning or bootstrap expectations, also update `docs/lifecycle/PROVISIONING.md` and/or `docs/lifecycle/SECRETS.md`.
 
 ## Host-Specific Reality
 
-Deployment naming note:
-
-- NixOS configuration names and live SSH hostnames are not interchangeable.
-- Use `pi-node-a`, `pi-node-b`, and `pi-node-c` as the flake host selectors.
-- Use `rpi-box-01`, `rpi-box-02`, and `rpi-box-03` as the real SSH target and build host names unless a doc for the task explicitly says otherwise.
-- Do not assume `--target-host eduardo@pi-node-a` will resolve just because the flake output is named `pi-node-a`.
-
-### `pi-node-a`
+### `rpi-box-01`
 
 - Pi-hole primary
 - Traefik, Promtail, cAdvisor, Tailscale, Docker socket proxy
 - static LAN addressing and internal DNS preference
 - SSD-backed `/srv` storage is available for persistent host-local state
 
-### `pi-node-b`
+### `rpi-box-02`
 
 - main app and monitoring hub
 - SSD-backed `/srv` storage is the intended home for persistent state
 - NFS media mount at `/mnt/media`
-- large host-specific config surface in `../nix-pi-private/modules/pi-node-b.nix`
+- large host-specific config surface in `../nix-pi-private/modules/rpi-box-02.nix`
 - host-managed Uptime Kuma monitor inventory
 - intentional Homepage Docker inventory override
 - intentional Ghost compose override for SMTP TLS behavior
 
-### `pi-node-c`
+### `rpi-box-03`
 
 - Loki host
 - SSD-backed `/srv` storage is available for persistent host-local state
-- trusts `pi-node-b` Nix signing key for remote builds
+- trusts `rpi-box-02` Nix signing key for remote builds
 
 ## Documentation Sync Rules
 
@@ -182,14 +174,14 @@ Especially:
   update `docs/policy/UPTIME_KUMA_MONITOR_POLICY.md`
 - provisioning/bootstrap changes:
   update `docs/lifecycle/PROVISIONING.md`, `docs/lifecycle/SECRETS.md`, or `docs/lifecycle/REMOTE_BUILDS.md`
-- storage-policy changes on `pi-node-b`:
+- storage-policy changes on `rpi-box-02`:
   keep `README.md` and `docs/operations/OPERATIONS_CHECKS_AND_SERVICE_NOTES.md` aligned
 
 If a local doc is pointer-only, update the canonical file in `nix-services` instead.
 
-## `pi-node-b.nix` Guidance
+## `rpi-box-02.nix` Guidance
 
-`../nix-pi-private/modules/pi-node-b.nix` is large and mixes:
+`../nix-pi-private/modules/rpi-box-02.nix` is large and mixes:
 
 - host imports from `nix-services`
 - SOPS secret declarations

@@ -6,15 +6,15 @@ store paths.
 
 ## Current topology
 
-- `pi-node-a`: builds locally
-- `pi-node-b`: builds locally and acts as the remote builder for `pi-node-c`
-- `pi-node-c`: imports store paths built on `pi-node-b`
+- `rpi-box-01`: builds locally
+- `rpi-box-02`: builds locally and acts as the remote builder for `rpi-box-03`
+- `rpi-box-03`: imports store paths built on `rpi-box-02`
 
 Current builder signing identity:
 
-- Builder: `pi-node-b`
-- Private key path: `/etc/nix/pi-node-b-priv.pem`
-- Public key path: `/etc/nix/pi-node-b-pub.pem`
+- Builder: `rpi-box-02`
+- Private key path: `/etc/nix/rpi-box-02-priv.pem`
+- Public key path: `/etc/nix/rpi-box-02-pub.pem`
 - Trusted public key string: managed in the private companion config and host
   runbook for the active builder/target pair
 
@@ -48,8 +48,8 @@ scripts/bootstrap-nix-signing-key --from-files <private-key-file> <public-key-fi
 Examples:
 
 ```bash
-scripts/bootstrap-nix-signing-key pi-node-b pi-node-b pi-node-c
-scripts/bootstrap-nix-signing-key --from-files ./pi-node-b-priv.pem ./pi-node-b-pub.pem pi-node-b pi-node-b
+scripts/bootstrap-nix-signing-key rpi-box-02 rpi-box-02 rpi-box-03
+scripts/bootstrap-nix-signing-key --from-files ./rpi-box-02-priv.pem ./rpi-box-02-pub.pem rpi-box-02 rpi-box-02
 ```
 
 Use `--from-files` when the original builder is unavailable and you are
@@ -57,17 +57,17 @@ restoring from a secure backup kept outside Git.
 
 ## Steady-state rebuild flow
 
-Preflight for `pi-node-c` through `pi-node-b`:
+Preflight for `rpi-box-03` through `rpi-box-02`:
 
 ```bash
 export NIX_PI_PRIVATE_FLAKE="${NIX_PI_PRIVATE_FLAKE:-$PWD/../nix-pi-private}"
 export NIX_PI_NIX_SERVICES_FLAKE="${NIX_PI_NIX_SERVICES_FLAKE:-$PWD/../nix-services}"
 
-nix run "path:$PWD#validate-private-config" -- pi-node-c
-nix run "path:$PWD#validate-pi-host" -- pi-node-c
+nix run "path:$PWD#validate-private-config" -- rpi-box-03
+nix run "path:$PWD#validate-pi-host" -- rpi-box-03
 
 ssh -o BatchMode=yes -o ConnectTimeout=6 eduardo@rpi-box-02 \
-  "test -f /etc/nix/pi-node-b-priv.pem && test -f /etc/nix/pi-node-b-pub.pem"
+  "test -f /etc/nix/rpi-box-02-priv.pem && test -f /etc/nix/rpi-box-02-pub.pem"
 
 ssh -o BatchMode=yes -o ConnectTimeout=6 eduardo@rpi-box-03 \
   "grep -F '<builder-public-key-string>' /etc/nix/nix.conf"
@@ -81,7 +81,7 @@ Example:
 ```bash
 export NIX_PI_PRIVATE_FLAKE="${NIX_PI_PRIVATE_FLAKE:-$PWD/../nix-pi-private}"
 nixos-rebuild switch \
-  --flake path:$PWD#pi-node-c \
+  --flake path:$PWD#rpi-box-03 \
   --override-input private "path:$NIX_PI_PRIVATE_FLAKE" \
   --target-host eduardo@rpi-box-03 \
   --build-host eduardo@rpi-box-02 \
@@ -93,7 +93,7 @@ The declarative requirements are:
 - the builder host sets `lab.nix.signingKeyFile`
 - the target host includes the builder public key in `lab.nix.trustedPublicKeys`
 
-Recommended post-deploy checks for `pi-node-c`:
+Recommended post-deploy checks for `rpi-box-03`:
 
 ```bash
 ssh -o BatchMode=yes -o ConnectTimeout=6 eduardo@rpi-box-03 \

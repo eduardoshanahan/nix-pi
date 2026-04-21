@@ -15,8 +15,8 @@ This is a one-time bootstrap step used when a host must recover an existing
 builder signing identity after reinstall or replacement.
 
 Examples:
-  scripts/bootstrap-nix-signing-key pi-node-b pi-node-b pi-node-c
-  scripts/bootstrap-nix-signing-key --from-files ./pi-node-b-priv.pem ./pi-node-b-pub.pem pi-node-b pi-node-b
+  scripts/bootstrap-nix-signing-key rpi-box-02 rpi-box-02 rpi-box-03
+  scripts/bootstrap-nix-signing-key --from-files ./rpi-box-02-priv.pem ./rpi-box-02-pub.pem rpi-box-02 rpi-box-02
 USAGE
 }
 

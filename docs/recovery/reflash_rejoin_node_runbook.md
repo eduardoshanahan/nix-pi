@@ -44,7 +44,7 @@ Goal: eliminate ambiguity before flashing anything.
 Actions:
 
 - [ ] Identify the physical Raspberry Pi (label, serial, or location)
-- [ ] Confirm hostname as defined in git (e.g. `pi-node-a`)
+- [ ] Confirm hostname as defined in git (e.g. `rpi-box-01`)
 - [ ] Confirm intended static IP address and subnet
 - [ ] List services expected on this node (Traefik, Pi-hole, none)
 - [ ] Confirm this node is safe to take offline
@@ -272,7 +272,7 @@ git status
 git rev-parse HEAD
 ```
 
-- [ ] Identify the correct host configuration (e.g. `pi-node-a`)
+- [ ] Identify the correct host configuration (e.g. `rpi-box-01`)
 - [ ] Inspect host config for:
   - hostname
   - static IP address

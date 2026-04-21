@@ -18,13 +18,13 @@ Do not duplicate full service module contracts here. Those remain canonical in
 - Shared module behavior/options: `nix-services`
 - Host-specific runtime differences: this file in `nix-pi`
 
-## `pi-node-a`
+## `rpi-box-01`
 
-### Tailscale (`pi-node-a`)
+### Tailscale (`rpi-box-01`)
 
 - Shared module: `services.tailscaleCompose`
 - Intentional divergence:
-  - `pi-node-a` adds:
+  - `rpi-box-01` adds:
     - `tailscale-reconcile.service`
     - `tailscale-reconcile.timer`
 - Why:
@@ -37,24 +37,24 @@ Do not duplicate full service module contracts here. Those remain canonical in
     periodically restarting `tailscale.service` when the container is missing
     or not running
 - Source of truth:
-  - `../nix-pi-private/modules/pi-node-a.nix`
+  - `../nix-pi-private/modules/rpi-box-01.nix`
 
-## `pi-node-b`
+## `rpi-box-02`
 
-### Tailscale (`pi-node-b`)
+### Tailscale (`rpi-box-02`)
 
 - Shared module: `services.tailscaleCompose`
 - Intentional divergence:
-  - `pi-node-b` adds:
+  - `rpi-box-02` adds:
     - `tailscale-reconcile.service`
     - `tailscale-reconcile.timer`
 - Why:
   - the shared Tailscale module currently uses a `Type=oneshot` systemd wrapper
     around `docker compose up -d`
-  - `pi-node-b` is a direct Tailscale node for remote host access, so it gets
-    the same container-presence safeguard as `pi-node-a`
+  - `rpi-box-02` is a direct Tailscale node for remote host access, so it gets
+    the same container-presence safeguard as `rpi-box-01`
 - Source of truth:
-  - `../nix-pi-private/modules/pi-node-b.nix`
+  - `../nix-pi-private/modules/rpi-box-02.nix`
 
 ### Homepage
 
@@ -64,10 +64,10 @@ Do not duplicate full service module contracts here. Those remain canonical in
     inventory instead of using only the shared module's local Docker-generated
     view.
 - Why:
-  - the Homepage instance on `pi-node-b` needs to query remote Docker APIs on
-    `pi-node-a`, `pi-node-c`, and an additional external Docker host
+  - the Homepage instance on `rpi-box-02` needs to query remote Docker APIs on
+    `rpi-box-01`, `rpi-box-03`, and an additional external Docker host
 - Source of truth:
-  - `../nix-pi-private/modules/pi-node-b.nix`
+  - `../nix-pi-private/modules/rpi-box-02.nix`
 
 ### Ghost (`blog` instance)
 
@@ -79,7 +79,7 @@ Do not duplicate full service module contracts here. Those remain canonical in
   - Ghost auth-code mail against the internal SMTP relay has needed TLS
     verification relaxation on this host
 - Source of truth:
-  - `../nix-pi-private/modules/pi-node-b.nix`
+  - `../nix-pi-private/modules/rpi-box-02.nix`
 
 ### cAdvisor
 
@@ -113,7 +113,7 @@ Do not duplicate full service module contracts here. Those remain canonical in
 
 - Shared module: `services.uptimeKuma`
 - Intentional divergence:
-  - `pi-node-b` adds:
+  - `rpi-box-02` adds:
     - `uptime-kuma-monitor-sync.service`
     - `/etc/uptime-kuma/desired-monitors.json`
     - extra `restartTriggers` on `uptime-kuma-compose.service`
@@ -123,7 +123,7 @@ Do not duplicate full service module contracts here. Those remain canonical in
 - Canonical monitor policy:
   - `docs/policy/UPTIME_KUMA_MONITOR_POLICY.md`
 - Source of truth:
-  - `../nix-pi-private/modules/pi-node-b.nix`
+  - `../nix-pi-private/modules/rpi-box-02.nix`
 
 ### Unpoller
 
@@ -133,7 +133,7 @@ Do not duplicate full service module contracts here. Those remain canonical in
 - Why:
   - this host is intentionally Prometheus-only
 - Source of truth:
-  - `../nix-pi-private/modules/pi-node-b.nix`
+  - `../nix-pi-private/modules/rpi-box-02.nix`
 
 ### Postgres Exporter
 
@@ -145,33 +145,33 @@ Do not duplicate full service module contracts here. Those remain canonical in
 - Why:
   - match the current Postgres role/version compatibility envelope on this host
 - Source of truth:
-  - `../nix-pi-private/modules/pi-node-b.nix`
+  - `../nix-pi-private/modules/rpi-box-02.nix`
 
 ### MySQL Exporter
 
 - Shared module: `services.mysqlExporterCompose`
 - Current state:
   - no intentional compose override remains
-  - `pi-node-b` follows the shared module behavior directly
+  - `rpi-box-02` follows the shared module behavior directly
 - Why documented:
   - this was previously host-divergent and is now intentionally aligned again
 
-## `pi-node-c`
+## `rpi-box-03`
 
-### Tailscale (`pi-node-c`)
+### Tailscale (`rpi-box-03`)
 
 - Shared module: `services.tailscaleCompose`
 - Intentional divergence:
-  - `pi-node-c` adds:
+  - `rpi-box-03` adds:
     - `tailscale-reconcile.service`
     - `tailscale-reconcile.timer`
 - Why:
-  - `pi-node-c` is now also a direct Tailscale node as part of the planned
-    move toward `pi-node-c` as the primary DNS host
+  - `rpi-box-03` is now also a direct Tailscale node as part of the planned
+    move toward `rpi-box-03` as the primary DNS host
   - the host-side reconcile timer protects it from the same oneshot-container
-    drift failure mode seen on `pi-node-a`
+    drift failure mode seen on `rpi-box-01`
 - Source of truth:
-  - `../nix-pi-private/modules/pi-node-c.nix`
+  - `../nix-pi-private/modules/rpi-box-03.nix`
 
 ## Update Rule
 

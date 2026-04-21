@@ -105,8 +105,8 @@ The tracked placeholder contract lives in:
 The repo has explicit preflight helpers for the private input:
 
 - `nix run .#session-preflight`
-- `nix run "path:$PWD#validate-private-config" -- pi-node-a`
-- `nix run "path:$PWD#validate-pi-host" -- pi-node-a`
+- `nix run "path:$PWD#validate-private-config" -- rpi-box-01`
+- `nix run "path:$PWD#validate-pi-host" -- rpi-box-01`
 
 By default the helpers look for `../nix-pi-private`.
 If your private flake lives elsewhere, set:
@@ -127,7 +127,7 @@ Build images with the real private flake from the repo root:
 
 ```bash
 export NIX_PI_PRIVATE_FLAKE="${NIX_PI_PRIVATE_FLAKE:-$PWD/../nix-pi-private}"
-nix run "path:$PWD#validate-private-config" -- pi-node-a
+nix run "path:$PWD#validate-private-config" -- rpi-box-01
 nix build --override-input private "path:$NIX_PI_PRIVATE_FLAKE" path:$PWD#nixosConfigurations.rpi4.config.system.build.sdImage -o result-rpi4
 nix build --override-input private "path:$NIX_PI_PRIVATE_FLAKE" path:$PWD#nixosConfigurations.rpi3.config.system.build.sdImage -o result-rpi3
 ```
@@ -139,39 +139,35 @@ scripts/export-sd-image result-rpi4 sd-image rpi4 --decompress
 scripts/export-sd-image result-rpi3 sd-image rpi3 --decompress
 ```
 
-Deploy one host at a time (host-local for `pi-node-a` / `pi-node-b`, remote builder for `pi-node-c`)
-
-The flake outputs are named `pi-node-a` / `pi-node-b` / `pi-node-c`, but the
-SSH deploy targets are the physical hostnames `rpi-box-01` / `rpi-box-02` /
-`rpi-box-03`.
+Deploy one host at a time (host-local for `rpi-box-01` / `rpi-box-02`, remote builder for `rpi-box-03`)
 
 ```bash
 cd /absolute/path/to/nix-pi
 export NIX_PI_PRIVATE_FLAKE="${NIX_PI_PRIVATE_FLAKE:-$PWD/../nix-pi-private}"
-nix run "path:$PWD#validate-pi-host" -- pi-node-a
-nix run "path:$PWD#validate-pi-host" -- pi-node-b
-nix run "path:$PWD#validate-pi-host" -- pi-node-c
+nix run "path:$PWD#validate-pi-host" -- rpi-box-01
+nix run "path:$PWD#validate-pi-host" -- rpi-box-02
+nix run "path:$PWD#validate-pi-host" -- rpi-box-03
 nix flake update nix-services
 git add flake.lock
 git commit -m "flake: bump nix-services"
 git push
 
 nixos-rebuild switch \
-  --flake path:$PWD#pi-node-a \
+  --flake path:$PWD#rpi-box-01 \
   --override-input private "path:$NIX_PI_PRIVATE_FLAKE" \
   --target-host eduardo@rpi-box-01 \
   --build-host eduardo@rpi-box-01 \
   --sudo
 
 nixos-rebuild switch \
-  --flake path:$PWD#pi-node-b \
+  --flake path:$PWD#rpi-box-02 \
   --override-input private "path:$NIX_PI_PRIVATE_FLAKE" \
   --target-host eduardo@rpi-box-02 \
   --build-host eduardo@rpi-box-02 \
   --sudo
 
 nixos-rebuild switch \
-  --flake path:$PWD#pi-node-c \
+  --flake path:$PWD#rpi-box-03 \
   --override-input private "path:$NIX_PI_PRIVATE_FLAKE" \
   --target-host eduardo@rpi-box-03 \
   --build-host eduardo@rpi-box-02 \
@@ -182,35 +178,35 @@ ssh-copy-id -i ~/.ssh/id_ed25519_homelab.pub <admin-user>@<nas-fqdn>
 
 Remote build note:
 
-- `pi-node-c` builds on `pi-node-b` because `pi-node-c` does not have enough local build capacity.
+- `rpi-box-03` builds on `rpi-box-02` because `rpi-box-03` does not have enough local build capacity.
 - Cross-host Nix store copies require the builder to sign locally built paths and the target to trust the builder public key.
 - In the current setup, the designated builder signs with its host-local key,
   and target nodes trust the matching public key string declared in the private
   companion config.
-- If the builder signing key changes or `pi-node-c` is rebuilt from scratch, re-establish target trust before using `--build-host eduardo@pi-node-b` again.
+- If the builder signing key changes or `rpi-box-03` is rebuilt from scratch, re-establish target trust before using `--build-host eduardo@rpi-box-02` again.
 - Keep rebuilds one host at a time so any migration mistake is isolated to a
   single box.
 
 For bootstrap, expansion, and key rotation details, see `docs/lifecycle/REMOTE_BUILDS.md`.
 
-## `pi-node-b` Storage Policy
+## `rpi-box-02` Storage Policy
 
-- `pi-node-b` has two different storage classes:
+- `rpi-box-02` has two different storage classes:
   - SD card root filesystem at `/`
   - SSD storage mounted at `/srv`
-- Persistent service state on `pi-node-b` should be placed on the SSD-backed `/srv` storage, not on the SD card.
+- Persistent service state on `rpi-box-02` should be placed on the SSD-backed `/srv` storage, not on the SD card.
 - For new services, prefer dedicated paths such as `/srv/<service>` for application data and `/srv/backups/<service>` for backups.
-- Do not place new long-lived application state under `/var/lib/...` on `pi-node-b` unless there is a specific reason it must stay on root.
-- Docker on `pi-node-b` is configured to use `/srv/docker` as its data root, so image/layer storage also lives on the SSD.
+- Do not place new long-lived application state under `/var/lib/...` on `rpi-box-02` unless there is a specific reason it must stay on root.
+- Docker on `rpi-box-02` is configured to use `/srv/docker` as its data root, so image/layer storage also lives on the SSD.
 - Existing service docs in this README that reference `/srv/...` should be treated as following this policy, not as one-off exceptions.
 
-## `pi-node-c` Storage Policy
+## `rpi-box-03` Storage Policy
 
-- `pi-node-c` has two different storage classes:
+- `rpi-box-03` has two different storage classes:
   - SD card root filesystem at `/`
   - SSD storage mounted at `/srv`
-- Persistent service state on `pi-node-c` should be placed on the SSD-backed `/srv` storage, not on the SD card.
-- Docker on `pi-node-c` is configured to use `/srv/docker` as its data root, so image/layer storage and named volumes should live on the SSD.
+- Persistent service state on `rpi-box-03` should be placed on the SSD-backed `/srv` storage, not on the SD card.
+- Docker on `rpi-box-03` is configured to use `/srv/docker` as its data root, so image/layer storage and named volumes should live on the SSD.
 - Loki state should live under `/srv/loki`, with backups under `/srv/backups/loki`.
 - Host-local sync and log-shipper state should also prefer `/srv/...` paths on this host when practical.
 
@@ -221,7 +217,7 @@ For bootstrap, expansion, and key rotation details, see `docs/lifecycle/REMOTE_B
 - Service-side monitoring architecture, module contracts, and constraints are
   canonical in `nix-services/monitoring_and_metrics_plan_prometheus_traefik.md`
   and `nix-services/services/*/README.md`.
-- Host-managed monitor inventory and exceptions for `pi-node-b` are canonical
+- Host-managed monitor inventory and exceptions for `rpi-box-02` are canonical
   in:
   - `docs/policy/UPTIME_KUMA_MONITOR_POLICY.md`
   - `docs/policy/HOST_RUNTIME_DIVERGENCES.md`

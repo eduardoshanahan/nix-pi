@@ -1,7 +1,7 @@
 # Uptime Kuma Monitor Policy
 
 This document is the canonical host-side policy note for declarative Uptime
-Kuma monitor behavior on `pi-node-b`.
+Kuma monitor behavior on `rpi-box-02`.
 
 The shared service module in `nix-services` owns container lifecycle for
 `services.uptimeKuma`. Host-owned monitor inventory and sync policy live in
@@ -12,12 +12,12 @@ The shared service module in `nix-services` owns container lifecycle for
 - Shared service lifecycle, options, and runtime model:
   - `nix-services/services/uptime-kuma/README.md`
 - Host-managed monitor inventory and exceptions:
-  - `../nix-pi-private/modules/pi-node-b.nix`
+  - `../nix-pi-private/modules/rpi-box-02.nix`
   - this document
 
 ## Current Model
 
-`pi-node-b` treats monitor inventory as declarative host policy.
+`rpi-box-02` treats monitor inventory as declarative host policy.
 
 The host adds:
 
@@ -34,17 +34,17 @@ The current Pi-hole monitor inventory includes:
 - `Pi-hole Admin Primary`
 - `Pi-hole Admin Secondary`
 - `Pi-hole Admin Tertiary`
-- `Pi-hole Exporter pi-node-a`
-- `Pi-hole Exporter pi-node-b`
-- `Pi-hole Exporter pi-node-c`
+- `Pi-hole Exporter rpi-box-01`
+- `Pi-hole Exporter rpi-box-02`
+- `Pi-hole Exporter rpi-box-03`
 
 The inventory also covers shared admin tooling:
 
 - `Adminer` (`https://adminer.<lab-domain>/`, the Synology-hosted MariaDB/MySQL/Postgres UI used by the homelab)
 
 `Pi-hole Admin Tertiary` monitors the additional Pi-hole instance on
-`pi-node-c`. `pi-node-c` is now the scheduled `pihole-sync` source for
-`pi-node-a` and `pi-node-b`, but the existing primary/secondary operational
+`rpi-box-03`. `rpi-box-03` is now the scheduled `pihole-sync` source for
+`rpi-box-01` and `rpi-box-02`, but the existing primary/secondary operational
 labels used for boxes 1 and 2 are intentionally unchanged for now.
 
 ## Cluster Observability Phase 1 Coverage
@@ -78,7 +78,7 @@ For host-managed HTTP monitors, current sync behavior is:
 - redirects allowed: `10`
 
 For keyword, DNS, and port monitors, the same sync code in
-`../nix-pi-private/modules/pi-node-b.nix` is canonical.
+`../nix-pi-private/modules/rpi-box-02.nix` is canonical.
 
 ## Current Named Exceptions
 
@@ -132,5 +132,5 @@ When a host-managed monitor changes because of:
 
 update both:
 
-1. `../nix-pi-private/modules/pi-node-b.nix`
+1. `../nix-pi-private/modules/rpi-box-02.nix`
 2. this document
