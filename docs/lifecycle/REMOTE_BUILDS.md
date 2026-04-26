@@ -87,11 +87,37 @@ ssh -o BatchMode=yes -o ConnectTimeout=6 eduardo@meganix.hhlab.home.arpa \
 
 ## Steady-state rebuild flow
 
+rpi-box-03 (Raspberry Pi 3) always requires a remote builder. Two options:
+
+### Option A: meganix (recommended — faster)
+
+meganix trusts are already in place. Pre-flight and rebuild:
+
+```bash
+export NIX_PI_PRIVATE_FLAKE="${NIX_PI_PRIVATE_FLAKE:-$PWD/../nix-pi-private}"
+
+nix run "path:$PWD#validate-private-config" -- rpi-box-03
+nix run "path:$PWD#validate-pi-host" -- rpi-box-03
+
+ssh -o BatchMode=yes -o ConnectTimeout=6 eduardo@meganix.hhlab.home.arpa \
+  "test -f /etc/nix/meganix-builder-priv.pem && \
+   cat /proc/sys/fs/binfmt_misc/aarch64-linux | grep -q enabled"
+
+nixos-rebuild switch \
+  --flake path:$PWD#rpi-box-03 \
+  --override-input private "path:$NIX_PI_PRIVATE_FLAKE" \
+  --override-input nix-services "path:$PWD/../nix-services" \
+  --target-host eduardo@rpi-box-03 \
+  --build-host eduardo@meganix.hhlab.home.arpa \
+  --sudo
+```
+
+### Option B: rpi-box-02 (fallback when meganix is unavailable)
+
 Preflight for `rpi-box-03` through `rpi-box-02`:
 
 ```bash
 export NIX_PI_PRIVATE_FLAKE="${NIX_PI_PRIVATE_FLAKE:-$PWD/../nix-pi-private}"
-export NIX_PI_NIX_SERVICES_FLAKE="${NIX_PI_NIX_SERVICES_FLAKE:-$PWD/../nix-services}"
 
 nix run "path:$PWD#validate-private-config" -- rpi-box-03
 nix run "path:$PWD#validate-pi-host" -- rpi-box-03
@@ -106,13 +132,12 @@ ssh -o BatchMode=yes -o ConnectTimeout=6 eduardo@rpi-box-03 \
 If any of those checks fail, stop and repair the builder/signing path before
 attempting the rebuild.
 
-Example:
-
 ```bash
 export NIX_PI_PRIVATE_FLAKE="${NIX_PI_PRIVATE_FLAKE:-$PWD/../nix-pi-private}"
 nixos-rebuild switch \
   --flake path:$PWD#rpi-box-03 \
   --override-input private "path:$NIX_PI_PRIVATE_FLAKE" \
+  --override-input nix-services "path:$PWD/../nix-services" \
   --target-host eduardo@rpi-box-03 \
   --build-host eduardo@rpi-box-02 \
   --sudo
