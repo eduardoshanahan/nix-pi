@@ -9,14 +9,21 @@ store paths.
 - `rpi-box-01`: builds locally
 - `rpi-box-02`: builds locally and acts as the remote builder for `rpi-box-03`
 - `rpi-box-03`: imports store paths built on `rpi-box-02`
+- `meganix` (x86_64): optional remote builder for any Pi node via binfmt aarch64
+  emulation; use with `--build-host meganix.hhlab.home.arpa` for faster builds
 
-Current builder signing identity:
+Builder signing identities:
 
-- Builder: `rpi-box-02`
-- Private key path: `/etc/nix/rpi-box-02-priv.pem`
-- Public key path: `/etc/nix/rpi-box-02-pub.pem`
-- Trusted public key string: managed in the private companion config and host
-  runbook for the active builder/target pair
+| Builder    | Private key path                    | Public key trusted by |
+|------------|-------------------------------------|------------------------|
+| rpi-box-02 | `/etc/nix/rpi-box-02-priv.pem`      | rpi-box-03             |
+| meganix    | `/etc/nix/meganix-builder-priv.pem` | all Pi nodes (shared.nix) |
+
+Public key strings are managed in nix-pi-private (see `modules/shared.nix` for
+the meganix key, and per-host modules for rpi-box-02).
+
+Back up both private key files outside Git so builder identities survive host
+rebuilds. Use `scripts/bootstrap-nix-signing-key --from-files` to restore.
 
 ## Why signing is required
 
@@ -54,6 +61,29 @@ scripts/bootstrap-nix-signing-key --from-files ./rpi-box-02-priv.pem ./rpi-box-0
 
 Use `--from-files` when the original builder is unavailable and you are
 restoring from a secure backup kept outside Git.
+
+## Building any Pi node via meganix (recommended for speed)
+
+meganix (Threadripper 2920X, 24 threads, 125 GB RAM) has binfmt aarch64
+emulation enabled and its signing key trusted by all Pi nodes. Use it as
+`--build-host` for significantly faster full-closure rebuilds:
+
+```bash
+export NIX_PI_PRIVATE_FLAKE="${NIX_PI_PRIVATE_FLAKE:-$PWD/../nix-pi-private}"
+nixos-rebuild switch \
+  --flake path:$PWD#rpi-box-01 \
+  --override-input private "path:$NIX_PI_PRIVATE_FLAKE" \
+  --target-host eduardo@rpi-box-01 \
+  --build-host eduardo@meganix.hhlab.home.arpa \
+  --sudo
+```
+
+Replace `rpi-box-01` with any Pi node. Meganix pre-flight:
+
+```bash
+ssh -o BatchMode=yes -o ConnectTimeout=6 eduardo@meganix.hhlab.home.arpa \
+  "test -f /etc/nix/meganix-builder-priv.pem && ls /proc/sys/fs/binfmt_misc/qemu-aarch64"
+```
 
 ## Steady-state rebuild flow
 
