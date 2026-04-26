@@ -91,13 +91,31 @@ rpi-box-03 (Raspberry Pi 3) always requires a remote builder. Two options:
 
 ### Option A: meganix (recommended — faster)
 
-meganix trusts are already in place. Pre-flight and rebuild:
+meganix trusts are already in place.
+
+**Running from meganix itself** (most common — repo is on meganix's filesystem):
+omit `--build-host`. The local nix-daemon signs with the meganix key, so the
+build is a meganix-signed build without SSH loopback:
 
 ```bash
 export NIX_PI_PRIVATE_FLAKE="${NIX_PI_PRIVATE_FLAKE:-$PWD/../nix-pi-private}"
 
 nix run "path:$PWD#validate-private-config" -- rpi-box-03
 nix run "path:$PWD#validate-pi-host" -- rpi-box-03
+
+nixos-rebuild switch \
+  --flake path:$PWD#rpi-box-03 \
+  --override-input private "path:$NIX_PI_PRIVATE_FLAKE" \
+  --override-input nix-services "path:$PWD/../nix-services" \
+  --target-host eduardo@rpi-box-03 \
+  --sudo
+```
+
+**Running from a remote machine** (thinkpad, etc.): verify meganix is up, then
+use `--build-host`:
+
+```bash
+export NIX_PI_PRIVATE_FLAKE="${NIX_PI_PRIVATE_FLAKE:-$PWD/../nix-pi-private}"
 
 ssh -o BatchMode=yes -o ConnectTimeout=6 eduardo@meganix.hhlab.home.arpa \
   "test -f /etc/nix/meganix-builder-priv.pem && \
