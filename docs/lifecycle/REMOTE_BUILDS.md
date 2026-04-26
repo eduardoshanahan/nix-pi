@@ -82,7 +82,7 @@ Replace `rpi-box-01` with any Pi node. Meganix pre-flight:
 
 ```bash
 ssh -o BatchMode=yes -o ConnectTimeout=6 eduardo@meganix.hhlab.home.arpa \
-  "test -f /etc/nix/meganix-builder-priv.pem && ls /proc/sys/fs/binfmt_misc/qemu-aarch64"
+  "test -f /etc/nix/meganix-builder-priv.pem && cat /proc/sys/fs/binfmt_misc/aarch64-linux | grep -q enabled"
 ```
 
 ## Steady-state rebuild flow
