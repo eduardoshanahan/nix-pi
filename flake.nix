@@ -235,7 +235,8 @@
             set -euo pipefail
 
             repo_root="$PWD"
-            kb_root="''${HHLAB_WIKI_DIR:-$repo_root/../hhlab-wiki}"
+            brain_global="''${BRAIN_GLOBAL:-$HOME/Programming/brain}"
+            brain_local="''${BRAIN_ROOT:-$repo_root/../nix-pi-private}"
 
             required_repo_docs=(
               "$repo_root/README.md"
@@ -243,16 +244,18 @@
               "$repo_root/docs/README.md"
             )
 
-            required_kb_docs=(
-              "$kb_root/README.md"
-              "$kb_root/indexes/by-repo.md"
-              "$kb_root/indexes/by-topic.md"
-              "$kb_root/indexes/by-date.md"
+            required_brain_docs=(
+              "$brain_global/.brain/AGENT.md"
+              "$brain_global/.brain/constraints.md"
+              "$brain_global/.brain/INDEX.md"
+              "$brain_local/.brain/AGENT.md"
+              "$brain_local/.brain/constraints.md"
             )
 
             echo "nix-pi session pre-flight"
             echo "repo_root=$repo_root"
-            echo "kb_root=$kb_root"
+            echo "brain_global=$brain_global"
+            echo "brain_local=$brain_local"
             echo
 
             missing=0
@@ -265,7 +268,7 @@
               fi
             done
 
-            for file in "''${required_kb_docs[@]}"; do
+            for file in "''${required_brain_docs[@]}"; do
               if [ -f "$file" ]; then
                 echo "OK   $file"
               else
@@ -278,21 +281,28 @@
               cat >&2 <<'EOF'
 
 Pre-flight failed: required docs are missing.
-Set HHLAB_WIKI_DIR if your private wiki lives outside ../hhlab-wiki.
+Set BRAIN_GLOBAL if your global brain lives outside ~/Programming/brain.
+Set BRAIN_ROOT if your local brain lives outside ../nix-pi-private.
 EOF
               exit 1
             fi
 
             echo
-            echo "Relevant KB entries for nix-pi:"
-            rg -n "nix-pi|nix-pi-private" "$kb_root/indexes/by-repo.md" || true
+            echo "Relevant brain investigations for nix-pi:"
+            rg -n "nix-pi|raspberry-pi" "$brain_global/.brain/INDEX.md" || true
+
+            if [ -s "$brain_local/.brain/INDEX.md" ]; then
+              echo
+              echo "Local nix-pi brain index:"
+              grep -v "^| Date" "$brain_local/.brain/INDEX.md" | grep -v "^|---" | grep -v "^$" || true
+            fi
 
             echo
             cat <<'EOF'
 Next required steps:
-1. Read the linked KB records.
-2. Summarize grounded assumptions and open uncertainties.
-3. Validate plan against decisions and anti-patterns before implementation.
+1. Read the linked brain investigations.
+2. Run: brainctl preflight "<task>"
+3. Validate plan against constraints and known-mistakes before implementation.
 EOF
           '';
         };
