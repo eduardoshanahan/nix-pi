@@ -34,7 +34,7 @@ are passed as path overrides so uncommitted changes take effect immediately.
 nixos-rebuild switch \
   --flake path:$PWD#rpi-box-01 \
   --override-input private "path:$PWD/../nix-pi-private" \
-  --override-input nix-services "path:$PWD/../nix-services" \
+  --override-input nix-services "path:$PWD/../../nix-services/nix-services" \
   --target-host eduardo@rpi-box-01 \
   --build-host eduardo@rpi-box-01 \
   --sudo
@@ -43,7 +43,7 @@ nixos-rebuild switch \
 nixos-rebuild switch \
   --flake path:$PWD#rpi-box-02 \
   --override-input private "path:$PWD/../nix-pi-private" \
-  --override-input nix-services "path:$PWD/../nix-services" \
+  --override-input nix-services "path:$PWD/../../nix-services/nix-services" \
   --target-host eduardo@rpi-box-02 \
   --build-host eduardo@rpi-box-02 \
   --sudo
@@ -52,7 +52,7 @@ nixos-rebuild switch \
 nixos-rebuild switch \
   --flake path:$PWD#rpi-box-03 \
   --override-input private "path:$PWD/../nix-pi-private" \
-  --override-input nix-services "path:$PWD/../nix-services" \
+  --override-input nix-services "path:$PWD/../../nix-services/nix-services" \
   --target-host eduardo@rpi-box-03 \
   --build-host eduardo@rpi-box-02 \
   --sudo
