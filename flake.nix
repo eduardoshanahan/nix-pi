@@ -313,7 +313,7 @@ EOF
             pkgs.git
             pkgs.prek
             pkgs.gitleaks
-            pkgs.nodePackages.markdownlint-cli2
+            pkgs.markdownlint-cli2
             pkgs.sops
             pkgs.age
             pkgs.zstd
