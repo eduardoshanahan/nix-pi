@@ -102,7 +102,7 @@ If a pointer doc exists here and points to `nix-services`, follow the pointer in
 
 ## Working Rules
 
-- Run `nix run .#session-preflight` before meaningful implementation work
+- Run `brainctl preflight "<task>"` before meaningful implementation work
 - Use `nix run "path:$PWD#validate-private-config" -- <host>` before builds or rebuilds
 - For `nix build` and `nixos-rebuild`, pass `--override-input private "path:${NIX_PI_PRIVATE_FLAKE:-$PWD/../nix-pi-private}"`
 - Never put plaintext secrets in Git
@@ -138,7 +138,6 @@ When you change behavior, update the owning docs in the same change:
 
 Use existing helpers instead of ad hoc commands:
 
-- `nix run .#session-preflight`
 - `scripts/export-sd-image`
 - `scripts/inject-ssh-key`
 - `scripts/bootstrap-sops-age-key`

@@ -228,84 +228,6 @@
             echo "toplevel_drv=$toplevel_drv"
           '';
         };
-        sessionPreflight = pkgs.writeShellApplication {
-          name = "session-preflight";
-          runtimeInputs = [ pkgs.ripgrep ];
-          text = ''
-            set -euo pipefail
-
-            repo_root="$PWD"
-            brain_global="''${BRAIN_GLOBAL:-$HOME/Programming/brain}"
-            brain_local="''${BRAIN_ROOT:-$repo_root/../nix-pi-private}"
-
-            required_repo_docs=(
-              "$repo_root/README.md"
-              "$repo_root/DOCUMENTATION_INDEX.md"
-              "$repo_root/docs/README.md"
-            )
-
-            required_brain_docs=(
-              "$brain_global/.brain/AGENT.md"
-              "$brain_global/.brain/constraints.md"
-              "$brain_global/.brain/INDEX.md"
-              "$brain_local/.brain/AGENT.md"
-              "$brain_local/.brain/constraints.md"
-            )
-
-            echo "nix-pi session pre-flight"
-            echo "repo_root=$repo_root"
-            echo "brain_global=$brain_global"
-            echo "brain_local=$brain_local"
-            echo
-
-            missing=0
-            for file in "''${required_repo_docs[@]}"; do
-              if [ -f "$file" ]; then
-                echo "OK   $file"
-              else
-                echo "MISS $file" >&2
-                missing=1
-              fi
-            done
-
-            for file in "''${required_brain_docs[@]}"; do
-              if [ -f "$file" ]; then
-                echo "OK   $file"
-              else
-                echo "MISS $file" >&2
-                missing=1
-              fi
-            done
-
-            if [ "$missing" -ne 0 ]; then
-              cat >&2 <<'EOF'
-
-Pre-flight failed: required docs are missing.
-Set BRAIN_GLOBAL if your global brain lives outside ~/Programming/brain.
-Set BRAIN_ROOT if your local brain lives outside ../nix-pi-private.
-EOF
-              exit 1
-            fi
-
-            echo
-            echo "Relevant brain investigations for nix-pi:"
-            rg -n "nix-pi|raspberry-pi" "$brain_global/.brain/INDEX.md" || true
-
-            if [ -s "$brain_local/.brain/INDEX.md" ]; then
-              echo
-              echo "Local nix-pi brain index:"
-              grep -v "^| Date" "$brain_local/.brain/INDEX.md" | grep -v "^|---" | grep -v "^$" || true
-            fi
-
-            echo
-            cat <<'EOF'
-Next required steps:
-1. Read the linked brain investigations.
-2. Run: brainctl preflight "<task>"
-3. Validate plan against constraints and known-mistakes before implementation.
-EOF
-          '';
-        };
       in
       {
         devShells.default = pkgs.mkShell {
@@ -345,7 +267,6 @@ EOF
 
         packages.validate-private-config = validatePrivateConfig;
         packages.validate-pi-host = validatePiHost;
-        packages.session-preflight = sessionPreflight;
 
         apps.validate-private-config = {
           type = "app";
@@ -355,11 +276,6 @@ EOF
         apps.validate-pi-host = {
           type = "app";
           program = "${validatePiHost}/bin/validate-pi-host";
-        };
-
-        apps.session-preflight = {
-          type = "app";
-          program = "${sessionPreflight}/bin/session-preflight";
         };
       }
     );

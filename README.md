@@ -102,9 +102,12 @@ The tracked placeholder contract lives in:
 
 - `private-config-template/`
 
-The repo has explicit preflight helpers for the private input:
+Before meaningful implementation work, use the canonical brain workflow:
 
-- `nix run .#session-preflight`
+- `brainctl preflight "<task>"`
+
+The repo has explicit validation helpers for the private input:
+
 - `nix run "path:$PWD#validate-private-config" -- rpi-box-01`
 - `nix run "path:$PWD#validate-pi-host" -- rpi-box-01`
 
