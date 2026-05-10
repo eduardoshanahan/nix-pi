@@ -19,6 +19,8 @@
   environment.systemPackages = [
     pkgs.age
     pkgs.sops
+    pkgs.htop
+    pkgs.ncdu
   ];
 
   users.mutableUsers = false;
