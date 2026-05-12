@@ -94,7 +94,9 @@
           system = "aarch64-linux";
           profile = ./nixos/profiles/rpi3.nix;
           hostModule = ./nixos/hosts/rpi-box-03.nix;
-          extraModules = [ nixos-hardware.nixosModules.raspberry-pi-3 ];
+          # nixos-hardware.raspberry-pi-3 fails to build on the current nixpkgs pin.
+          # Kernel is set explicitly in the host module via linuxPackages_rpi3.
+          # rpi-box-03 is on a retirement path and will be removed from the lab.
           privateSharedModule = privateSharedOverrides;
           privateHostModule = maybePrivateHost "rpi-box-03";
         };

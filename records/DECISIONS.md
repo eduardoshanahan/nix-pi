@@ -246,3 +246,16 @@ Format
 - Status: active
 - References: nixos/hosts/private/rpi-box-02.nix,
   docs/policy/UPTIME_KUMA_MONITOR_POLICY.md
+
+- Date: 2026-05-12
+- Decision: Do not migrate `rpi-box-03` to `nixos-hardware.raspberry-pi-3`. Use
+  `linuxPackages_rpi3` explicitly instead. Plan to retire `rpi-box-03` from the lab.
+- Context: `nixos-hardware.raspberry-pi-3` failed to build on the current nixpkgs
+  pin (549bd84). `rpi-box-03` is a Raspberry Pi 3 and is the least capable host in
+  the fleet. The nixos-hardware migration for Pi 4 hosts (rpi-box-01, rpi-box-02)
+  is complete.
+- Rationale: The Pi 3 is not worth the effort to fix given it is being retired.
+  `linuxPackages_rpi3` (deprecated but present in 549bd84) keeps the host running
+  until it is decommissioned. No further migration work for rpi-box-03.
+- Status: active
+- References: nixos/hosts/rpi-box-03.nix, flake.nix
