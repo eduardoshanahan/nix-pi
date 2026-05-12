@@ -14,10 +14,10 @@ store paths.
 
 Builder signing identities:
 
-| Builder    | Private key path                    | Public key trusted by |
-|------------|-------------------------------------|------------------------|
-| rpi-box-02 | `/etc/nix/rpi-box-02-priv.pem`      | rpi-box-03             |
-| meganix    | `/etc/nix/meganix-builder-priv.pem` | all Pi nodes (shared.nix) |
+| Builder    | Private key path                    | Public key trusted by       |
+|------------|-------------------------------------|-----------------------------|
+| rpi-box-02 | `/etc/nix/rpi-box-02-priv.pem`      | rpi-box-03                  |
+| meganix    | `/etc/nix/meganix-builder-priv.pem` | all Pi nodes (shared.nix)   |
 
 Public key strings are managed in nix-pi-private (see `modules/shared.nix` for
 the meganix key, and per-host modules for rpi-box-02).
@@ -67,6 +67,14 @@ restoring from a secure backup kept outside Git.
 meganix (Threadripper 2920X, 24 threads, 125 GB RAM) has binfmt aarch64
 emulation enabled and its signing key trusted by all Pi nodes. Use it as
 `--build-host` for significantly faster full-closure rebuilds:
+
+Important:
+
+- If your current shell is already running on `meganix`, do not set
+  `--build-host eduardo@meganix.hhlab.home.arpa`.
+- In that case the build is already local to `meganix`; setting `--build-host`
+  adds an unnecessary SSH hop and can fail due to local hostname/auth setup.
+- From local `meganix`, use the "Running from meganix itself" flow below.
 
 ```bash
 export NIX_PI_PRIVATE_FLAKE="${NIX_PI_PRIVATE_FLAKE:-$PWD/../nix-pi-private}"

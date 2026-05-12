@@ -92,9 +92,9 @@
 
         rpi-box-03 = mkBaseSystem {
           system = "aarch64-linux";
-          profile = ./nixos/profiles/rpi4.nix;
+          profile = ./nixos/profiles/rpi3.nix;
           hostModule = ./nixos/hosts/rpi-box-03.nix;
-          extraModules = [ nixos-hardware.nixosModules.raspberry-pi-4 ];
+          extraModules = [ nixos-hardware.nixosModules.raspberry-pi-3 ];
           privateSharedModule = privateSharedOverrides;
           privateHostModule = maybePrivateHost "rpi-box-03";
         };
