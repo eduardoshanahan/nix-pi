@@ -7,7 +7,7 @@ Quick reference for investigating and maintaining the homelab from a fresh sessi
 ## Lab topology
 
 | Host | IP | Role | Builder |
-|------|----|------|---------|
+| ------ | ---- | ------ | --------- |
 | rpi-box-01 | 192.0.2.10 | User apps (Pi-hole, media tools, self-hosted apps) | Self |
 | rpi-box-02 | 192.0.2.10 | Monitoring, home automation, heavy services | Self |
 | rpi-box-03 | 192.0.2.10 | DNS (Pi-hole primary), Loki, Promtail syslog | rpi-box-02 |
@@ -71,7 +71,7 @@ All per-host config lives in `nix-pi-private/modules/<host>.nix`.
 Service modules are in `nix-services/services/<service>/`.
 
 | What | Where |
-|------|-------|
+| ------ | ------- |
 | rpi-box-01 host config | `nix-pi-private/modules/rpi-box-01.nix` |
 | rpi-box-02 host config | `nix-pi-private/modules/rpi-box-02.nix` |
 | rpi-box-03 host config | `nix-pi-private/modules/rpi-box-03.nix` |
@@ -150,7 +150,7 @@ The subject tells you the instance and job, e.g.:
 ### Common service → port mapping
 
 | Alert instance | Service | Box | Check command |
-|----------------|---------|-----|---------------|
+| ---------------- | --------- | ----- | --------------- |
 | `rpi-box-01-metrics:9100` | node_exporter | rpi-box-01 | `systemctl status prometheus-node-exporter` |
 | `rpi-box-02-metrics:9100` | node_exporter | rpi-box-02 | `systemctl status prometheus-node-exporter` |
 | `rpi-box-03-metrics:9100` | node_exporter | rpi-box-03 | `systemctl status prometheus-node-exporter` |
