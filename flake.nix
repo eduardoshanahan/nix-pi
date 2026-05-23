@@ -6,6 +6,10 @@
     flake-utils.url = "github:numtide/flake-utils";
     nixos-hardware.url = "github:NixOS/nixos-hardware";
     nix-services.url = "git+ssh://git@gitea.internal.example:2222/eduardo/nix-services.git?ref=main";
+    meso-robots-theme = {
+      url = "git+ssh://git@gitea.internal.example:2222/eduardo/meso-robots.git?ref=main";
+      flake = false;
+    };
     sops-nix.url = "github:Mic92/sops-nix";
     private.url = "git+ssh://git@gitea.internal.example:2222/eduardo/nix-pi-private.git?ref=main";
   };
