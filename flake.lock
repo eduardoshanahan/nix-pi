@@ -39,11 +39,11 @@
     "meso-robots-theme": {
       "flake": false,
       "locked": {
-        "lastModified": 1779536757,
-        "narHash": "sha256-pmFh4oYVuRgLt5B5BvrgIg7oKJDJHesp7OIyjoh7+SQ=",
+        "lastModified": 1779537308,
+        "narHash": "sha256-rSAxfijLnTpbPElj7YgI+AEvQqwe8EmtYcRC/uGoI/E=",
         "ref": "main",
-        "rev": "9e5b3775eadf1de2bec36f6ef94a2e54b233974d",
-        "revCount": 3,
+        "rev": "f23d71fd8272980b9dc8a8bd17e47be768b6c095",
+        "revCount": 4,
         "type": "git",
         "url": "ssh://git@gitea.internal.example:2222/eduardo/meso-robots.git"
       },
