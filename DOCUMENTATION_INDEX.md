@@ -16,45 +16,14 @@ the right class of document.
 
 ## Stable Host Policy Docs
 
-- `docs/policy/COMMIT_AND_HOOKS_POLICY.md`
 - `docs/policy/CONFIDENTIALITY.md`
 - `docs/policy/HOST_RUNTIME_DIVERGENCES.md`
 - `docs/policy/UPTIME_KUMA_MONITOR_POLICY.md`
-- `docs/policy/PUBLIC_REPO_SANITIZATION_POLICY.md`
-
-## Operations Docs
-
-- `docs/operations/OPERATIONS_CHECKS_AND_SERVICE_NOTES.md`
-  - pointer to the private operator notes in `../nix-pi-private/docs/operations/`
-
-## Plans And Reference Notes
-
-- `docs/plans/nix_os_homelab_roadmap_checkpoints.md`
-- `docs/plans/zero_downtime_dns_migration_checklist.md`
-- `docs/plans/N8N_RPI_BOX_02_PHASE1_PLAN.md`
-- `docs/plans/STORAGE_DIRECTORY_AUDIT_AND_REMEDIATION_PLAN.md`
-
-These are planning, audit, migration, or rollout references. Unless a new
-rollout is actively in progress, they should be read as recovery/expansion
-material rather than everyday operator truth.
 
 ## Recovery Docs
 
 - `docs/recovery/backup_strategy.md`
 - `docs/recovery/reflash_rejoin_node_runbook.md`
-
-## Continuity And Archive Docs
-
-- `docs/continuity/CODEX_SANDBOX_NIX_DAEMON_RUNBOOK.md`
-- `docs/continuity/KUMA_AUTHENTIK_LIMITATION_NOTE_2026-03-06.md`
-- `docs/continuity/ROOT_SESSION_DOCS_ARCHIVE_SUMMARY_2026-03-18.md`
-
-These preserve useful context across sessions, but they are not the first place
-to look for stable host lifecycle or host-runtime truth.
-
-## Prompt / Style Pointers
-
-- `docs/prompts/response_style.md`
 
 ## Boundary Reminder
 
