@@ -151,9 +151,6 @@ Check at session start:
 
 - `records/DECISIONS.md`
 - `records/WORKLOG.md`
-- `records/SESSION_PROMPT.md`
-- `records/QUESTIONS.md`
-- `records/RISKS.md`
 
 Prefer appending new entries over rewriting historical ones.
 
