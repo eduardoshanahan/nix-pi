@@ -51,9 +51,8 @@ When working in `nix-pi`, read in this order:
 1. `README.md`
 2. `DOCUMENTATION_INDEX.md`
 3. `docs/README.md`
-4. the specific operator/policy doc for the task (see `docs/lifecycle/`, `docs/policy/`)
+4. the specific doc for the task (see `docs/setup/`, `docs/operations/`, `docs/recovery/`, `docs/decisions/`)
 5. relevant implementation files in `flake.nix`, `nixos/modules/`, `nixos/profiles/`, `nixos/hosts/`, `../nix-pi-private/modules/`
-6. `records/README.md` plus relevant records files if session continuity matters
 
 If a pointer doc exists here and points to `nix-services`, follow the pointer instead of duplicating policy locally.
 
@@ -66,9 +65,8 @@ If a pointer doc exists here and points to `nix-services`, follow the pointer in
 - `nixos/profiles/`: RPi image profiles
 - `nixos/hosts/`: public host entry modules
 - `scripts/`: operational helper scripts
-- `docs/`: canonical public-safe host-owned docs
+- `docs/`: human-facing docs (setup/, operations/, recovery/, decisions/)
 - `DOCUMENTATION_INDEX.md`: quick navigation index
-- `records/`: long-lived public-safe project/session records
 - `secrets/`: SOPS-encrypted secret files safe to commit
 - `../nix-pi-private/`: private companion (real env values, modules, continuity notes)
 
@@ -149,8 +147,8 @@ Use existing helpers instead of ad hoc commands:
 
 Check at session start:
 
-- `records/DECISIONS.md`
-- `records/WORKLOG.md`
+- `.brain/INDEX.md`
+- `.brain/investigations/` (most recent files)
 
 Prefer appending new entries over rewriting historical ones.
 

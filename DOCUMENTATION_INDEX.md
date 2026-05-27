@@ -7,23 +7,28 @@ Use `README.md` for the repo overview and ownership boundary.
 Use this file when you are already in `nix-pi` and want the shortest path to
 the right class of document.
 
-## Stable Host Lifecycle Docs
+## Setup And Provisioning
 
-- `docs/lifecycle/SETUP.md`
-- `docs/lifecycle/PROVISIONING.md`
-- `docs/lifecycle/SECRETS.md`
-- `docs/lifecycle/REMOTE_BUILDS.md`
+- `docs/setup/SETUP.md`
+- `docs/setup/PROVISIONING.md`
+- `docs/setup/SECRETS.md`
 
-## Stable Host Policy Docs
+## Operations Reference
 
-- `docs/policy/CONFIDENTIALITY.md`
-- `docs/policy/HOST_RUNTIME_DIVERGENCES.md`
-- `docs/policy/UPTIME_KUMA_MONITOR_POLICY.md`
+- `docs/operations/REMOTE_BUILDS.md`
+- `docs/operations/HOST_RUNTIME_DIVERGENCES.md`
+- `docs/operations/UPTIME_KUMA_MONITOR_POLICY.md`
 
-## Recovery Docs
+## Recovery
 
 - `docs/recovery/backup_strategy.md`
 - `docs/recovery/reflash_rejoin_node_runbook.md`
+
+## Decisions
+
+- `docs/decisions/CONFIDENTIALITY.md`
+- `docs/decisions/ADR-0001-nix-flakes.md`
+- `docs/decisions/ADR-0002-prek-gitleaks.md`
 
 ## Boundary Reminder
 
