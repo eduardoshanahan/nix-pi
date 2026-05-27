@@ -17,17 +17,9 @@ environment-specific values live in a sibling private companion repo:
 
 ## Public Repo Hygiene
 
-Before commit/push, run the sanitization checklist in:
+Before commit/push, review:
 
-`docs/policy/PUBLIC_REPO_SANITIZATION_POLICY.md`
-
-## Housekeeping Reminder
-
-- Added on 2026-03-06.
-- Do housekeeping follow-up on 2026-03-10 (or later) after confirming stability:
-  - Remove obsolete local sqlite files left from migrations (for example old Grafana/Kuma DB files).
-  - Keep current backup snapshots for at least a few more days before deleting any historical copies.
-  - Re-check service health and alert noise after the recent database centralization changes.
+`docs/decisions/CONFIDENTIALITY.md`
 
 ## Why This Project
 
@@ -64,33 +56,29 @@ Documentation sync gate for future changes:
 
 Current host-runtime divergence register:
 
-- `docs/policy/HOST_RUNTIME_DIVERGENCES.md`
+- `docs/operations/HOST_RUNTIME_DIVERGENCES.md`
 
 Current host-owned Uptime Kuma monitor policy:
 
-- `docs/policy/UPTIME_KUMA_MONITOR_POLICY.md`
+- `docs/operations/UPTIME_KUMA_MONITOR_POLICY.md`
 
 ## Documentation Index
 
 - Documentation index: `DOCUMENTATION_INDEX.md`
 - Docs layout: `docs/README.md`
-- Getting started: `docs/lifecycle/SETUP.md`
-- Provisioning (build, flash, first boot): `docs/lifecycle/PROVISIONING.md`
-- Secrets (sops-nix): `docs/lifecycle/SECRETS.md`
-- Remote builds and signing: `docs/lifecycle/REMOTE_BUILDS.md`
-- Host runtime divergences: `docs/policy/HOST_RUNTIME_DIVERGENCES.md`
-- Uptime Kuma monitor policy: `docs/policy/UPTIME_KUMA_MONITOR_POLICY.md`
-- Operations checks and service notes: `../nix-pi-private/docs/operations/OPERATIONS_CHECKS_AND_SERVICE_NOTES.md`
-- Plans and audits: `docs/plans/`
+- Getting started: `docs/setup/SETUP.md`
+- Provisioning (build, flash, first boot): `docs/setup/PROVISIONING.md`
+- Secrets (sops-nix): `docs/setup/SECRETS.md`
+- Remote builds and signing: `docs/operations/REMOTE_BUILDS.md`
+- Host runtime divergences: `docs/operations/HOST_RUNTIME_DIVERGENCES.md`
+- Uptime Kuma monitor policy: `docs/operations/UPTIME_KUMA_MONITOR_POLICY.md`
 - Recovery docs: `docs/recovery/`
-- Continuity notes: `docs/continuity/`
 - Documentation sync checklist: `../nix-services/docs/policy/DOC_SYNC_CHECKLIST.md`
 - Private companion contract: `nixos/hosts/private/README.md`
 - Private local runbook: `../nix-pi-private/docs/local/PROVISIONING_LOCAL.md`
 - NixOS config layout:
   - Modules: `nixos/modules/`
   - Profiles: `nixos/profiles/`
-- Project records (decisions, work log, session prompt): `records/README.md`
 
 ## Private Config Workflow
 
@@ -190,7 +178,7 @@ Remote build note:
 - Keep rebuilds one host at a time so any migration mistake is isolated to a
   single box.
 
-For bootstrap, expansion, and key rotation details, see `docs/lifecycle/REMOTE_BUILDS.md`.
+For bootstrap, expansion, and key rotation details, see `docs/operations/REMOTE_BUILDS.md`.
 
 ## `rpi-box-02` Storage Policy
 
@@ -222,14 +210,14 @@ For bootstrap, expansion, and key rotation details, see `docs/lifecycle/REMOTE_B
   and `nix-services/services/*/README.md`.
 - Host-managed monitor inventory and exceptions for `rpi-box-02` are canonical
   in:
-  - `docs/policy/UPTIME_KUMA_MONITOR_POLICY.md`
-  - `docs/policy/HOST_RUNTIME_DIVERGENCES.md`
+  - `docs/operations/UPTIME_KUMA_MONITOR_POLICY.md`
+  - `docs/operations/HOST_RUNTIME_DIVERGENCES.md`
 - Local documentation index for this repo:
   - `DOCUMENTATION_INDEX.md`
 
 ## Operations Docs
 
 - Host-specific operator quick checks and deployed-service notes live in:
-  - `docs/operations/OPERATIONS_CHECKS_AND_SERVICE_NOTES.md`
+  - `../nix-pi-private/docs/operations/OPERATIONS_CHECKS_AND_SERVICE_NOTES.md`
 - Keep this README focused on repo boundaries, navigation, and canonical
   documentation ownership.
