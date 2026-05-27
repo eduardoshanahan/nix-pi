@@ -90,12 +90,6 @@ If a pointer doc exists here and points to `nix-services`, follow the pointer in
 - intentional Homepage Docker inventory override
 - intentional Ghost compose override for SMTP TLS behavior
 
-### `rpi-box-03`
-
-- Loki host
-- SSD-backed `/srv`
-- trusts `rpi-box-02` Nix signing key for remote builds
-
 ---
 
 ## Working Rules
@@ -114,10 +108,9 @@ If a pointer doc exists here and points to `nix-services`, follow the pointer in
 ## Build / Deploy Norms
 
 - SD image outputs defined for `rpi4`, `rpi3`, optional `rpi3-armv7l`
-- Host outputs: `rpi-box-01`, `rpi-box-02`, `rpi-box-03`
-- `rpi-box-03` rebuilt with `rpi-box-02` as remote builder and signer
-- If a task touches remote builds or signing, update `docs/lifecycle/REMOTE_BUILDS.md`
-- If a task changes provisioning expectations, update `docs/lifecycle/PROVISIONING.md` and/or `docs/lifecycle/SECRETS.md`
+- Host outputs: `rpi-box-01`, `rpi-box-02`
+- If a task touches remote builds or signing, update `docs/operations/REMOTE_BUILDS.md`
+- If a task changes provisioning expectations, update `docs/setup/PROVISIONING.md` and/or `docs/setup/SECRETS.md`
 
 ---
 
@@ -125,9 +118,9 @@ If a pointer doc exists here and points to `nix-services`, follow the pointer in
 
 When you change behavior, update the owning docs in the same change:
 
-- host runtime divergence changes → `docs/policy/HOST_RUNTIME_DIVERGENCES.md`
-- Uptime Kuma host-managed monitor changes → `docs/policy/UPTIME_KUMA_MONITOR_POLICY.md`
-- provisioning/bootstrap changes → `docs/lifecycle/PROVISIONING.md`, `SECRETS.md`, or `REMOTE_BUILDS.md`
+- host runtime divergence changes → `docs/operations/HOST_RUNTIME_DIVERGENCES.md`
+- Uptime Kuma host-managed monitor changes → `docs/operations/UPTIME_KUMA_MONITOR_POLICY.md`
+- provisioning/bootstrap changes → `docs/setup/PROVISIONING.md`, `docs/setup/SECRETS.md`, or `docs/operations/REMOTE_BUILDS.md`
 - storage-policy changes on `rpi-box-02` → `README.md` and `docs/operations/OPERATIONS_CHECKS_AND_SERVICE_NOTES.md`
 
 ---
