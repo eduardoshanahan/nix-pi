@@ -257,11 +257,12 @@ Proceed deliberately.
 Actions:
 
 - [ ] Ensure you are SSHed into the node via the **DHCP-assigned IP**
-- [ ] Clone the homelab repository:
+- [ ] Clone both the public and private homelab repositories:
 
 ```bash
 cd ~
 git clone <nix-pi-repo-url>
+git clone <nix-pi-private-repo-url>
 cd nix-pi
 ```
 
@@ -281,7 +282,9 @@ git rev-parse HEAD
 - [ ] Build and apply the configuration:
 
 ```bash
-sudo nixos-rebuild switch --flake .#<hostname>
+sudo nixos-rebuild switch \
+  --flake .#<hostname> \
+  --override-input private "path:${NIX_PI_PRIVATE_FLAKE:-$PWD/../nix-pi-private}"
 ```
 
 WARNING: **Do not close the SSH session during the build.**

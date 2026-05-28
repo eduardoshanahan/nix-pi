@@ -40,8 +40,8 @@ the right class of document.
   - placeholder contract and migration notes for the private companion model
 - `../nix-pi-private/modules/`
   - live private shared and host-specific configuration
-- `../nix-pi-private/docs/`
-  - private operator notes and internal rollout details
+- `../nix-pi-private/.brain/runbooks/`
+  - private operational runbooks with real IPs, SSH commands, and provisioning steps
 - `../../nix-services/nix-services/services/*/README.md`
   - shared service behavior and options
 - `../../nix-services/nix-services/docs/policy/DOC_SYNC_CHECKLIST.md`

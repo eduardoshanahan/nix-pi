@@ -53,8 +53,8 @@ scripts/bootstrap-nix-signing-key --from-files <private-key-file> <public-key-fi
 Examples:
 
 ```bash
-scripts/bootstrap-nix-signing-key rpi-box-02 rpi-box-02 rpi-box-03
-scripts/bootstrap-nix-signing-key --from-files ./rpi-box-02-priv.pem ./rpi-box-02-pub.pem rpi-box-02 rpi-box-02
+scripts/bootstrap-nix-signing-key meganix meganix rpi-box-01
+scripts/bootstrap-nix-signing-key --from-files ./meganix-priv.pem ./meganix-pub.pem meganix meganix
 ```
 
 Use `--from-files` when the original builder is unavailable and you are

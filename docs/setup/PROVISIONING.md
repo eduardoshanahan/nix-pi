@@ -207,7 +207,7 @@ Note: the SD card root partition is typically an ext4 filesystem owned by
 usually requires `sudo` on the host while the SD card is mounted.
 
 For the exact commands used in your local environment (mount points, key path,
-IP), keep a private local runbook in `../nix-pi-private/docs/local/`.
+IP), keep a private local runbook in `../nix-pi-private/.brain/runbooks/`.
 
 Helper script (recommended):
 

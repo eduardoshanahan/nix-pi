@@ -46,10 +46,6 @@ Current-state rule:
 
 - Services are already deployed and stable. Deployment plans should be treated as rebuild/disaster-recovery/expansion references unless a new rollout is explicitly requested.
 
-For the ownership baseline and contradiction register, see:
-
-- `../nix-services/records/documentation_unification_block_1.md`
-
 Documentation sync gate for future changes:
 
 - `../nix-services/docs/policy/DOC_SYNC_CHECKLIST.md`
@@ -75,7 +71,7 @@ Current host-owned Uptime Kuma monitor policy:
 - Recovery docs: `docs/recovery/`
 - Documentation sync checklist: `../nix-services/docs/policy/DOC_SYNC_CHECKLIST.md`
 - Private companion contract: `nixos/hosts/private/README.md`
-- Private local runbook: `../nix-pi-private/docs/local/PROVISIONING_LOCAL.md`
+- Private local runbook: `../nix-pi-private/.brain/runbooks/PROVISIONING_LOCAL.md`
 - NixOS config layout:
   - Modules: `nixos/modules/`
   - Profiles: `nixos/profiles/`
@@ -89,10 +85,6 @@ Private values are now expected from a sibling flake:
 The tracked placeholder contract lives in:
 
 - `private-config-template/`
-
-Before meaningful implementation work, use the canonical brain workflow:
-
-- `brainctl preflight "<task>"`
 
 The repo has explicit validation helpers for the private input:
 
@@ -130,14 +122,13 @@ scripts/export-sd-image result-rpi4 sd-image rpi4 --decompress
 scripts/export-sd-image result-rpi3 sd-image rpi3 --decompress
 ```
 
-Deploy one host at a time (host-local for `rpi-box-01` / `rpi-box-02`, remote builder for `rpi-box-03`)
+Deploy one host at a time (host-local for `rpi-box-01` / `rpi-box-02`)
 
 ```bash
 cd /absolute/path/to/nix-pi
 export NIX_PI_PRIVATE_FLAKE="${NIX_PI_PRIVATE_FLAKE:-$PWD/../nix-pi-private}"
 nix run "path:$PWD#validate-pi-host" -- rpi-box-01
 nix run "path:$PWD#validate-pi-host" -- rpi-box-02
-nix run "path:$PWD#validate-pi-host" -- rpi-box-03
 nix flake update nix-services
 git add flake.lock
 git commit -m "flake: bump nix-services"
@@ -157,24 +148,15 @@ nixos-rebuild switch \
   --build-host eduardo@rpi-box-02 \
   --sudo
 
-nixos-rebuild switch \
-  --flake path:$PWD#rpi-box-03 \
-  --override-input private "path:$NIX_PI_PRIVATE_FLAKE" \
-  --target-host eduardo@rpi-box-03 \
-  --build-host eduardo@rpi-box-02 \
-  --sudo
-
 ssh-copy-id -i ~/.ssh/id_ed25519_homelab.pub <admin-user>@<nas-fqdn>
 ```
 
 Remote build note:
 
-- `rpi-box-03` builds on `rpi-box-02` because `rpi-box-03` does not have enough local build capacity.
 - Cross-host Nix store copies require the builder to sign locally built paths and the target to trust the builder public key.
 - In the current setup, the designated builder signs with its host-local key,
   and target nodes trust the matching public key string declared in the private
   companion config.
-- If the builder signing key changes or `rpi-box-03` is rebuilt from scratch, re-establish target trust before using `--build-host eduardo@rpi-box-02` again.
 - Keep rebuilds one host at a time so any migration mistake is isolated to a
   single box.
 
@@ -191,23 +173,12 @@ For bootstrap, expansion, and key rotation details, see `docs/operations/REMOTE_
 - Docker on `rpi-box-02` is configured to use `/srv/docker` as its data root, so image/layer storage also lives on the SSD.
 - Existing service docs in this README that reference `/srv/...` should be treated as following this policy, not as one-off exceptions.
 
-## `rpi-box-03` Storage Policy
-
-- `rpi-box-03` has two different storage classes:
-  - SD card root filesystem at `/`
-  - SSD storage mounted at `/srv`
-- Persistent service state on `rpi-box-03` should be placed on the SSD-backed `/srv` storage, not on the SD card.
-- Docker on `rpi-box-03` is configured to use `/srv/docker` as its data root, so image/layer storage and named volumes should live on the SSD.
-- Loki state should live under `/srv/loki`, with backups under `/srv/backups/loki`.
-- Host-local sync and log-shipper state should also prefer `/srv/...` paths on this host when practical.
-
 ## Boundary Reminder
 
 - This README owns repo overview, host-lifecycle boundaries, and documentation
   pointers.
-- Service-side monitoring architecture, module contracts, and constraints are
-  canonical in `nix-services/monitoring_and_metrics_plan_prometheus_traefik.md`
-  and `nix-services/services/*/README.md`.
+- Service-side module contracts and constraints are canonical in
+  `nix-services/services/*/README.md`.
 - Host-managed monitor inventory and exceptions for `rpi-box-02` are canonical
   in:
   - `docs/operations/UPTIME_KUMA_MONITOR_POLICY.md`
@@ -218,6 +189,6 @@ For bootstrap, expansion, and key rotation details, see `docs/operations/REMOTE_
 ## Operations Docs
 
 - Host-specific operator quick checks and deployed-service notes live in:
-  - `../nix-pi-private/docs/operations/OPERATIONS_CHECKS_AND_SERVICE_NOTES.md`
+  - `../nix-pi-private/.brain/runbooks/OPERATIONS_CHECKS_AND_SERVICE_NOTES.md`
 - Keep this README focused on repo boundaries, navigation, and canonical
   documentation ownership.
