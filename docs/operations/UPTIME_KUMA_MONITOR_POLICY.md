@@ -33,19 +33,12 @@ The current Pi-hole monitor inventory includes:
 
 - `Pi-hole Admin Primary`
 - `Pi-hole Admin Secondary`
-- `Pi-hole Admin Tertiary`
 - `Pi-hole Exporter rpi-box-01`
 - `Pi-hole Exporter rpi-box-02`
-- `Pi-hole Exporter rpi-box-03`
 
 The inventory also covers shared admin tooling:
 
 - `Adminer` (`https://adminer.<lab-domain>/`, the Synology-hosted MariaDB/MySQL/Postgres UI used by the homelab)
-
-`Pi-hole Admin Tertiary` monitors the additional Pi-hole instance on
-`rpi-box-03`. `rpi-box-03` is now the scheduled `pihole-sync` source for
-`rpi-box-01` and `rpi-box-02`, but the existing primary/secondary operational
-labels used for boxes 1 and 2 are intentionally unchanged for now.
 
 ## Cluster Observability Phase 1 Coverage
 

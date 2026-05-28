@@ -249,12 +249,12 @@ scripts/bootstrap-sops-age-key <source-host> <target-host> [target-host...]
 Example:
 
 ```bash
-scripts/bootstrap-sops-age-key rpi-box-01 rpi-box-02 rpi-box-03
+scripts/bootstrap-sops-age-key rpi-box-01 rpi-box-02
 ```
 
 Run this before the first rebuild that depends on SOPS secrets on a target host.
 
-See `docs/lifecycle/SECRETS.md`.
+See `docs/setup/SECRETS.md`.
 
 ## Cross-machine sync
 
@@ -270,4 +270,4 @@ after rebuild or replacement.
 Use `scripts/bootstrap-nix-signing-key` to restore an existing builder identity
 onto a rebuilt host, then rebuild declaratively.
 
-See `docs/lifecycle/REMOTE_BUILDS.md`.
+See `docs/operations/REMOTE_BUILDS.md`.

@@ -65,7 +65,7 @@ Do not duplicate full service module contracts here. Those remain canonical in
     view.
 - Why:
   - the Homepage instance on `rpi-box-02` needs to query remote Docker APIs on
-    `rpi-box-01`, `rpi-box-03`, and an additional external Docker host
+    `rpi-box-01` and an additional external Docker host
 - Source of truth:
   - `../nix-pi-private/modules/rpi-box-02.nix`
 
@@ -121,7 +121,7 @@ Do not duplicate full service module contracts here. Those remain canonical in
   - monitor inventory is treated as host-managed declarative policy rather than
     UI-only state
 - Canonical monitor policy:
-  - `docs/policy/UPTIME_KUMA_MONITOR_POLICY.md`
+  - `docs/operations/UPTIME_KUMA_MONITOR_POLICY.md`
 - Source of truth:
   - `../nix-pi-private/modules/rpi-box-02.nix`
 
@@ -156,23 +156,6 @@ Do not duplicate full service module contracts here. Those remain canonical in
 - Why documented:
   - this was previously host-divergent and is now intentionally aligned again
 
-## `rpi-box-03`
-
-### Tailscale (`rpi-box-03`)
-
-- Shared module: `services.tailscaleCompose`
-- Intentional divergence:
-  - `rpi-box-03` adds:
-    - `tailscale-reconcile.service`
-    - `tailscale-reconcile.timer`
-- Why:
-  - `rpi-box-03` is now also a direct Tailscale node as part of the planned
-    move toward `rpi-box-03` as the primary DNS host
-  - the host-side reconcile timer protects it from the same oneshot-container
-    drift failure mode seen on `rpi-box-01`
-- Source of truth:
-  - `../nix-pi-private/modules/rpi-box-03.nix`
-
 ## Update Rule
 
 When a host runtime-affecting override is added, removed, or materially changed:
@@ -181,4 +164,4 @@ When a host runtime-affecting override is added, removed, or materially changed:
 2. Update the relevant service README in `nix-services` if operators should be
    warned that a host-specific divergence exists.
 3. If the change affects Uptime Kuma monitor behavior, also update
-   `docs/policy/UPTIME_KUMA_MONITOR_POLICY.md`.
+   `docs/operations/UPTIME_KUMA_MONITOR_POLICY.md`.

@@ -21,7 +21,7 @@ scripts/bootstrap-sops-age-key <source-host> <target-host> [target-host...]
 Example:
 
 ```bash
-scripts/bootstrap-sops-age-key rpi-box-01 rpi-box-02 rpi-box-03
+scripts/bootstrap-sops-age-key rpi-box-01 rpi-box-02
 ```
 
 This copies `/var/lib/sops/age.key` from the source host to each target host
@@ -89,4 +89,4 @@ scripts/bootstrap-nix-signing-key --from-files <private-key-file> <public-key-fi
 Keep any backup copy of the private signing key outside Git, and treat it like
 other privileged host material.
 
-See `docs/lifecycle/REMOTE_BUILDS.md` for the trust model and rotation procedure.
+See `docs/operations/REMOTE_BUILDS.md` for the trust model and rotation procedure.

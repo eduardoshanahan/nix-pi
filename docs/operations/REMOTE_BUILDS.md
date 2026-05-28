@@ -7,20 +7,18 @@ store paths.
 ## Current topology
 
 - `rpi-box-01`: builds locally
-- `rpi-box-02`: builds locally and acts as the remote builder for `rpi-box-03`
-- `rpi-box-03`: imports store paths built on `rpi-box-02`
+- `rpi-box-02`: builds locally
 - `meganix` (x86_64): optional remote builder for any Pi node via binfmt aarch64
   emulation; use with `--build-host meganix.hhlab.home.arpa` for faster builds
 
 Builder signing identities:
 
-| Builder    | Private key path                    | Public key trusted by       |
-|------------|-------------------------------------|-----------------------------|
-| rpi-box-02 | `/etc/nix/rpi-box-02-priv.pem`      | rpi-box-03                  |
-| meganix    | `/etc/nix/meganix-builder-priv.pem` | all Pi nodes (shared.nix)   |
+| Builder | Private key path                    | Public key trusted by     |
+| ------- | ----------------------------------- | ------------------------- |
+| meganix | `/etc/nix/meganix-builder-priv.pem` | all Pi nodes (shared.nix) |
 
 Public key strings are managed in nix-pi-private (see `modules/shared.nix` for
-the meganix key, and per-host modules for rpi-box-02).
+the meganix key).
 
 Back up both private key files outside Git so builder identities survive host
 rebuilds. Use `scripts/bootstrap-nix-signing-key --from-files` to restore.
@@ -95,32 +93,29 @@ ssh -o BatchMode=yes -o ConnectTimeout=6 eduardo@meganix.hhlab.home.arpa \
 
 ## Steady-state rebuild flow
 
-rpi-box-03 (Raspberry Pi 3) always requires a remote builder. Two options:
-
-### Option A: meganix (recommended — faster)
-
-meganix trusts are already in place.
+Both `rpi-box-01` and `rpi-box-02` build locally. Use meganix as `--build-host`
+for significantly faster builds (Threadripper 2920X, 24 threads, 125 GB RAM).
 
 **Running from meganix itself** (most common — repo is on meganix's filesystem):
-omit `--build-host`. The local nix-daemon signs with the meganix key, so the
-build is a meganix-signed build without SSH loopback:
+omit `--build-host`. The local nix-daemon signs with the meganix key:
 
 ```bash
 export NIX_PI_PRIVATE_FLAKE="${NIX_PI_PRIVATE_FLAKE:-$PWD/../nix-pi-private}"
 
-nix run "path:$PWD#validate-private-config" -- rpi-box-03
-nix run "path:$PWD#validate-pi-host" -- rpi-box-03
+nix run "path:$PWD#validate-private-config" -- rpi-box-01
+nix run "path:$PWD#validate-pi-host" -- rpi-box-01
 
 nixos-rebuild switch \
-  --flake path:$PWD#rpi-box-03 \
+  --flake path:$PWD#rpi-box-01 \
   --override-input private "path:$NIX_PI_PRIVATE_FLAKE" \
   --override-input nix-services "path:$PWD/../nix-services" \
-  --target-host eduardo@rpi-box-03 \
+  --target-host eduardo@rpi-box-01 \
   --sudo
 ```
 
-**Running from a remote machine** (thinkpad, etc.): verify meganix is up, then
-use `--build-host`:
+Replace `rpi-box-01` with `rpi-box-02` as needed.
+
+**Running from a remote machine**: verify meganix is up, then use `--build-host`:
 
 ```bash
 export NIX_PI_PRIVATE_FLAKE="${NIX_PI_PRIVATE_FLAKE:-$PWD/../nix-pi-private}"
@@ -130,62 +125,13 @@ ssh -o BatchMode=yes -o ConnectTimeout=6 eduardo@meganix.hhlab.home.arpa \
    cat /proc/sys/fs/binfmt_misc/aarch64-linux | grep -q enabled"
 
 nixos-rebuild switch \
-  --flake path:$PWD#rpi-box-03 \
+  --flake path:$PWD#rpi-box-01 \
   --override-input private "path:$NIX_PI_PRIVATE_FLAKE" \
   --override-input nix-services "path:$PWD/../nix-services" \
-  --target-host eduardo@rpi-box-03 \
+  --target-host eduardo@rpi-box-01 \
   --build-host eduardo@meganix.hhlab.home.arpa \
   --sudo
 ```
-
-### Option B: rpi-box-02 (fallback when meganix is unavailable)
-
-Preflight for `rpi-box-03` through `rpi-box-02`:
-
-```bash
-export NIX_PI_PRIVATE_FLAKE="${NIX_PI_PRIVATE_FLAKE:-$PWD/../nix-pi-private}"
-
-nix run "path:$PWD#validate-private-config" -- rpi-box-03
-nix run "path:$PWD#validate-pi-host" -- rpi-box-03
-
-ssh -o BatchMode=yes -o ConnectTimeout=6 eduardo@rpi-box-02 \
-  "test -f /etc/nix/rpi-box-02-priv.pem && test -f /etc/nix/rpi-box-02-pub.pem"
-
-ssh -o BatchMode=yes -o ConnectTimeout=6 eduardo@rpi-box-03 \
-  "grep -F '<builder-public-key-string>' /etc/nix/nix.conf"
-```
-
-If any of those checks fail, stop and repair the builder/signing path before
-attempting the rebuild.
-
-```bash
-export NIX_PI_PRIVATE_FLAKE="${NIX_PI_PRIVATE_FLAKE:-$PWD/../nix-pi-private}"
-nixos-rebuild switch \
-  --flake path:$PWD#rpi-box-03 \
-  --override-input private "path:$NIX_PI_PRIVATE_FLAKE" \
-  --override-input nix-services "path:$PWD/../nix-services" \
-  --target-host eduardo@rpi-box-03 \
-  --build-host eduardo@rpi-box-02 \
-  --sudo
-```
-
-The declarative requirements are:
-
-- the builder host sets `lab.nix.signingKeyFile`
-- the target host includes the builder public key in `lab.nix.trustedPublicKeys`
-
-Recommended post-deploy checks for `rpi-box-03`:
-
-```bash
-ssh -o BatchMode=yes -o ConnectTimeout=6 eduardo@rpi-box-03 \
-  "hostname; systemctl is-active traefik pihole loki promtail tailscale"
-
-ssh -o BatchMode=yes -o ConnectTimeout=6 eduardo@rpi-box-03 \
-  "test -f /etc/ssl/certs/homelab-root-ca.crt"
-```
-
-If the rebuild succeeds but a post-deploy check fails, treat that as an
-incomplete rollout and record the exact failing check in the session handoff.
 
 ## If you expand beyond one builder-target pair
 

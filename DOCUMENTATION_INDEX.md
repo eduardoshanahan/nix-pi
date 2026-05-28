@@ -35,16 +35,14 @@ the right class of document.
 - `README.md`
   - repo overview, ownership boundaries, and main documentation pointers
 - `docs/`
-  - host lifecycle, policy, and public-safe planning/continuity docs
-- `records/`
-  - project/session records
+  - host lifecycle and public-safe operational documentation
 - `nixos/hosts/private/`
   - placeholder contract and migration notes for the private companion model
 - `../nix-pi-private/modules/`
   - live private shared and host-specific configuration
 - `../nix-pi-private/docs/`
-  - private operator notes, continuity files, and internal rollout details
-- `../nix-services/services/*/README.md`
+  - private operator notes and internal rollout details
+- `../../nix-services/nix-services/services/*/README.md`
   - shared service behavior and options
-- `../nix-services/docs/policy/DOC_SYNC_CHECKLIST.md`
+- `../../nix-services/nix-services/docs/policy/DOC_SYNC_CHECKLIST.md`
   - documentation sync gate for cross-repo changes
