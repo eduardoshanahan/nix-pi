@@ -39,7 +39,52 @@ Do not duplicate full service module contracts here. Those remain canonical in
 - Source of truth:
   - `../nix-pi-private/modules/rpi-box-01.nix`
 
+### Promtail — Pi-hole FTL log scrape (`rpi-box-01`)
+
+- Shared module: `services.promtailCompose`
+- Intentional divergence:
+  - `services.promtailCompose.pihole.enable = true`
+- Why:
+  - enables the `pihole-ftl` Loki scrape job, which ships Pi-hole DNS query logs
+    from `/var/log/pihole/pihole.log` on the host to Loki for query-level
+    visibility (useful after IDS/firewall alerts that only show Pi-hole's IP
+    as the DNS source)
+- Dependency:
+  - the `pihole` service must be configured with the `/var/log/pihole` bind
+    mount (see `nix-services/services/pihole/README.md`)
+- Source of truth:
+  - `../nix-pi-private/modules/rpi-box-01.nix`
+
 ## `rpi-box-02`
+
+### Promtail — Pi-hole FTL log scrape (`rpi-box-02`)
+
+- Shared module: `services.promtailCompose`
+- Intentional divergence:
+  - `services.promtailCompose.pihole.enable = true`
+- Why:
+  - same as `rpi-box-01`: enables the `pihole-ftl` Loki scrape job for DNS
+    query-level visibility on the second Pi-hole node
+- Dependency:
+  - the `pihole` service must be configured with the `/var/log/pihole` bind
+    mount (see `nix-services/services/pihole/README.md`)
+- Source of truth:
+  - `../nix-pi-private/modules/rpi-box-02.nix`
+
+### Grafana — Pi-hole Exporter dashboard (`rpi-box-02`)
+
+- Shared module: `services.grafanaCompose`
+- Intentional divergence:
+  - `environment.etc."grafana/provisioning/dashboards/pihole-exporter.json"`
+    provisioned from `modules/dashboards/pihole-exporter-10176.json`
+    (Grafana dashboard 10176 — "Pi-hole Exporter" by eko)
+- Why:
+  - provides aggregate Pi-hole metrics (queries blocked, cache hit rate, query
+    types, top domains/clients) from the `ekofr/pihole-exporter` Prometheus
+    metrics already scraped on both boxes
+- Source of truth:
+  - `../nix-pi-private/modules/rpi-box-02.nix`
+  - `../nix-pi-private/modules/dashboards/pihole-exporter-10176.json`
 
 ### Tailscale (`rpi-box-02`)
 
