@@ -46,9 +46,8 @@ Do not duplicate full service module contracts here. Those remain canonical in
   - `services.promtailCompose.pihole.enable = true`
 - Why:
   - enables the `pihole-ftl` Loki scrape job, which ships Pi-hole DNS query logs
-    from `/var/log/pihole/pihole.log` on the host to Loki for query-level
-    visibility (useful after IDS/firewall alerts that only show Pi-hole's IP
-    as the DNS source)
+    from `/var/log/pihole/pihole.log` on the host to Loki for per-query
+    visibility into DNS activity on this node
 - Dependency:
   - the `pihole` service must be configured with the `/var/log/pihole` bind
     mount (see `nix-services/services/pihole/README.md`)
@@ -63,8 +62,9 @@ Do not duplicate full service module contracts here. Those remain canonical in
 - Intentional divergence:
   - `services.promtailCompose.pihole.enable = true`
 - Why:
-  - same as `rpi-box-01`: enables the `pihole-ftl` Loki scrape job for DNS
-    query-level visibility on the second Pi-hole node
+  - enables the `pihole-ftl` Loki scrape job, which ships Pi-hole DNS query logs
+    from `/var/log/pihole/pihole.log` on the host to Loki for per-query
+    visibility into DNS activity on this node
 - Dependency:
   - the `pihole` service must be configured with the `/var/log/pihole` bind
     mount (see `nix-services/services/pihole/README.md`)
