@@ -1,5 +1,7 @@
 # Agent Instructions — nix-pi (public)
 
+> **RETIRED 2026-06-21** — Superseded by `~/Programming/deployments/` + `~/Programming/docker-services/`. rpi-box-01 and rpi-box-02 are now deployed from `deployments/` (switched 2026-06-18/19). Kept for reference until Phase 6 (retire old repos). Do not make new changes here.
+
 This file extends the global instructions at `~/Programming/hhlab/brain/.brain/AGENT.md`.
 
 ---

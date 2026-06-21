@@ -1,5 +1,7 @@
 # Brain Index
 
+> **STATUS: IDLE** — Superseded by `~/Programming/deployments/`. rpi-box-01 and rpi-box-02 deployed from `deployments/` (2026-06-18/19). Marked idle 2026-06-21.
+
 | Date | File | Summary | Tags | Context | Repo | Status |
 | ---- | ---- | ------- | ---- | ------- | ---- | ------ |
 | 2026-05-08 | 2026-05-08-deploy-nix-services-image-updates-to-rpi-box-03.md | Deploy loki 3.1.1→3.7.1 to rpi-box-03; clean switch exit code 0 | deploy,loki,rpi-box-03 | raspberry-pi | nix-pi | published |
