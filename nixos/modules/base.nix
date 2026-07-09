@@ -5,8 +5,6 @@
   nix.settings = lib.mkMerge [
     {
       experimental-features = [ "nix-command" "flakes" ];
-      substituters = lib.mkAfter [ "https://cache.hhlab.home.arpa" ];
-      trusted-public-keys = lib.mkAfter [ "homelab-cache-1:4n64FJC4BCb6bhHQYT9vnrSUHwcJI8S7ktDgpHU1I0E=" ];
     }
     (lib.mkIf (config.lab.nix.signingKeyFile != null) {
       secret-key-files = [ config.lab.nix.signingKeyFile ];
